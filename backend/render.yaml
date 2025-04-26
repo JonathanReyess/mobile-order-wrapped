@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: mobile-order-backend
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn app:app
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false

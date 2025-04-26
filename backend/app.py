@@ -10,9 +10,7 @@ from collections import defaultdict
 from datetime import datetime, time
 from email.utils import parseaddr
 import json
-import google.generativeai as genai  # ✅ correct import!
-
-
+from google import genai
 
 
 # Initialize Flask app
