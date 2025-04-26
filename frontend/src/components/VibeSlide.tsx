@@ -83,8 +83,8 @@ export default function VibeSlide({ vibe, colors, isPlaying }: VibeSlideProps) {
               <motion.span
                 key={`${phrase}-${idx}-${pidx}`}
                 style={{ color, fontWeight: "bold", display: "inline-block" }}
-                initial={{ scale: 1 }}
-                animate={{ scale: [2, 1], transition: { duration: 0.7 } }}
+                initial={{ scale: 3 }}
+                animate={{ scale: [3, 1], transition: { duration: 0.8 } }}
               >
                 {p}
               </motion.span>

@@ -179,15 +179,13 @@ const EmailStatsViewer = () => {
           )}
         </button>
 
-        {/* Upload Progress Bar */}
-        {progress > 0 && (
-          <div className="w-full bg-gray-300 rounded-full h-4 overflow-hidden">
-            <div
-              className="bg-blue-600 h-4 rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-        )}
+{/* Upload Progress Bar */}
+<div className="w-64 bg-gray-300 rounded-full h-4 overflow-hidden mb-6">
+  <div
+    className="bg-blue-600 h-4 rounded-full transition-all duration-500"
+    style={{ width: `${progress}%` }}
+  ></div>
+</div>
 
         {/* Error Message */}
         {error && (
