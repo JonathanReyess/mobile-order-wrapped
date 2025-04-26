@@ -43,36 +43,41 @@ const EmailStatsViewer = () => {
       setError("Please upload at least one .eml or .zip file.");
       return;
     }
-
+  
     setError(null);
     setLoading(true);
     setUploading(true);
     setProgress(0);
-
+  
     const formData = new FormData();
     files.forEach(file => formData.append("files", file));
-
+  
     try {
       const res = await axios.post(`${BACKEND_URL}/upload_emls`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
-         // @ts-expect-error
+        // @ts-expect-error
         onUploadProgress: (event: ProgressEvent) => {
           const percent = Math.round((event.loaded * 100) / (event.total || 1));
           setProgress(percent);
         },
       });
-
-      // Upload done → now backend is processing
+  
+      // Upload done
       setUploading(false);
       setProcessing(true);
-
-      setStats(res.data);
+  
+      // Wait 1 second to show shimmer
+      setTimeout(() => {
+        setProcessing(false);
+        setStats(res.data); // ✅ Only now switch to SlideShow
+      }, 1000);
+  
     } catch (err: any) {
       console.error("❌ Backend error:", err?.response?.data || err.message);
       setError("Failed to upload files.");
-    } finally {
       setUploading(false);
       setProcessing(false);
+    } finally {
       setLoading(false);
       setTimeout(() => setProgress(0), 1000);
     }
@@ -192,6 +197,7 @@ const EmailStatsViewer = () => {
         ) : (
           <div className="bg-blue-600 h-4 rounded-full" style={{ width: '0%' }}></div>
         )}
+
       </div>
 
 
