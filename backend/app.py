@@ -324,7 +324,7 @@ def generate_vibe():
         "Use playful language and food-related descriptions. Don't use the word foodie. Don't use the phrase 'one mobile order at a time.' "
         "Start with 'You're a...' and use flavorful adjectives and hyphenated phrases. "
         "RESPOND ONLY as a JSON object with two fields: "
-        "`sentence` (the vibe description) and `colors` (a dictionary mapping any key words to a fitting earth tone hex color). "
+        "`sentence` (the vibe description) and `colors` (a dictionary mapping any key words to a fitting dark pastel or earth tone hex color). "
         "Wrap your response inside triple backticks like ```json ... ``` for safety.\n\n"
         f"{stats}"
     )
