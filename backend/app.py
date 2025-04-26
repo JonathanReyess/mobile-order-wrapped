@@ -15,7 +15,9 @@ from google import genai
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)
+
+CORS(app, resources={r"/*": {"origins": "*"}})
+
 
 # -----------------------
 # Helper functions
