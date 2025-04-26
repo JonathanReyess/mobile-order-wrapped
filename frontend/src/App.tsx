@@ -7,6 +7,8 @@ const EmailStatsViewer = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [processing, setProcessing] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [dragging, setDragging] = useState<boolean>(false);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -44,6 +46,7 @@ const EmailStatsViewer = () => {
 
     setError(null);
     setLoading(true);
+    setUploading(true);
     setProgress(0);
 
     const formData = new FormData();
@@ -51,29 +54,28 @@ const EmailStatsViewer = () => {
 
     try {
       const res = await axios.post(`${BACKEND_URL}/upload_emls`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
          // @ts-expect-error
         onUploadProgress: (event: ProgressEvent) => {
           const percent = Math.round((event.loaded * 100) / (event.total || 1));
           setProgress(percent);
         },
       });
-      
+
+      // Upload done → now processing server response
+      setUploading(false);
+      setProcessing(true);
 
       setStats(res.data);
     } catch (err: any) {
       console.error("❌ Backend error:", err?.response?.data || err.message);
       setError("Failed to upload files.");
     } finally {
+      setUploading(false);
+      setProcessing(false);
       setLoading(false);
-      // Keep the final progress at 100% for a moment so the user can see it
-      setTimeout(() => {
-        setProgress(0);
-      }, 1000); // Wait 1 second before resetting to 0
+      setTimeout(() => setProgress(0), 1000);
     }
-    
   };
 
   if (stats) {
@@ -106,7 +108,7 @@ const EmailStatsViewer = () => {
                     "from:mobileorder@transactcampus.com AND received>=2024-08-26 AND received<=2025-04-23"
                   );
                   setCopied(true);
-                  setTimeout(() => setCopied(false), 2000); // Reset after 2 sec
+                  setTimeout(() => setCopied(false), 2000);
                 }}
                 className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition min-w-[72px]"
               >
@@ -124,10 +126,9 @@ const EmailStatsViewer = () => {
       <div className="w-full max-w-md sm:max-w-lg md:max-w-xl flex flex-col items-center">
         <h1 className="text-5xl font-bold text-center mb-8 text-black">Mobile Order Wrapped</h1>
 
-        {/* Upload Instructions Button */}
         <button
           onClick={() => setShowInstructions(true)}
-  className="bg-white text-gray-700 border border-gray-300 rounded-md w-64 py-3 text-center font-bold shadow-md hover:bg-gray-100 transition mb-6"
+          className="bg-white text-gray-700 border border-gray-300 rounded-md w-64 py-3 text-center font-bold shadow-md hover:bg-gray-100 transition mb-6"
         >
           Upload Instructions
         </button>
@@ -172,20 +173,26 @@ const EmailStatsViewer = () => {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
               </svg>
-              <span>Uploading...</span>
+              <span>{uploading ? "Uploading..." : "Processing..."}</span>
             </div>
           ) : (
             "Submit"
           )}
         </button>
 
-{/* Upload Progress Bar */}
-<div className="w-64 bg-gray-300 rounded-full h-4 overflow-hidden mb-6">
-  <div
-    className="bg-blue-600 h-4 rounded-full transition-all duration-500"
-    style={{ width: `${progress}%` }}
-  ></div>
-</div>
+        {/* Upload Progress Bar */}
+        <div className="w-64 bg-gray-300 rounded-full h-4 overflow-hidden mb-6">
+          {uploading ? (
+            <div
+              className="bg-blue-600 h-4 rounded-full transition-all duration-200"
+              style={{ width: `${progress}%` }}
+            ></div>
+          ) : processing ? (
+            <div className="bg-blue-600 h-4 rounded-full animate-pulse w-full"></div>
+          ) : (
+            <div className="bg-blue-600 h-4 rounded-full" style={{ width: '0%' }}></div>
+          )}
+        </div>
 
         {/* Error Message */}
         {error && (
