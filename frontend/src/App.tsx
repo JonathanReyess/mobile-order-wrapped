@@ -11,7 +11,7 @@ const EmailStatsViewer = () => {
   const [dragging, setDragging] = useState<boolean>(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [copied, setCopied] = useState(false);
-
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = (newFiles: FileList | File[]) => {
@@ -50,16 +50,17 @@ const EmailStatsViewer = () => {
     files.forEach(file => formData.append("files", file));
 
     try {
-      const res = await axios.post("http://localhost:5000/upload_emls", formData, {
+      const res = await axios.post(`${BACKEND_URL}/upload_emls`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        // @ts-ignore
+         // @ts-expect-error
         onUploadProgress: (event: ProgressEvent) => {
           const percent = Math.round((event.loaded * 100) / (event.total || 1));
           setProgress(percent);
         },
       });
+      
 
       setStats(res.data);
     } catch (err: any) {
