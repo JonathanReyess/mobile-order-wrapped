@@ -5,30 +5,33 @@ import gsap from "gsap";
 export default function Intro() {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const overlayRef   = useRef<HTMLDivElement | null>(null);
-  const exitTl       = useRef<gsap.core.Timeline | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const exitTl = useRef<gsap.core.Timeline | null>(null);
 
   // panels config
   const numberOfPanels = 12;
-  const rotationCoef   = 5;
-  const panelGradient  = `linear-gradient(
+  const rotationCoef = 5;
+  const panelGradient = `linear-gradient(
     105deg,
-    #F5FBFF  0%,
-    #ADD8E6  6%,
+    #F5FBFF 0%,
+    #ADD8E6 6%,
     #0059b3 19%,
     #003366 72%,
-    black   100%
+    black 100%
   )`;
 
   useEffect(() => {
-    const panels   = document.querySelectorAll<HTMLDivElement>(".panel1");
+    const panels = document.querySelectorAll<HTMLDivElement>(".panel1");
     const textCall = document.querySelector<HTMLDivElement>(".callout")!;
-    const textSub  = document.querySelector<HTMLDivElement>(".subtitle")!;
+    const textSub = document.querySelector<HTMLDivElement>(".subtitle")!;
     const startBtn = document.querySelector<HTMLButtonElement>(".start-button")!;
-    const overlay  = overlayRef.current!;
+    const overlay = overlayRef.current!;
+    const card = cardRef.current;
+    const container = containerRef.current;
 
     let elHeight = window.innerHeight / numberOfPanels;
-    let elWidth  = window.innerWidth  / numberOfPanels;
+    let elWidth = window.innerWidth / numberOfPanels;
 
     //
     // 1) panelTl – loops forever
@@ -37,7 +40,7 @@ export default function Intro() {
     function buildPanelTimeline() {
       panelTl.clear();
       panels.forEach((panel, i) => {
-        const wi = window.innerWidth  - elWidth  * (numberOfPanels - i) + elWidth;
+        const wi = window.innerWidth - elWidth * (numberOfPanels - i) + elWidth;
         const he = window.innerHeight - elHeight * (numberOfPanels - i) + elHeight;
 
         panelTl
@@ -118,24 +121,66 @@ export default function Intro() {
       .to(panels, { opacity: 0, duration: 0.8 }, "<")
       .to(overlay, { opacity: 1, duration: 0.5 }, "<0.2");
 
-    // on resize, only rebuild & restart panels
-    const handleResize = () => {
+    //
+    // 4) mousemove 3D rotation
+    //
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!card || !container) return;
+    
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+    
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+    
+      const rotateY = (x - centerX) / centerX * 10; // Max 10deg
+      const rotateX = -(y - centerY) / centerY * 10; // Max 10deg
+    
+      gsap.to(card, {
+        rotateX: rotateX,
+        rotateY: rotateY,
+        scale: 1.03, // 🌟 Add slight scale up while hovering
+        transformPerspective: 800,
+        transformOrigin: "center",
+        ease: "power2.out",
+        duration: 0.4,
+      });
+    };
+    
+
+    const resetMouseMove = () => {
+      if (!card) return;
+      gsap.to(card, {
+        rotateX: 0,
+        rotateY: 0,
+        scale: 1, // 🌟 Reset scale back to normal
+        ease: "power2.out",
+        duration: 0.6,
+      });
+    };
+    
+
+    container?.addEventListener("mousemove", handleMouseMove);
+    container?.addEventListener("mouseleave", resetMouseMove);
+
+    window.addEventListener("resize", () => {
       elHeight = window.innerHeight / numberOfPanels;
-      elWidth  = window.innerWidth  / numberOfPanels;
+      elWidth = window.innerWidth / numberOfPanels;
       buildPanelTimeline();
       panelTl.restart();
-    };
+    });
 
-    window.addEventListener("resize", handleResize);
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", () => {});
+      container?.removeEventListener("mousemove", handleMouseMove);
+      container?.removeEventListener("mouseleave", resetMouseMove);
       panelTl.kill();
       introTl.kill();
       exitTl.current?.kill();
     };
   }, [navigate]);
 
-  // synchronous, returns void
   const handleStart = () => {
     exitTl.current?.play();
   };
@@ -147,15 +192,18 @@ export default function Intro() {
         <div key={idx} className="panel1 absolute top-0 left-0 z-0" />
       ))}
 
-      {/* white-flash overlay, initially hidden */}
+      {/* white flash overlay */}
       <div
         ref={overlayRef}
         className="absolute inset-0 bg-white z-50 pointer-events-none opacity-0"
       />
 
-      {/* 3D card */}
+      {/* 3D Card */}
       <div className="relative h-full w-full flex items-center justify-center perspective-800 z-20">
-        <div className="relative w-full h-full flex flex-col items-center justify-center transition-transform duration-700 ease-in-out transform-style-preserve-3d group hover:rotate-x-3 hover:rotate-y-6">
+        <div
+          ref={cardRef}
+          className="relative w-full h-full flex flex-col items-center justify-center transform-style-preserve-3d"
+        >
           <div className="absolute top-[10%] left-1/2 transform -translate-x-1/2 callout z-20">
             <p className="text-[7vw] font-extrabold text-[#d3f971] text-left w-[60vw] leading-none">
               Welcome to the
@@ -173,7 +221,7 @@ export default function Intro() {
         </div>
       </div>
 
-      {/* Start button */}
+      {/* Start Button */}
       <div className="absolute bottom-20 w-full flex justify-center z-20">
         <button
           onClick={handleStart}
