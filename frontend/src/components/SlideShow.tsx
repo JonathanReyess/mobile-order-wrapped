@@ -28,7 +28,7 @@ export default function SlideShow({ stats }: { stats: any }) {
   const timerRef = useRef<number | null>(null);
   const [vibe, setVibe] = useState<string | null>(null);
   const [colors, setColors] = useState<Record<string, string>>({});
-
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   
 
@@ -105,7 +105,7 @@ export default function SlideShow({ stats }: { stats: any }) {
   useEffect(() => {
     async function fetchVibe() {
       try {
-        const res = await fetch("http://localhost:5000/api/generate-vibe", { 
+        const res = await fetch(`${BACKEND_URL}/api/generate-vibe`, { 
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ stats }),
