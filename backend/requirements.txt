@@ -1,1 +1,5 @@
-flask
+Flask
+Flask-Cors
+gunicorn
+beautifulsoup4
+google-generativeai
