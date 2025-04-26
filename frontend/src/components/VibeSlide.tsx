@@ -1,51 +1,68 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import React from "react";
 
 interface VibeSlideProps {
   vibe: string | null;
   colors: Record<string, string>;
+  isPlaying: boolean;
 }
 
-export default function VibeSlide({ vibe, colors }: VibeSlideProps) {
+export default function VibeSlide({ vibe, colors, isPlaying }: VibeSlideProps) {
   const line1 = "I'm not one to judge, but...";
 
+  const [step, setStep] = useState<1 | 2>(1);
   const [idx1, setIdx1] = useState(0);
   const [idx2, setIdx2] = useState(0);
-  const [step, setStep] = useState<1 | 2>(1);
 
-  // Typing effect for intro line
+  const typingIntervalRef = useRef<number | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+
+  // Typing effect for line1
   useEffect(() => {
-    if (step !== 1) return;
-    const iv = setInterval(() => {
+    if (step !== 1 || !isPlaying) return;
+
+    typingIntervalRef.current = window.setInterval(() => {
       setIdx1((prev) => {
-        if (prev < line1.length) return prev + 1;
-        clearInterval(iv);
-        setTimeout(() => setStep(2), 1500);
-        return prev;
+        if (prev < line1.length) {
+          return prev + 1;
+        } else {
+          clearInterval(typingIntervalRef.current!);
+          timeoutRef.current = window.setTimeout(() => setStep(2), 1500); // After typing finishes, delay before vibe
+          return prev;
+        }
       });
     }, 50);
-    return () => clearInterval(iv);
-  }, [step]);
+
+    return () => {
+      clearInterval(typingIntervalRef.current!);
+      clearTimeout(timeoutRef.current!);
+    };
+  }, [step, isPlaying, line1.length]);
 
   // Typing effect for vibe text
   useEffect(() => {
-    if (step !== 2 || !vibe) return;
-    const iv = setInterval(() => {
+    if (step !== 2 || !vibe || !isPlaying) return;
+
+    typingIntervalRef.current = window.setInterval(() => {
       setIdx2((prev) => {
-        if (prev < vibe.length) return prev + 1;
-        clearInterval(iv);
-        return prev;
+        if (prev < vibe.length) {
+          return prev + 1;
+        } else {
+          clearInterval(typingIntervalRef.current!);
+          return prev;
+        }
       });
     }, 40);
-    return () => clearInterval(iv);
-  }, [step, vibe]);
 
+    return () => clearInterval(typingIntervalRef.current!);
+  }, [step, isPlaying, vibe]);
+
+  // Highlighted text
   function highlightText(text: string) {
     if (!text) return null;
   
     let result: React.ReactNode[] = [text];
-  
     const sortedKeys = Object.keys(colors).sort((a, b) => b.length - a.length);
   
     for (const phrase of sortedKeys) {
@@ -63,9 +80,14 @@ export default function VibeSlide({ vibe, colors }: VibeSlideProps) {
         parts.forEach((p, pidx) => {
           if (p.toLowerCase() === phrase.toLowerCase()) {
             newResult.push(
-              <span key={`${phrase}-${idx}-${pidx}`} style={{ color, fontWeight: "bold" }}>
+              <motion.span
+                key={`${phrase}-${idx}-${pidx}`}
+                style={{ color, fontWeight: "bold", display: "inline-block" }}
+                initial={{ scale: 1 }}
+                animate={{ scale: [2, 1], transition: { duration: 0.7 } }}
+              >
                 {p}
-              </span>
+              </motion.span>
             );
           } else {
             newResult.push(p);
@@ -78,8 +100,6 @@ export default function VibeSlide({ vibe, colors }: VibeSlideProps) {
   
     return result;
   }
-  
-  
   
 
   return (

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
 interface ReceiptItem {
@@ -32,8 +33,10 @@ function formatOrderTime(ts: string): string {
 
 export default function OrdersOfBusiestDaySlide({
   orders,
+  isPlaying,
 }: {
   orders: Receipt[];
+  isPlaying: boolean;
 }) {
   // Split orders into columns of max 5 each
   const columns: Receipt[][] = [];
@@ -41,7 +44,7 @@ export default function OrdersOfBusiestDaySlide({
     columns.push(orders.slice(i, i + 5));
   }
 
-  // jagged torn‐edge on top and bottom
+  // jagged torn-edge on top and bottom
   const tornEdge = `polygon(
     0% 2%, 5% 0%, 10% 3%, 15% 0%, 20% 2%, 25% 0%, 30% 3%, 35% 0%, 40% 2%,
     45% 0%, 50% 3%, 55% 0%, 60% 2%, 65% 0%, 70% 3%, 75% 0%, 80% 2%, 85% 0%,
@@ -50,6 +53,42 @@ export default function OrdersOfBusiestDaySlide({
     65% 100%, 60% 98%, 55% 100%, 50% 97%, 45% 100%, 40% 98%, 35% 100%,
     30% 97%, 25% 100%, 20% 98%, 15% 100%, 10% 97%, 5% 100%, 0% 98%
   )`;
+
+  const [step, setStep] = useState(0); // step = how many receipts to show
+
+  const stepStartTime = useRef<number | null>(null);
+  const elapsedTime = useRef<number>(0);
+  const timerRef = useRef<number | null>(null);
+
+  const totalReceipts = orders.length;
+  const stepDelays = Array(totalReceipts).fill(1000); // 500ms between each receipt appearing
+
+  useEffect(() => {
+    function startTimerForStep() {
+      if (step >= stepDelays.length) return;
+      stepStartTime.current = Date.now();
+
+      const remainingTime = stepDelays[step] - elapsedTime.current;
+
+      timerRef.current = window.setTimeout(() => {
+        setStep((prev) => prev + 1);
+        elapsedTime.current = 0;
+      }, remainingTime);
+    }
+
+    if (isPlaying) {
+      startTimerForStep();
+    } else {
+      if (stepStartTime.current !== null) {
+        elapsedTime.current += Date.now() - stepStartTime.current;
+        clearTimeout(timerRef.current!);
+      }
+    }
+
+    return () => {
+      clearTimeout(timerRef.current!);
+    };
+  }, [isPlaying, step]);
 
   return (
     <div className="h-screen w-full flex flex-col items-center justify-start bg-gradient-to-br from-sky-100 via-sky-600 to-sky-800 pt-12 pb-6 px-6 overflow-auto">
@@ -61,45 +100,48 @@ export default function OrdersOfBusiestDaySlide({
       >
         {columns.map((col, colIdx) => (
           <div key={colIdx} className="flex flex-col justify-center items-center space-y-4">
-            {col.map((receipt, idx) => (
-              <motion.div
-                key={`${colIdx}-${idx}`}
-                className="w-64 h-28 max-w-xs mx-auto bg-white p-2 font-mono text-sm tracking-wide shadow-inner relative overflow-hidden"
-                style={{
-                  backgroundImage: "url('/crumple.png')",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  clipPath: tornEdge,
-                  boxShadow: "inset 0 0 10px rgba(0,0,0,0.2)",
-                }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1 * (colIdx * 5 + idx), duration: 0.4 }}
-              >
-                <p className="text-lg font-semibold text-gray-700 text-center">
-                  {receipt.restaurant_name || "Unknown Restaurant"}
-                </p>
-                <p className="text-xs text-gray-600 text-center">
-                  Ordered at:{" "}
-                  {receipt.order_time
-                    ? formatOrderTime(receipt.order_time)
-                    : "--"}
-                </p>
-                <ul className="mt-1 list-disc list-inside text-gray-700">
-                  {receipt.items?.map((item, i) => (
-                    <li key={i} className="leading-snug">
-                      {item.name}
-                      {item.qty ? ` x${item.qty}` : ""}
-                    </li>
-                  ))}
-                </ul>
-                {typeof receipt.total === "number" && (
-                  <p className="mt-1 text-sm font-bold text-gray-800 text-center">
-                    Total: ${receipt.total.toFixed(2)}
+            {col.map((receipt, idx) => {
+              const globalIdx = colIdx * 5 + idx; // correct across all columns
+              return (
+                <motion.div
+                  key={`${colIdx}-${idx}`}
+                  className="w-64 h-28 max-w-xs mx-auto bg-white p-2 font-mono text-sm tracking-wide shadow-inner relative overflow-hidden"
+                  style={{
+                    backgroundImage: "url('/crumple.png')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    clipPath: tornEdge,
+                    boxShadow: "inset 0 0 10px rgba(0,0,0,0.2)",
+                  }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={step > globalIdx ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <p className="text-lg font-semibold text-gray-700 text-center">
+                    {receipt.restaurant_name || "Unknown Restaurant"}
                   </p>
-                )}
-              </motion.div>
-            ))}
+                  <p className="text-xs text-gray-600 text-center">
+                    Ordered at:{" "}
+                    {receipt.order_time
+                      ? formatOrderTime(receipt.order_time)
+                      : "--"}
+                  </p>
+                  <ul className="mt-1 list-disc list-inside text-gray-700">
+                    {receipt.items?.map((item, i) => (
+                      <li key={i} className="leading-snug">
+                        {item.name}
+                        {item.qty ? ` x${item.qty}` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                  {typeof receipt.total === "number" && (
+                    <p className="mt-1 text-sm font-bold text-gray-800 text-center">
+                      Total: ${receipt.total.toFixed(2)}
+                    </p>
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
         ))}
       </div>

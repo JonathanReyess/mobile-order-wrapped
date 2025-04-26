@@ -1,25 +1,52 @@
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
 
 interface IntroSlideProps {
   name?: string;
+  isPlaying: boolean;
 }
 
-const IntroSlide = ({ name }: IntroSlideProps) => {
-  const [showGreeting, setShowGreeting] = useState(true);
+const IntroSlide = ({ name, isPlaying }: IntroSlideProps) => {
+  const [step, setStep] = useState(0);
+
+  // Pause control
+  const stepStartTime = useRef<number | null>(null);
+  const elapsedTime = useRef<number>(0);
+  const timerRef = useRef<number | null>(null);
+
+  const stepDelays = [2000]; // 2 seconds for greeting before switch
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowGreeting(false);
-    }, 2000); // Display greeting for 2 seconds before transitioning
+    function startTimerForStep() {
+      if (step >= stepDelays.length) return;
+      stepStartTime.current = Date.now();
 
-    return () => clearTimeout(timer);
-  }, []);
+      const remainingTime = stepDelays[step] - elapsedTime.current;
+
+      timerRef.current = window.setTimeout(() => {
+        setStep((prev) => prev + 1);
+        elapsedTime.current = 0;
+      }, remainingTime);
+    }
+
+    if (isPlaying) {
+      startTimerForStep();
+    } else {
+      if (stepStartTime.current !== null) {
+        elapsedTime.current += Date.now() - stepStartTime.current;
+        clearTimeout(timerRef.current!);
+      }
+    }
+
+    return () => {
+      clearTimeout(timerRef.current!);
+    };
+  }, [isPlaying, step]);
 
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-r from-duke-blue to-duke-royal text-white px-4">
       <AnimatePresence mode="wait">
-        {showGreeting ? (
+        {step === 0 ? (
           <motion.h1
             key="greeting"
             className="text-5xl md:text-6xl font-extrabold text-center"

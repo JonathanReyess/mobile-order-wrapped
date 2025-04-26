@@ -1,17 +1,17 @@
-// FavoriteRestaurant.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface FavoriteRestaurantProps {
   uniqueCount: number;
   restaurant: string;
+  isPlaying: boolean;
 }
 
 const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
   uniqueCount,
   restaurant,
+  isPlaying,
 }) => {
-  // Components of the first line
   const prefix = "You visited ";
   const numStr = uniqueCount.toString();
   const suffix = " unique restaurants this semester.";
@@ -19,50 +19,68 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
   const numStart = prefix.length;
   const numEnd = numStart + numStr.length;
 
-  // Full second line
   const line2Full = "but only one holds a special place in your heart...";
 
-  // Typing state
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [idx1, setIdx1] = useState(0);
   const [idx2, setIdx2] = useState(0);
   const [showCrown, setShowCrown] = useState(false);
 
-  // Type out line1
+  // Pause-aware typing intervals
+  const typingIntervalRef = useRef<number | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+
+  // Typing line 1
   useEffect(() => {
-    if (step !== 1) return;
-    const iv = setInterval(() => {
-      setIdx1(prev => {
-        if (prev < fullLine1.length) return prev + 1;
-        clearInterval(iv);
-        setTimeout(() => setStep(2), 2000);
-        return prev;
+    if (step !== 1 || !isPlaying) return;
+
+    typingIntervalRef.current = window.setInterval(() => {
+      setIdx1((prev) => {
+        if (prev < fullLine1.length) {
+          return prev + 1;
+        } else {
+          clearInterval(typingIntervalRef.current!);
+          timeoutRef.current = window.setTimeout(() => setStep(2), 2000);
+          return prev;
+        }
       });
     }, 50);
-    return () => clearInterval(iv);
-  }, [step, fullLine1.length]);
 
-  // Type out line2
+    return () => {
+      clearInterval(typingIntervalRef.current!);
+      clearTimeout(timeoutRef.current!);
+    };
+  }, [step, isPlaying, fullLine1.length]);
+
+  // Typing line 2
   useEffect(() => {
-    if (step !== 2) return;
-    const iv = setInterval(() => {
-      setIdx2(prev => {
-        if (prev < line2Full.length) return prev + 1;
-        clearInterval(iv);
-        setTimeout(() => setStep(3), 2500);
-        return prev;
+    if (step !== 2 || !isPlaying) return;
+
+    typingIntervalRef.current = window.setInterval(() => {
+      setIdx2((prev) => {
+        if (prev < line2Full.length) {
+          return prev + 1;
+        } else {
+          clearInterval(typingIntervalRef.current!);
+          timeoutRef.current = window.setTimeout(() => setStep(3), 2750);
+          return prev;
+        }
       });
     }, 50);
-    return () => clearInterval(iv);
-  }, [step, line2Full.length]);
 
-  // Show crown after name pops in
+    return () => {
+      clearInterval(typingIntervalRef.current!);
+      clearTimeout(timeoutRef.current!);
+    };
+  }, [step, isPlaying, line2Full.length]);
+
+  // Show crown after reaching step 3
   useEffect(() => {
-    if (step === 3) {
-      const t = setTimeout(() => setShowCrown(true), 1500);
-      return () => clearTimeout(t);
+    if (step === 3 && isPlaying) {
+      timeoutRef.current = window.setTimeout(() => setShowCrown(true), 1500);
     }
-  }, [step]);
+    return () => clearTimeout(timeoutRef.current!);
+  }, [step, isPlaying]);
 
   // Motion variants
   const fade = {
@@ -81,7 +99,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
     exit:    { opacity: 0 },
   };
 
-  // Render the first line with only the number colored
+  // Render the first line with number highlighted
   const renderedLine1 = fullLine1
     .slice(0, idx1)
     .split("")
