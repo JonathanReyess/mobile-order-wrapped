@@ -182,17 +182,18 @@ const EmailStatsViewer = () => {
 
         {/* Upload Progress Bar */}
         <div className="w-64 bg-gray-300 rounded-full h-4 overflow-hidden mb-6 relative">
-          {uploading ? (
-            <div
-              className="bg-blue-600 h-4 rounded-full transition-all duration-200"
-              style={{ width: `${progress}%` }}
-            ></div>
-          ) : processing ? (
-            <div className="h-4 w-full rounded-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-400 animate-shimmer"></div>
-          ) : (
-            <div className="bg-blue-600 h-4 rounded-full" style={{ width: '0%' }}></div>
-          )}
-        </div>
+        {uploading ? (
+          <div
+            className="bg-blue-600 h-4 rounded-full transition-all duration-200"
+            style={{ width: `${progress}%` }}
+          ></div>
+        ) : processing ? (
+          <div className="h-4 w-full rounded-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-400 animate-shimmer"></div>
+        ) : (
+          <div className="bg-blue-600 h-4 rounded-full" style={{ width: '0%' }}></div>
+        )}
+      </div>
+
 
         {/* Error Message */}
         {error && (

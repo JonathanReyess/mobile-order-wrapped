@@ -101,3 +101,17 @@ button:focus-visible {
 .panel1:nth-of-type(12) { z-index: 1; }
 
 
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 2s linear infinite;
+}
