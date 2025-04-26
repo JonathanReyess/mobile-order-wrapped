@@ -68,8 +68,12 @@ const EmailStatsViewer = () => {
       setError("Failed to upload files.");
     } finally {
       setLoading(false);
-      setProgress(0);
+      // Keep the final progress at 100% for a moment so the user can see it
+      setTimeout(() => {
+        setProgress(0);
+      }, 1000); // Wait 1 second before resetting to 0
     }
+    
   };
 
   if (stats) {
