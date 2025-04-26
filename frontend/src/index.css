@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Core Layout Fixes */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Base Styling */
+:root {
+  font-family: 'Montserrat', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: #000;
+  color: #fff;
+}
+
+/* Link Styling */
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: none;
+}
+a:hover {
+  color: #535bf2;
+}
+
+/* Button Styling */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Background container */
+.bg {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Main Title */
+.callout {
+  position: absolute;
+  font-size: 50px;
+  top: 52%;
+  left: 50%;
+  font-weight: 900;
+  color: white;
+  z-index: 999;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+/* Subtitle */
+.subtitle {
+  position: absolute;
+  font-size: 20px;
+  top: 52%;
+  left: 50%;
+  margin-top: 50px;
+  font-weight: 400;
+  color: white;
+  z-index: 999;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+/* More variations for deeper stacking (optional) */
+.panel1:nth-of-type(1) { z-index: 12; }
+.panel1:nth-of-type(2) { z-index: 11; }
+.panel1:nth-of-type(3) { z-index: 10; }
+.panel1:nth-of-type(4) { z-index: 9; }
+.panel1:nth-of-type(5) { z-index: 8; }
+.panel1:nth-of-type(6) { z-index: 7; }
+.panel1:nth-of-type(7) { z-index: 6; }
+.panel1:nth-of-type(8) { z-index: 5; }
+.panel1:nth-of-type(9) { z-index: 4; }
+.panel1:nth-of-type(10) { z-index: 3; }
+.panel1:nth-of-type(11) { z-index: 2; }
+.panel1:nth-of-type(12) { z-index: 1; }
+
+
