@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import React from "react";
 
 interface VibeSlideProps {
   vibe: string | null;
@@ -43,31 +44,42 @@ export default function VibeSlide({ vibe, colors }: VibeSlideProps) {
   function highlightText(text: string) {
     if (!text) return null;
   
-    let result: Array<string | React.ReactNode> = [text];
-
+    let result: React.ReactNode[] = [text];
   
     const sortedKeys = Object.keys(colors).sort((a, b) => b.length - a.length);
   
     for (const phrase of sortedKeys) {
       const color = colors[phrase];
-      result = result.flatMap((part) => {
-        if (typeof part !== "string") return [part];
+  
+      const newResult: React.ReactNode[] = [];
+  
+      result.forEach((part, idx) => {
+        if (typeof part !== "string") {
+          newResult.push(part);
+          return;
+        }
+  
         const parts = part.split(new RegExp(`(${phrase})`, "gi"));
-        return parts.map((p, idx) => {
+        parts.forEach((p, pidx) => {
           if (p.toLowerCase() === phrase.toLowerCase()) {
-            return (
-              <span key={phrase + idx} style={{ color, fontWeight: "bold" }}>
+            newResult.push(
+              <span key={`${phrase}-${idx}-${pidx}`} style={{ color, fontWeight: "bold" }}>
                 {p}
               </span>
             );
+          } else {
+            newResult.push(p);
           }
-          return p;
         });
       });
+  
+      result = newResult;
     }
   
     return result;
   }
+  
+  
   
 
   return (
