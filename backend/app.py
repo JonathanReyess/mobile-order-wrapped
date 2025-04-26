@@ -319,6 +319,25 @@ def generate_vibe():
     if not stats:
         return jsonify({"error": "Missing stats payload"}), 400
 
+    print("DEBUG stats:", json.dumps(stats, indent=2))
+    # Filter stats: exclude 'earliest_order_by_time' and 'latest_order_by_time'
+    # 1. Filter out unwanted top-level keys
+    filtered_stats = {k: v for k, v in stats.items() if k not in ["earliest_order_by_time", "latest_order_by_time"]}
+
+    # 2. Limit 'item_counts' to first 10 entries
+    if "item_counts" in filtered_stats and isinstance(filtered_stats["item_counts"], list):
+        filtered_stats["item_counts"] = filtered_stats["item_counts"][:10]
+
+    # 3. Clean 'busiest_day_orders': remove 'pickup_time' and 'transaction_id' fields
+    if "busiest_day_orders" in filtered_stats and isinstance(filtered_stats["busiest_day_orders"], list):
+        cleaned_orders = []
+        for order in filtered_stats["busiest_day_orders"]:
+            cleaned_order = {k: v for k, v in order.items() if k not in ["pickup_time", "transaction_id", "total"]}
+            cleaned_orders.append(cleaned_order)
+        filtered_stats["busiest_day_orders"] = cleaned_orders
+
+    print("DEBUG stats:", filtered_stats)
+    # Now build your prompt using filtered_stats
     prompt = (
         "Based on these mobile-order stats, describe the user's vibe in one catchy, Spotify-Wrapped-style sentence. "
         "Use playful language and food-related descriptions. Don't use the word foodie. Don't use the phrase 'one mobile order at a time.' "
@@ -326,16 +345,16 @@ def generate_vibe():
         "RESPOND ONLY as a JSON object with two fields: "
         "`sentence` (the vibe description) and `colors` (a dictionary mapping any key words to a fitting dark pastel or earth tone hex color). Avoid bright yellow or neon green. "
         "Wrap your response inside triple backticks like ```json ... ``` for safety.\n\n"
-        f"{stats}"
+        f"{filtered_stats}"
     )
 
     try:
+        
         response = GENAI_CLIENT.models.generate_content(
             model="gemini-2.0-flash",
             contents=prompt
         )
-
-        raw_text = response.text.strip()
+        raw_text = response.candidates[0].content.parts[0].text
         print("RAW Gemini output:", raw_text)
 
         # Strip ```json and ``` if they exist
