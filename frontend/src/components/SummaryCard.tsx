@@ -4,22 +4,16 @@ import download from "downloadjs";
 // @ts-ignore
 import confetti from "canvas-confetti";
 
-
-// Format "2025-02-12" → "February 12"
 function formatToMonthDay(dateStr: string) {
   const [year, month, day] = dateStr.split("-").map(Number);
   const date = new Date(year, month - 1, day);
-
-  if (isNaN(date.getTime())) {
-    return "Invalid date";
-  }
+  if (isNaN(date.getTime())) return "Invalid date";
 
   return date.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
   });
 }
-
 
 type Stats = {
   item_counts: { item: string; count: number }[];
@@ -31,26 +25,22 @@ type Stats = {
   latest_order: { order_time: string; total: number; transaction_id: string; items: { name: string }[] };
   earliest_order_by_time: { order_time: string; pickup_time: string; restaurant_name: string; total: string; transaction_id: string; items: { name: string }[] };
   latest_order_by_time: { order_time: string; pickup_time: string; restaurant_name: string; total: string; transaction_id: string; items: { name: string }[] };
-  total_items_ordered: number; // 🆕 ADD THIS LINE
+  total_items_ordered: number;
   recipient_name?: string;
   unique_restaurants?: number;
   top_restaurant?: { name: string };
 };
 
-
-
-
-// Duke Blue Gradient
 const GRADIENT = "bg-gradient-to-br from-[#001A57] to-[#003366]";
 
 export default function SummaryCard({
   stats,
   semester = "Spring 2025",
-  name, // Add name prop here
+  name,
 }: {
   stats: Stats;
   semester?: string;
-  name?: string; // Add name prop type
+  name?: string;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -63,21 +53,19 @@ export default function SummaryCard({
 
   const handleShare = async () => {
     if (!cardRef.current) return;
-  
+
     try {
-      // generate a Blob directly
       const blob = await toBlob(cardRef.current);
       if (!blob) throw new Error("Could not generate image blob");
-  
+
       const file = new File(
         [blob],
         `wrapped-summary-${semester.replace(" ", "-")}.png`,
         { type: "image/png" }
       );
-  
-      // the link you want to share
+
       const shareUrl = "https://mobileorderwrapped.com/";
-  
+
       if (
         navigator.canShare &&
         navigator.canShare({ files: [file], url: shareUrl })
@@ -89,7 +77,6 @@ export default function SummaryCard({
           url: shareUrl,
         });
       } else {
-        // fallback: include URL in text so that at least the receiver can click it
         alert(
           "Sharing isn’t supported on this browser. You can download the image and manually share it along with this link:\n" +
             shareUrl
@@ -101,34 +88,23 @@ export default function SummaryCard({
     }
   };
 
-  // Convert "2025-04-09 8:33 AM" → " 8:33 AM"
   function formatToTimeOnly(dateStr: string) {
     const [datePart, timePart, meridiem] = dateStr.split(/\s+/);
     const [hourStr, minuteStr] = timePart.split(":");
-    
     let hour = parseInt(hourStr, 10);
     const minute = parseInt(minuteStr, 10);
-  
-    if (meridiem === "PM" && hour !== 12) {
-      hour += 12;
-    } else if (meridiem === "AM" && hour === 12) {
-      hour = 0;
-    }
-  
+
+    if (meridiem === "PM" && hour !== 12) hour += 12;
+    else if (meridiem === "AM" && hour === 12) hour = 0;
+
     const [year, month, day] = datePart.split("-").map(Number);
     const dateObj = new Date(year, month - 1, day, hour, minute);
-  
-    const time = dateObj.toLocaleTimeString("en-US", {
+
+    return dateObj.toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
     });
-  
-    return time;
   }
-  
-
-  
-  
 
   const topItems = [...stats.item_counts]
     .sort((a, b) => b.count - a.count)
@@ -141,148 +117,102 @@ export default function SummaryCard({
 
   return (
     <div className="flex flex-col items-center space-y-6 py-8">
-<div
-  ref={cardRef}
-  className={`
-    ${GRADIENT}
-    relative
-    overflow-hidden
-    rounded-3xl
-    shadow-2xl
-    w-[80vw] max-w-[350px]
-    aspect-[4/5]
-    p-4 md:p-6
-    flex flex-col justify-between
-    text-white
-  `}
->
-
-        {/* Big, soft blob behind everything */}
-        <div
-          className="
-            absolute
-            -top-16 -left-16
-            w-[200%] h-[200%]
-            rounded-full
-            bg-white/10
-            transform rotate-45
-          "
-        />
+      <div
+        ref={cardRef}
+        className={`
+          ${GRADIENT}
+          relative
+          overflow-hidden
+          rounded-3xl
+          shadow-2xl
+          w-[80vw] max-w-[350px]
+          h-auto max-h-[90vh]
+          p-4 md:p-6
+          pt-4 pb-6 md:pt-1 pb-6
+          space-y-2 md:space-y-6
+          flex flex-col
+          text-white
+          transform scale-95 md:scale-100
+        `}
+      >
+        {/* Big soft blob background */}
+        <div className="absolute -top-16 -left-16 w-[200%] h-[200%] rounded-full bg-white/10 transform rotate-45" />
 
         {/* Header */}
         <div className="relative z-10">
-          <h1 className="text-2xl font-bold text-left">
+          <h1 className="text-xl md:text-2xl font-bold text-left">
             Mobile Order Wrapped
             {name && (
-              <span className="block text-lg font-normal mt-1">
-                {name}
-              </span>
+              <span className="block text-base md:text-lg font-normal mt-1">{name}</span>
             )}
           </h1>
-
-          <p className="uppercase text-xs opacity-75 mt-1">{semester}</p>
+          <p className="uppercase text-[10px] md:text-xs opacity-75 mt-1">{semester}</p>
         </div>
 
-        {/* Stats sections */}
-        
-  <div className="relative z-10 space-y-4">
-  {/* Top Items + Total Items Row */}
-  <div className="flex justify-between items-start">
-    {/* Top Items Section */}
-    <div>
-      <p className="uppercase text-xs opacity-75">Top Items</p>
-      {topItems.map((it, i) => (
-        <p key={i} className="text-lg font-semibold">
-          {i + 1}. {it.item} <span className="opacity-75">({it.count}×)</span>
-        </p>
-      ))}
-    </div>
-
-    {/* Total Items Ordered Section */}
-    <div className="text-center">
-      <p className="uppercase text-xs opacity-75">Total Items</p>
-      <p className="text-lg font-semibold">{stats.total_items_ordered}</p>
-    </div>
-  </div>
-          
-
-          <div className="flex justify-between">
+        {/* Stats */}
+        <div className="relative z-10 space-y-4">
+          {/* Top Items + Total Items */}
+          <div className="flex justify-between items-start">
             <div>
-              <p className="uppercase text-xs opacity-75">Top Spot</p>
-              <p className="text-lg font-semibold">{topRestaurantName}</p>
-              <p className="text-sm opacity-75">{topRestaurantCount} visits</p>
+              <p className="uppercase text-[10px] md:text-xs opacity-75">Top Items</p>
+              {topItems.map((it, i) => (
+                <p key={i} className="text-base md:text-lg font-semibold">
+                  {i + 1}. {it.item} <span className="opacity-75">({it.count}×)</span>
+                </p>
+              ))}
             </div>
-            <div>
-              <p className="uppercase text-xs opacity-75">Busiest Day</p>
-              <p className="text-lg font-semibold">{formattedBusiestDay}</p>
-              <p className="text-sm opacity-75">{stats.busiest_day.order_count} orders</p>
+            <div className="text-center">
+              <p className="uppercase text-[10px] md:text-xs opacity-75">Total Items</p>
+              <p className="text-base md:text-lg font-semibold">{stats.total_items_ordered}</p>
             </div>
           </div>
 
-    <div className="flex justify-start items-center gap-[46px]">
-  <div className="text-left">
-    <p className="uppercase text-xs opacity-75">Most Spent</p>
-    <p className="text-lg font-semibold">
-      ${stats.most_expensive_order.total.toFixed(2)}
-    </p>
-  </div>
+          {/* Top Spot + Busiest Day */}
+          <div className="flex justify-between">
+            <div>
+              <p className="uppercase text-[10px] md:text-xs opacity-75">Top Spot</p>
+              <p className="text-base md:text-lg font-semibold">{topRestaurantName}</p>
+              <p className="text-xs md:text-sm opacity-75">{topRestaurantCount} visits</p>
+            </div>
+            <div>
+              <p className="uppercase text-[10px] md:text-xs opacity-75">Busiest Day</p>
+              <p className="text-base md:text-lg font-semibold">{formattedBusiestDay}</p>
+              <p className="text-xs md:text-sm opacity-75">{stats.busiest_day.order_count} orders</p>
+            </div>
+          </div>
 
-  <div className="text-left">
-    <p className="uppercase text-xs opacity-75">Earliest</p>
-    <p className="text-lg font-semibold">
-      {formatToTimeOnly(stats.earliest_order_by_time.order_time)}
-    </p>
-  </div>
-
-  <div className="text-left">
-    <p className="uppercase text-xs opacity-75">Latest</p>
-    <p className="text-lg font-semibold">
-      {formatToTimeOnly(stats.latest_order_by_time.order_time)}
-    </p>
-  </div>
-</div>
-
-          
+          {/* Most Spent / Earliest / Latest */}
+          <div className="flex flex-wrap justify-center items-center gap-7 w-full">
+            {[
+              { label: "Most Spent", value: `$${stats.most_expensive_order.total.toFixed(2)}` },
+              { label: "Earliest", value: formatToTimeOnly(stats.earliest_order_by_time.order_time) },
+              { label: "Latest", value: formatToTimeOnly(stats.latest_order_by_time.order_time) },
+            ].map((item, index) => (
+              <div key={index} className="flex flex-col text-center min-w-[60px]">
+                <p className="uppercase text-[10px] md:text-xs opacity-75">{item.label}</p>
+                <p className="text-base md:text-lg font-semibold">{item.value}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Footer link */}
-        <p className="relative z-10 text-[11px] text-lime-300 opacity-80 uppercase">
+        {/* Footer */}
+        <p className="relative z-10 text-[10px] md:text-[11px] text-lime-300 opacity-80 uppercase">
           mobileorderwrapped.com
         </p>
       </div>
 
-      {/* Button container */}
-      <div className="flex space-x-4">
-        {/* Download button */}
+      {/* Download & Share buttons */}
+      <div className="flex space-px-4">
         <button
           onClick={handleDownload}
-          className="
-            bg-white
-            hover:bg-gray-100
-            text-gray-900
-            px-6 py-3
-            rounded-full
-            shadow-lg
-            font-semibold
-            transition
-          "
+          className="bg-white hover:bg-gray-100 text-gray-900 px-6 py-3 rounded-full shadow-lg font-semibold transition"
         >
           Download
         </button>
-
-        {/* Share button */}
         <button
           onClick={handleShare}
-          className="
-            bg-blue-600
-            hover:bg-blue-700
-            text-white
-            px-6 py-3
-            rounded-full
-            shadow-lg
-            font-semibold
-            transition
-          "
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full shadow-lg font-semibold transition"
         >
           Share
         </button>
