@@ -14,12 +14,18 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
 }) => {
   const prefix = "You visited ";
   const numStr = uniqueCount.toString();
-  const suffix = " unique restaurants this semester.";
+  const suffix = uniqueCount < 2 
+    ? " unique restaurant this semester." 
+    : " unique restaurants this semester.";
+  
   const fullLine1 = prefix + numStr + suffix;
   const numStart = prefix.length;
   const numEnd = numStart + numStr.length;
 
-  const line2Full = "but only one holds a special place in your heart...";
+  const line2Full = uniqueCount < 2 
+    ? "and that one holds a special place in your heart..." 
+    : "but only one holds a special place in your heart...";
+
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [idx1, setIdx1] = useState(0);
@@ -155,7 +161,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
                 variants={drop}
                 initial="initial"
                 animate="animate"
-                className="text-4xl absolute -top-12"
+                className="text-5xl absolute -top-12"
               >
                 👑
               </motion.span>
@@ -165,7 +171,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
               initial="initial"
               animate="animate"
               exit="exit"
-              className="text-6xl font-extrabold text-indigo-800 text-center"
+              className="text-7xl font-extrabold text-indigo-800 text-center"
             >
               {restaurant}
             </motion.h1>

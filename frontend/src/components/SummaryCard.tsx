@@ -25,10 +25,19 @@ type Stats = {
   item_counts: { item: string; count: number }[];
   restaurant_counts: Record<string, number>;
   busiest_day: { date: string; order_count: number };
+  busiest_day_orders: any[];
   most_expensive_order: { total: number; order_time: string; transaction_id: string };
-  earliest_order: { order_time: string; total: number; transaction_id: string; items: { name: string }[] };  // 🆕
-  latest_order: { order_time: string; total: number; transaction_id: string; items: { name: string }[] };    // 🆕
+  earliest_order: { order_time: string; total: number; transaction_id: string; items: { name: string }[] };
+  latest_order: { order_time: string; total: number; transaction_id: string; items: { name: string }[] };
+  earliest_order_by_time: { order_time: string; pickup_time: string; restaurant_name: string; total: string; transaction_id: string; items: { name: string }[] };
+  latest_order_by_time: { order_time: string; pickup_time: string; restaurant_name: string; total: string; transaction_id: string; items: { name: string }[] };
+  total_items_ordered: number; // 🆕 ADD THIS LINE
+  recipient_name?: string;
+  unique_restaurants?: number;
+  top_restaurant?: { name: string };
 };
+
+
 
 
 // Duke Blue Gradient
@@ -91,6 +100,33 @@ export default function SummaryCard({
       alert("Oops! Something went wrong while sharing.");
     }
   };
+
+  // Convert "2025-04-09 8:33 AM" → " 8:33 AM"
+  function formatToTimeOnly(dateStr: string) {
+    const [datePart, timePart, meridiem] = dateStr.split(/\s+/);
+    const [hourStr, minuteStr] = timePart.split(":");
+    
+    let hour = parseInt(hourStr, 10);
+    const minute = parseInt(minuteStr, 10);
+  
+    if (meridiem === "PM" && hour !== 12) {
+      hour += 12;
+    } else if (meridiem === "AM" && hour === 12) {
+      hour = 0;
+    }
+  
+    const [year, month, day] = datePart.split("-").map(Number);
+    const dateObj = new Date(year, month - 1, day, hour, minute);
+  
+    const time = dateObj.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  
+    return time;
+  }
+  
+
   
   
 
@@ -148,15 +184,27 @@ export default function SummaryCard({
         </div>
 
         {/* Stats sections */}
-        <div className="relative z-10 space-y-4">
-          <div>
-            <p className="uppercase text-xs opacity-75">Top Items</p>
-            {topItems.map((it, i) => (
-              <p key={i} className="text-lg font-semibold">
-                {i + 1}. {it.item} <span className="opacity-75">({it.count}×)</span>
-              </p>
-            ))}
-          </div>
+        
+  <div className="relative z-10 space-y-4">
+  {/* Top Items + Total Items Row */}
+  <div className="flex justify-between items-start">
+    {/* Top Items Section */}
+    <div>
+      <p className="uppercase text-xs opacity-75">Top Items</p>
+      {topItems.map((it, i) => (
+        <p key={i} className="text-lg font-semibold">
+          {i + 1}. {it.item} <span className="opacity-75">({it.count}×)</span>
+        </p>
+      ))}
+    </div>
+
+    {/* Total Items Ordered Section */}
+    <div className="text-center">
+      <p className="uppercase text-xs opacity-75">Total Items</p>
+      <p className="text-lg font-semibold">{stats.total_items_ordered}</p>
+    </div>
+  </div>
+          
 
           <div className="flex justify-between">
             <div>
@@ -171,12 +219,29 @@ export default function SummaryCard({
             </div>
           </div>
 
-          <div>
-            <p className="uppercase text-xs opacity-75">Most Spent</p>
-            <p className="text-lg font-semibold">
-              ${stats.most_expensive_order.total.toFixed(2)}
-            </p>
-          </div>
+    <div className="flex justify-start items-center gap-[46px]">
+  <div className="text-left">
+    <p className="uppercase text-xs opacity-75">Most Spent</p>
+    <p className="text-lg font-semibold">
+      ${stats.most_expensive_order.total.toFixed(2)}
+    </p>
+  </div>
+
+  <div className="text-left">
+    <p className="uppercase text-xs opacity-75">Earliest</p>
+    <p className="text-lg font-semibold">
+      {formatToTimeOnly(stats.earliest_order_by_time.order_time)}
+    </p>
+  </div>
+
+  <div className="text-left">
+    <p className="uppercase text-xs opacity-75">Latest</p>
+    <p className="text-lg font-semibold">
+      {formatToTimeOnly(stats.latest_order_by_time.order_time)}
+    </p>
+  </div>
+</div>
+
           
         </div>
 

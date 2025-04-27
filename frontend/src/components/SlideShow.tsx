@@ -33,8 +33,8 @@ export default function SlideShow({ stats }: { stats: any }) {
   const slideConfigs: SlideConfig[] = [
     { element: <IntroSlide key="intro" name={stats.recipient_name} isPlaying={isPlaying} />, duration: 8000 },
     { element: <TopItemsSlide key="top-items" itemCounts={stats.item_counts} isPlaying={isPlaying} />, duration: 8000 },
-    { element: <TopRestaurantsSlide key="top-restaurants" restaurantCounts={stats.restaurant_counts} isPlaying={isPlaying} />, duration: 8000 },
     { element: <FavoriteRestaurant key="favorite-restaurant" uniqueCount={stats.unique_restaurants} restaurant={stats.top_restaurant.name} isPlaying={isPlaying} />, duration: 15000 },
+    { element: <TopRestaurantsSlide key="top-restaurants" restaurantCounts={stats.restaurant_counts} isPlaying={isPlaying} />, duration: 8000 },
     { 
       element: <BusiestDaySlide 
         key="busiest-day" 

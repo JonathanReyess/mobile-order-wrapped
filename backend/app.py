@@ -51,8 +51,12 @@ def parse_receipt_from_html(html_body):
             for next_line in lines[i + 1:]:
                 next_line = next_line.strip()
                 if next_line:
-                    receipt["restaurant_name"] = next_line
-                    break
+                    # 🛡️ Add a filter here: avoid times or weird lines
+                    if not re.match(r"(Completed|Picked Up|Cancelled|Order|Ready|Started):", next_line, re.IGNORECASE) \
+                    and not re.match(r"\d{1,2}:\d{2}\s*[AP]M", next_line) \
+                    and len(next_line) > 2:  # At least 3 characters
+                        receipt["restaurant_name"] = next_line
+                        break
             break
 
     # Line items

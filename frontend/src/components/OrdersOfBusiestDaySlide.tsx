@@ -85,7 +85,7 @@ export default function OrdersOfBusiestDaySlide({
   }, [isPlaying, step]);
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-start bg-gradient-to-br from-sky-100 via-sky-600 to-sky-800 pt-16 pb-24 px-4 overflow-auto">
+    <div className="h-screen w-full flex flex-col items-center justify-start bg-gradient-to-br from-sky-100 via-sky-600 to-sky-800 pt-24 pb-24 px-4 overflow-auto">
       <div className="flex flex-wrap justify-center gap-4 w-full max-w-6xl">
         {orders.map((receipt, idx) => (
           <motion.div
