@@ -10,7 +10,7 @@ export default function TopRestaurantsSlide({
 }) {
   const top = Object.entries(restaurantCounts)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 4);
+    .slice(0, 5);
 
   const [step, setStep] = useState(0);
 
@@ -19,7 +19,7 @@ export default function TopRestaurantsSlide({
   const elapsedTime = useRef<number>(0);
   const timerRef = useRef<number | null>(null);
 
-  const stepDelays = [250, 1500, 1100, 1100];
+  const stepDelays = [250, 1500, 1100, 1100, 1100, 1100];
 
   useEffect(() => {
     function startTimerForStep() {
@@ -53,16 +53,17 @@ export default function TopRestaurantsSlide({
       
       {/* Title */}
       <motion.h2
-        className="text-4xl md:text-5xl font-extrabold text-center"
-        initial={{ opacity: 0, y: 40 }}
-        animate={step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-        transition={{ duration: 0.8 }}
-      >
-        My Top Dining Spots
-      </motion.h2>
+  className="pt-18 md:pt-0 text-3xl md:text-5xl font-extrabold text-center"
+  initial={{ opacity: 0, y: 40 }}
+  animate={step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+  transition={{ duration: 0.8 }}
+>
+  My Top Dining Spots
+</motion.h2>
+
 
       {/* Restaurants */}
-      <div className="mt-8 flex flex-col items-center gap-6 w-full max-w-sm">
+      <div className="mt-8 pb-4 md:pb-16 lg:pb-16 flex flex-col items-center gap-6 w-full max-w-sm">
   {top.map(([name, count], idx) => (
     <motion.div
       key={name}
@@ -71,10 +72,11 @@ export default function TopRestaurantsSlide({
       animate={step >= idx + 2 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="text-2xl md:text-3xl font-bold text-center">{name}</div>
-      <div className="text-lg text-blue-100 text-center">
-        {count} visit{count > 1 ? "s" : ""}
-      </div>
+<div className="text-xl md:text-2xl font-bold text-center">{name}</div>
+<div className="text-base md:text-lg text-blue-100 text-center">
+  {count} visit{count > 1 ? "s" : ""}
+</div>
+
     </motion.div>
   ))}
 </div>

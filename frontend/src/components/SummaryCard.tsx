@@ -108,7 +108,7 @@ export default function SummaryCard({
 
   const topItems = [...stats.item_counts]
     .sort((a, b) => b.count - a.count)
-    .slice(0, 3);
+    .slice(0, 5);
 
   const [topRestaurantName, topRestaurantCount] = Object.entries(stats.restaurant_counts)
     .sort((a, b) => b[1] - a[1])[0];
