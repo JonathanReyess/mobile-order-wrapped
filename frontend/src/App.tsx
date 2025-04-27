@@ -102,11 +102,11 @@ const EmailStatsViewer = () => {
             <h2 className="text-lg font-semibold mb-4">How to Export Your Emails</h2>
             <p className="text-sm text-gray-700 mb-2">1) Open Outlook and paste this in the search bar:</p>
             <div className="flex items-center space-x-2 mb-4">
-              <input
-                readOnly
-                value={`from:mobileorder@transactcampus.com AND received>=2024-08-26 AND received<=2025-04-23`}
-                className="flex-1 border border-gray-300 px-2 py-1 rounded text-sm font-mono text-gray-800"
-              />
+            <input
+              readOnly
+              value={`from:mobileorder@transactcampus.com AND received>=2024-08-26 AND received<=2025-04-23`}
+              className="flex-1 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-2 py-1 rounded text-sm font-mono shadow-sm"
+            />
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(
