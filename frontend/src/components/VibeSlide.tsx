@@ -122,7 +122,7 @@ export default function VibeSlide({ vibe, colors, isPlaying }: VibeSlideProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-2xl font-bold text-gray-700 whitespace-pre-wrap text-center max-w-2xl leading-relaxed"
+            className="text-3xl font-bold text-gray-800 whitespace-pre-wrap text-center max-w-2xl leading-relaxed"
           >
             {highlightText(vibe.slice(0, idx2))}
           </motion.p>
