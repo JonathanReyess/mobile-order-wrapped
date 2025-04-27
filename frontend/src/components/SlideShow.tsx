@@ -44,7 +44,17 @@ export default function SlideShow({ stats }: { stats: any }) {
       />, 
       duration: 8000 
     },
-    { element: <OrdersOfBusiestDaySlide key="busiest-orders" orders={stats.busiest_day_orders} isPlaying={isPlaying} />, duration: 10000 },
+    {
+      element: (
+        <OrdersOfBusiestDaySlide
+          key="busiest-orders"
+          orders={stats.busiest_day_orders.slice(0, 12)}
+          isPlaying={isPlaying}
+        />
+      ),
+      duration: Math.max(7000, Math.min(stats.busiest_day_orders.length, 12) * 1250),
+    },
+    
     { element: <EarliestOrderSlide key="earliest-order" order={stats.earliest_order_by_time} isPlaying={isPlaying} />, duration: 7000 },
     { element: <LatestOrderSlide key="latest-order" order={stats.latest_order_by_time} isPlaying={isPlaying} />, duration: 7000 },
     { element: <MostExpensiveOrderSlide key="most-expensive" order={stats.most_expensive_order} isPlaying={isPlaying} />, duration: 7000 },
@@ -189,16 +199,23 @@ export default function SlideShow({ stats }: { stats: any }) {
 
 
       {/* Play/Pause */}
-      <div className="absolute top-5 right-4 z-50">
-        <button
-          onClick={() => {
-            setIsPlaying((p) => !p);
-          }}
-          className="bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-1 rounded transition"
-        >
-          {isPlaying ? "⏸" : "▶"}
-        </button>
-      </div>
+      <div className="absolute top-7 right-5 z-50">
+  <button
+    onClick={() => setIsPlaying((p) => !p)}
+    className="w-10 h-10 flex items-center justify-center bg-white/20 hover:bg-white/30 text-white text-2xl font-bold rounded-full backdrop-blur-md shadow-md transition"
+  >
+    {isPlaying ? (
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
+      </svg>
+    ) : (
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 22 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-5.197-3.028A1 1 0 008 9.028v5.944a1 1 0 001.555.832l5.197-3.028a1 1 0 000-1.664z" />
+      </svg>
+    )}
+  </button>
+</div>
+
     </div>
   );
 }

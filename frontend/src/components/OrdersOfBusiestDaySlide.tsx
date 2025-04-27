@@ -38,12 +38,6 @@ export default function OrdersOfBusiestDaySlide({
   orders: Receipt[];
   isPlaying: boolean;
 }) {
-  // Split orders into columns of max 5 each
-  const columns: Receipt[][] = [];
-  for (let i = 0; i < orders.length; i += 5) {
-    columns.push(orders.slice(i, i + 5));
-  }
-
   // jagged torn-edge on top and bottom
   const tornEdge = `polygon(
     0% 2%, 5% 0%, 10% 3%, 15% 0%, 20% 2%, 25% 0%, 30% 3%, 35% 0%, 40% 2%,
@@ -54,14 +48,14 @@ export default function OrdersOfBusiestDaySlide({
     30% 97%, 25% 100%, 20% 98%, 15% 100%, 10% 97%, 5% 100%, 0% 98%
   )`;
 
-  const [step, setStep] = useState(0); // step = how many receipts to show
+  const [step, setStep] = useState(0);
 
   const stepStartTime = useRef<number | null>(null);
   const elapsedTime = useRef<number>(0);
   const timerRef = useRef<number | null>(null);
 
   const totalReceipts = orders.length;
-  const stepDelays = Array(totalReceipts).fill(1000); // 500ms between each receipt appearing
+  const stepDelays = Array(totalReceipts).fill(1000); // 1s between receipts
 
   useEffect(() => {
     function startTimerForStep() {
@@ -91,58 +85,43 @@ export default function OrdersOfBusiestDaySlide({
   }, [isPlaying, step]);
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-start bg-gradient-to-br from-sky-100 via-sky-600 to-sky-800 pt-12 pb-6 px-6 overflow-auto">
-
-      <div
-        className={`mt-5 flex gap-6 ${
-          columns.length > 1 ? "justify-around" : "justify-center"
-        }`}
-      >
-        {columns.map((col, colIdx) => (
-          <div key={colIdx} className="flex flex-col justify-center items-center space-y-4">
-            {col.map((receipt, idx) => {
-              const globalIdx = colIdx * 5 + idx; // correct across all columns
-              return (
-                <motion.div
-                  key={`${colIdx}-${idx}`}
-                  className="w-64 h-28 max-w-xs mx-auto bg-white p-2 font-mono text-sm tracking-wide shadow-inner relative overflow-hidden"
-                  style={{
-                    backgroundImage: "url('/crumple.png')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    clipPath: tornEdge,
-                    boxShadow: "inset 0 0 10px rgba(0,0,0,0.2)",
-                  }}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={step > globalIdx ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-                  transition={{ duration: 0.5 }}
+    <div className="h-screen w-full flex flex-col items-center justify-start bg-gradient-to-br from-sky-100 via-sky-600 to-sky-800 pt-16 pb-24 px-4 overflow-auto">
+      <div className="flex flex-wrap justify-center gap-4 w-full max-w-6xl">
+        {orders.map((receipt, idx) => (
+          <motion.div
+            key={idx}
+            className="w-[40vw] max-w-xs min-w-[200px] h-[18vh] bg-white p-2 font-mono text-sm tracking-wide relative overflow-hidden bg-[url('/crumple.png')] bg-cover bg-center"
+            style={{
+              clipPath: tornEdge,
+              boxShadow: "inset 0 0 10px rgba(0,0,0,0.2)",
+            }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={step > idx ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+            transition={{ duration: 0.5 }}
+          >
+            <p className="text-lg font-semibold text-gray-700 text-center break-words">
+              {receipt.restaurant_name || "Unknown Restaurant"}
+            </p>
+            <p className="text-xs text-gray-600 text-center break-words">
+              Ordered at: {receipt.order_time ? formatOrderTime(receipt.order_time) : "--"}
+            </p>
+            <ul className="mt-1 list-disc list-inside text-gray-700 break-words overflow-y-auto max-h-[6vh] pr-1">
+              {receipt.items?.map((item, i) => (
+                <li
+                  key={i}
+                  className="leading-snug break-words text-ellipsis overflow-hidden"
                 >
-                  <p className="text-lg font-semibold text-gray-700 text-center">
-                    {receipt.restaurant_name || "Unknown Restaurant"}
-                  </p>
-                  <p className="text-xs text-gray-600 text-center">
-                    Ordered at:{" "}
-                    {receipt.order_time
-                      ? formatOrderTime(receipt.order_time)
-                      : "--"}
-                  </p>
-                  <ul className="mt-1 list-disc list-inside text-gray-700">
-                    {receipt.items?.map((item, i) => (
-                      <li key={i} className="leading-snug">
-                        {item.name}
-                        {item.qty ? ` x${item.qty}` : ""}
-                      </li>
-                    ))}
-                  </ul>
-                  {typeof receipt.total === "number" && (
-                    <p className="mt-1 text-sm font-bold text-gray-800 text-center">
-                      Total: ${receipt.total.toFixed(2)}
-                    </p>
-                  )}
-                </motion.div>
-              );
-            })}
-          </div>
+                  {item.name}
+                  {item.qty ? ` x${item.qty}` : ""}
+                </li>
+              ))}
+            </ul>
+            {typeof receipt.total === "number" && (
+              <p className="mt-1 text-sm font-bold text-gray-800 text-center break-words">
+                Total: ${receipt.total.toFixed(2)}
+              </p>
+            )}
+          </motion.div>
         ))}
       </div>
     </div>
