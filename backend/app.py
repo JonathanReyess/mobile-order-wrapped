@@ -357,8 +357,6 @@ def generate_vibe():
         "total_items_ordered": filtered_stats.get("total_items_ordered"),
         "total_unique_items": filtered_stats.get("total_unique_items"),
         "top_restaurant": filtered_stats.get("top_restaurant", {}).get("name"),
-        "most_expensive_order_items": [item["name"] for item in filtered_stats.get("most_expensive_order", {}).get("items", [])]
-
     }
 
 
