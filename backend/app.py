@@ -51,10 +51,9 @@ def parse_receipt_from_html(html_body):
             for next_line in lines[i + 1:]:
                 next_line = next_line.strip()
                 if next_line:
-                    # 🛡️ Add a filter here: avoid times or weird lines
                     if not re.match(r"(Completed|Picked Up|Cancelled|Order|Ready|Started):", next_line, re.IGNORECASE) \
                     and not re.match(r"\d{1,2}:\d{2}\s*[AP]M", next_line) \
-                    and len(next_line) > 2:  # At least 3 characters
+                    and len(next_line) > 2:
                         receipt["restaurant_name"] = next_line
                         break
             break
@@ -76,7 +75,13 @@ def parse_receipt_from_html(html_body):
         except ValueError:
             pass
 
-    return receipt if receipt else {"raw_text": text[:300]}
+    # 🛡️ GUARDRAIL VALIDATION
+    required_phrases = ["Target:", "Duke University", "Transaction #"]
+    if all(phrase in text for phrase in required_phrases):
+        return receipt
+    else:
+        print("⚠️ Skipping invalid receipt (missing required phrases)")
+        return None
 
 
 def extract_name_from_email_header(header_value):
@@ -115,6 +120,10 @@ def parse_single_eml(msg, filename):
         except Exception as e:
             print(f"⚠️ Error decoding singlepart .eml: {e}")
 
+    parsed_receipt = parse_receipt_from_html(body)
+    if not parsed_receipt:
+        return None  # 🛡️ Skip if it doesn't pass validation!
+
     recipient_header = msg.get("To") or msg.get("Delivered-To")
     recipient_name = extract_name_from_email_header(recipient_header) if recipient_header else None
 
@@ -125,7 +134,7 @@ def parse_single_eml(msg, filename):
         "attachments": [{
             "filename": filename,
             "parsed_subject": msg.get("Subject"),
-            "parsed_receipt": parse_receipt_from_html(body)
+            "parsed_receipt": parsed_receipt
         }]
     }
 
@@ -262,15 +271,16 @@ def upload_emls():
                                 with open(eml_path, "rb") as f:
                                     content = f.read()
                                     msg = email.message_from_bytes(content)
-                                    email_data.append(parse_single_eml(msg, name))
+                                    parsed_email = parse_single_eml(msg, name)
+                                    if parsed_email:  # 🛡️ Only append if valid
+                                        email_data.append(parsed_email)
 
             elif filename.endswith(".eml"):
                 content = file.read()
                 msg = email.message_from_bytes(content)
-                email_data.append(parse_single_eml(msg, filename))
-
-            else:
-                print(f"⚠️ Skipped unsupported file: {filename}")
+                parsed_email = parse_single_eml(msg, filename)
+                if parsed_email:  # 🛡️ Only append if valid
+                    email_data.append(parsed_email)
 
         if not email_data:
             return jsonify({"error": "No valid .eml files found."}), 400
