@@ -121,7 +121,7 @@ const EmailStatsViewer = () => {
         <button
           onClick={() => {
             navigator.clipboard.writeText(
-              "from:mobileorder@transactcampus.com AND received>=2024-08-26 AND received<=2025-04-23"
+              "from:mobileorder@transactcampus.com AND received>=2025-01-07 AND received<=2025-04-28"
             );
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);

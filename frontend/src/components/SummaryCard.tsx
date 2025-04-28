@@ -146,7 +146,7 @@ export default function SummaryCard({
               <span className="block text-base md:text-lg font-normal mt-1">{name}</span>
             )}
           </h1>
-          <p className="uppercase text-[10px] md:text-xs opacity-75 mt-1">{semester}</p>
+          <p className="uppercase text-[10px] md:text-sm opacity-75 mt-1">{semester}</p>
         </div>
 
         {/* Stats */}

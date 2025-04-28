@@ -187,13 +187,15 @@ def generate_receipt_statistics(email_data):
             try:
                 total = float(receipt.get("total", 0))
                 if total > max_total:
-                    max_total      = total
+                    max_total = total
                     most_expensive = {
-                        "filename":       attachment.get("filename"),
-                        "total":          total,
+                        "filename": attachment.get("filename"),
+                        "total": total,
                         "transaction_id": receipt.get("transaction_id"),
-                        "order_time":     receipt.get("order_time"),
+                        "order_time": receipt.get("order_time"),
+                        "items": receipt.get("items", [])  # <-- ADD THIS
                     }
+
             except (ValueError, TypeError):
                 pass
 
@@ -331,11 +333,11 @@ def generate_vibe():
     print("DEBUG stats:", json.dumps(stats, indent=2))
     # Filter stats: exclude 'earliest_order_by_time' and 'latest_order_by_time'
     # 1. Filter out unwanted top-level keys
-    filtered_stats = {k: v for k, v in stats.items() if k not in ["earliest_order_by_time", "latest_order_by_time"]}
+    filtered_stats = {k: v for k, v in stats.items() if k not in ["earliest_order_by_time", "latest_order_by_time", "recipient_name"]}
 
     # 2. Limit 'item_counts' to first 10 entries
     if "item_counts" in filtered_stats and isinstance(filtered_stats["item_counts"], list):
-        filtered_stats["item_counts"] = filtered_stats["item_counts"][:10]
+        filtered_stats["item_counts"] = filtered_stats["item_counts"][:5]
 
     # 3. Clean 'busiest_day_orders': remove 'pickup_time' and 'transaction_id' fields
     if "busiest_day_orders" in filtered_stats and isinstance(filtered_stats["busiest_day_orders"], list):
@@ -344,18 +346,37 @@ def generate_vibe():
             cleaned_order = {k: v for k, v in order.items() if k not in ["pickup_time", "transaction_id", "total"]}
             cleaned_orders.append(cleaned_order)
         filtered_stats["busiest_day_orders"] = cleaned_orders
+    # 4. Limit 'restaurant_counts' to top 5 restaurants
+    if "restaurant_counts" in filtered_stats and isinstance(filtered_stats["restaurant_counts"], dict):
+        sorted_restaurants = sorted(filtered_stats["restaurant_counts"].items(), key=lambda x: x[1], reverse=True)
+        filtered_stats["restaurant_counts"] = dict(sorted_restaurants[:5])
+    # Build a new structure
+    reformatted_stats = {
+        "top_items": [entry["item"] for entry in filtered_stats.get("item_counts", [])],
+        "top_restaurants": list(filtered_stats.get("restaurant_counts", {}).keys()),
+        "total_items_ordered": filtered_stats.get("total_items_ordered"),
+        "total_unique_items": filtered_stats.get("total_unique_items"),
+        "top_restaurant": filtered_stats.get("top_restaurant", {}).get("name"),
+        "most_expensive_order_items": [item["name"] for item in filtered_stats.get("most_expensive_order", {}).get("items", [])]
 
-    print("DEBUG stats:", filtered_stats)
+    }
+
+
+    print("DEBUG stats:", reformatted_stats )
     # Now build your prompt using filtered_stats
     prompt = (
         "Based on these mobile-order stats, describe the user's vibe in one catchy, Spotify-Wrapped-style sentence. "
-        "Use playful language and food-related descriptions. Don't use the word foodie. Don't use the phrase 'one mobile order at a time.' "
+        "Use playful language and food-related descriptions. Don't use the word 'foodie.' Don't use the phrase 'one mobile order at a time.' "
         "Start with 'You're a...' and use flavorful adjectives and hyphenated phrases. "
         "RESPOND ONLY as a JSON object with two fields: "
-        "`sentence` (the vibe description) and `colors` (a dictionary mapping any key words to a fitting dark pastel or earth tone hex color). Avoid bright yellow or neon green. "
-        "Wrap your response inside triple backticks like ```json ... ``` for safety.\n\n"
-        f"{filtered_stats}"
+        "`sentence` (the vibe description) and `colors` (a dictionary mapping key words to a fitting color). "
+        "For `colors`, you MUST choose from this exact list of hex codes: "
+        "#5a8b5d, #907350, #7a4b8f, #3d2758, #dd660d, #dd660d, #8faab3, #c4bd8b, #aeb8f9, #d4a1a1, #400000, #02006c, #026a81, #aeb8f9, #feb204. "
+        "Do not invent new colors. Only use these. "
+        "Wrap your response inside triple backticks like ```json ... ```.\n\n"
+        f"{reformatted_stats }"
     )
+
 
     try:
         
