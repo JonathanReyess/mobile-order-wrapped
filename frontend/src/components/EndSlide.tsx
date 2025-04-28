@@ -46,7 +46,7 @@ export default function EndSlide({ isPlaying }: { isPlaying: boolean }) {
     if (!isPlaying || step < 2) return; // Wait until after title shows
   
     const normalSpeed = 50; // 50ms for first sentence
-    const slowSpeed = 120;  // 100ms for second sentence
+    const slowSpeed = 70;  // 100ms for second sentence
     const pauseAfterSemester = 800; // pause after "semester."
     
     let currentSpeed = normalSpeed;
