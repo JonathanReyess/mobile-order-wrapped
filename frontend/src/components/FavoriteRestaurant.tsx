@@ -161,7 +161,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
                 variants={drop}
                 initial="initial"
                 animate="animate"
-                className="text-6xl absolute -top-12"
+                className="text-5xl absolute -top-12"
               >
                 👑
               </motion.span>
@@ -171,7 +171,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
               initial="initial"
               animate="animate"
               exit="exit"
-              className="text-8xl font-extrabold text-indigo-800 text-center"
+              className="text-7xl font-extrabold text-indigo-800 text-center"
             >
               {restaurant}
             </motion.h1>

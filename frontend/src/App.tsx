@@ -1,6 +1,8 @@
 import { useState, useRef } from "react";
 import axios from "axios";
 import SlideShow from "./components/SlideShow";
+import { motion } from "framer-motion";
+
 
 const EmailStatsViewer = () => {
   const [stats, setStats] = useState<any | null>(null);
@@ -93,41 +95,49 @@ const EmailStatsViewer = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6 relative">
       {/* Upload Instructions */}
       {showInstructions && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md shadow-lg relative">
-            <button
-              onClick={() => setShowInstructions(false)}
-              className="absolute top-2 right-2 text-gray-500 hover:text-black text-lg"
-            >
-              ✕
-            </button>
-            <h2 className="text-lg font-semibold mb-4">How to Export Your Emails</h2>
-            <p className="text-sm text-gray-700 mb-2">1) Open Outlook and paste this in the search bar:</p>
-            <div className="flex items-center space-x-2 mb-4">
-            <input
-              readOnly
-              value={`from:mobileorder@transactcampus.com AND received>=2024-08-26 AND received<=2025-04-23`}
-              className="flex-1 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-2 py-1 rounded text-sm font-mono shadow-sm"
-            />
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    "from:mobileorder@transactcampus.com AND received>=2024-08-26 AND received<=2025-04-23"
-                  );
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 2000);
-                }}
-                className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition min-w-[72px]"
-              >
-                {copied ? "Copied!" : "Copy"}
-              </button>
-            </div>
-            <p className="text-sm text-gray-700 mb-1">2) Scroll down to load all emails.</p>
-            <p className="text-sm text-gray-700 mb-1">3) Press ⌘+A (Command+A) to select all emails.</p>
-            <p className="text-sm text-gray-700">4) Drag and drop them into this page.</p>
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.3 }}
+      className="bg-white p-6 rounded-lg w-full max-w-sm shadow-lg relative"
+    >
+      <button
+        onClick={() => setShowInstructions(false)}
+        className="absolute top-2 right-2 text-gray-500 hover:text-black text-lg"
+        aria-label="Close"
+      >
+        ✕
+      </button>
+      <h2 className="text-xl text-black font-semibold mb-4">Export Your Mobile Order Receipts</h2>
+      <p className="text-sm text-gray-700 mb-2">1) Open the Outlook App and paste the following into the search bar at the top:</p>
+      <div className="flex items-center space-x-2 mb-4">
+        <input
+          readOnly
+          value={`from:mobileorder@transactcampus.com AND received>=2024-08-26 AND received<=2025-04-23`}
+          className="flex-1 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-2 py-1 rounded text-sm font-mono shadow-sm"
+        />
+        <button
+          onClick={() => {
+            navigator.clipboard.writeText(
+              "from:mobileorder@transactcampus.com AND received>=2024-08-26 AND received<=2025-04-23"
+            );
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          }}
+          className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition min-w-[72px]"
+        >
+          {copied ? "Copied!" : "Copy"}
+        </button>
+      </div>
+      <p className="text-sm text-gray-700 mb-1">2) Scroll down to load all matching emails.</p>
+      <p className="text-sm text-gray-700 mb-1">3) Press ⌘+A (Command+A) on Mac or Ctrl+A on Windows to select all emails.</p>
+      <p className="text-sm text-gray-700">4) Drag and drop the selected emails into this page.</p>
+    </motion.div>
+  </div>
+)}
+
 
       {/* Upload Form */}
       <div className="w-full max-w-md sm:max-w-lg md:max-w-xl flex flex-col items-center">
