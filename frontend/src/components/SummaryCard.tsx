@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { toPng, toBlob } from "html-to-image";
 import download from "downloadjs";
 // @ts-ignore
@@ -12,6 +12,24 @@ function formatToMonthDay(dateStr: string) {
   return date.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
+  });
+}
+
+function formatToTimeOnly(dateStr: string) {
+  const [datePart, timePart, meridiem] = dateStr.split(/\s+/);
+  const [hourStr, minuteStr] = timePart.split(":");
+  let hour = parseInt(hourStr, 10);
+  const minute = parseInt(minuteStr, 10);
+
+  if (meridiem === "PM" && hour !== 12) hour += 12;
+  else if (meridiem === "AM" && hour === 12) hour = 0;
+
+  const [year, month, day] = datePart.split("-").map(Number);
+  const dateObj = new Date(year, month - 1, day, hour, minute);
+
+  return dateObj.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
   });
 }
 
@@ -31,8 +49,6 @@ type Stats = {
   top_restaurant?: { name: string };
 };
 
-const GRADIENT = "bg-gradient-to-br from-[#001A57] to-[#003366]";
-
 export default function SummaryCard({
   stats,
   semester = "Spring 2025",
@@ -43,6 +59,7 @@ export default function SummaryCard({
   name?: string;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const [background, setBackground] = useState("bg-gradient-to-br from-[#001A57] to-[#003366]");
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -88,24 +105,6 @@ export default function SummaryCard({
     }
   };
 
-  function formatToTimeOnly(dateStr: string) {
-    const [datePart, timePart, meridiem] = dateStr.split(/\s+/);
-    const [hourStr, minuteStr] = timePart.split(":");
-    let hour = parseInt(hourStr, 10);
-    const minute = parseInt(minuteStr, 10);
-
-    if (meridiem === "PM" && hour !== 12) hour += 12;
-    else if (meridiem === "AM" && hour === 12) hour = 0;
-
-    const [year, month, day] = datePart.split("-").map(Number);
-    const dateObj = new Date(year, month - 1, day, hour, minute);
-
-    return dateObj.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  }
-
   const topItems = [...stats.item_counts]
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
@@ -120,7 +119,7 @@ export default function SummaryCard({
       <div
         ref={cardRef}
         className={`
-          ${GRADIENT}
+          ${background}
           relative
           overflow-hidden
           rounded-3xl
@@ -201,9 +200,29 @@ export default function SummaryCard({
           mobileorderwrapped.com
         </p>
       </div>
+      <div className="flex flex-wrap justify-center gap-4 mb-6">
+  {[
+    { bg: "bg-gradient-to-br from-[#001A57] to-[#003366]" },
+    { bg: "bg-gradient-to-br from-purple-700 to-indigo-900" },
+    { bg: "bg-gradient-to-br from-green-600 to-emerald-600" },
+    { bg: "bg-gradient-to-br from-pink-600 to-rose-400" },
+  ].map((color, index) => (
+    <button
+      key={index}
+      onClick={() => setBackground(color.bg)}
+      className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-md hover:opacity-80 transition"
+    >
+      <div className={`w-5 h-5 rounded-full ${color.bg}`} />
+    </button>
+  ))}
+</div>
+
+
+
+
 
       {/* Download & Share buttons */}
-      <div className="flex space-px-4">
+      <div className="flex space-x-4">
         <button
           onClick={handleDownload}
           className="bg-white hover:bg-gray-100 text-gray-900 px-6 py-3 rounded-full shadow-lg font-semibold transition"
