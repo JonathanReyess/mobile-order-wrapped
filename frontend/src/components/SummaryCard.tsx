@@ -64,25 +64,25 @@ export default function SummaryCard({
   const handleDownload = async () => {
     if (!cardRef.current) return;
     const dataUrl = await toPng(cardRef.current);
-    download(dataUrl, `mobile-order-summary-${semester.replace(" ", "-")}.png`);
+    download(dataUrl, `mobile-order-wrapped-${semester.replace(" ", "-")}.png`);
     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
   };
 
   const handleShare = async () => {
     if (!cardRef.current) return;
-
+  
     try {
       const blob = await toBlob(cardRef.current);
       if (!blob) throw new Error("Could not generate image blob");
-
+  
       const file = new File(
         [blob],
         `wrapped-summary-${semester.replace(" ", "-")}.png`,
         { type: "image/png" }
       );
-
+  
       const shareUrl = "https://mobileorderwrapped.com/";
-
+  
       if (
         navigator.canShare &&
         navigator.canShare({ files: [file], url: shareUrl })
@@ -99,11 +99,17 @@ export default function SummaryCard({
             shareUrl
         );
       }
-    } catch (err) {
-      console.error("Error sharing:", err);
-      alert("Oops! Something went wrong while sharing.");
+    } catch (err: any) {
+      if (err.name === "AbortError" || err.name === "NotAllowedError") {
+        // User canceled sharing → do nothing
+        console.log("Share cancelled by user.");
+      } else {
+        console.error("Error sharing:", err);
+        alert("Oops! Something went wrong while sharing.");
+      }
     }
   };
+  
 
   const topItems = [...stats.item_counts]
     .sort((a, b) => b.count - a.count)
@@ -115,7 +121,10 @@ export default function SummaryCard({
   const formattedBusiestDay = formatToMonthDay(stats.busiest_day.date);
 
   return (
-    <div className="flex flex-col items-center space-y-6 py-8">
+<div className="min-h-[96vh] md:min-h-[116vh] flex flex-col items-center justify-center pt-10 pb-20 md:pt-21 space-y-5">
+
+
+
       <div
         ref={cardRef}
         className={`
@@ -131,7 +140,7 @@ export default function SummaryCard({
           space-y-2 md:space-y-6
           flex flex-col
           text-white
-          transform scale-95 md:scale-100
+          transform scale-90 md:scale-95
         `}
       >
         {/* Big soft blob background */}
@@ -207,13 +216,13 @@ export default function SummaryCard({
     { bg: "bg-gradient-to-br from-green-600 to-emerald-600" },
     { bg: "bg-gradient-to-br from-pink-600 to-rose-400" },
   ].map((color, index) => (
-    <button
-      key={index}
-      onClick={() => setBackground(color.bg)}
-      className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-md hover:opacity-80 transition"
-    >
-      <div className={`w-5 h-5 rounded-full ${color.bg}`} />
-    </button>
+<button
+  key={index}
+  onClick={() => setBackground(color.bg)}
+  className="w-8 h-8 md:w-8 md:h-8 flex items-center justify-center rounded-full bg-white shadow-md hover:opacity-80 transition"
+>
+  <div className={`w-5 h-5 md:w-5 md:h-5 rounded-full ${color.bg}`} />
+</button>
   ))}
 </div>
 
@@ -222,16 +231,19 @@ export default function SummaryCard({
 
 
       {/* Download & Share buttons */}
-      <div className="flex space-x-4">
+      <div className="flex flex-wrap justify-center gap-3 md:gap-5">
+
         <button
           onClick={handleDownload}
-          className="bg-white hover:bg-gray-100 text-gray-900 px-6 py-3 rounded-full shadow-lg font-semibold transition"
+          className="bg-white hover:bg-gray-100 text-gray-900 px-5 py-2.5 md:px-6 md:py-3
+ rounded-full shadow-lg font-semibold transition"
         >
           Download
         </button>
         <button
           onClick={handleShare}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full shadow-lg font-semibold transition"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 md:px-6 md:py-3
+ rounded-full shadow-lg font-semibold transition"
         >
           Share
         </button>

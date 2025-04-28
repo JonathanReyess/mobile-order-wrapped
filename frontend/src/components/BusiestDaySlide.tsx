@@ -4,12 +4,35 @@ import { motion } from "framer-motion";
 function formatToMonthDay(dateStr: string) {
   const [year, month, day] = dateStr.split("-").map(Number);
   const date = new Date(year, month - 1, day);
-  if (isNaN(date.getTime())) return "Invalid date";
-  return date.toLocaleDateString("en-US", {
+  if (isNaN(date.getTime())) return { formatted: "Invalid date", monthName: "" };
+
+  const monthName = date.toLocaleDateString("en-US", { month: "long" });
+  const formatted = date.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
   });
+
+  return { formatted, monthName };
 }
+
+function getMonthColor(month: string) {
+  const colors: Record<string, string> = {
+    January: "text-sky-300",
+    February: "text-pink-300",
+    March: "text-green-300",
+    April: "text-yellow-300",
+    May: "text-lime-300",
+    June: "text-emerald-300",
+    July: "text-orange-300",
+    August: "text-amber-400",
+    September: "text-rose-300",
+    October: "text-red-400",
+    November: "text-amber-500",
+    December: "text-indigo-300",
+  };
+  return colors[month] || "text-white"; // fallback
+}
+
 
 export default function BusiestDaySlide({
   date,
@@ -20,7 +43,9 @@ export default function BusiestDaySlide({
   orderCount: number;
   isPlaying: boolean;
 }) {
-  const formattedDate = formatToMonthDay(date);
+  const { formatted, monthName } = formatToMonthDay(date);
+  const monthColorClass = getMonthColor(monthName);  
+  
   const line3Full = `Let's see what you got...`;
 
   // Step control
@@ -105,8 +130,12 @@ export default function BusiestDaySlide({
         animate={step >= 2 ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 1 }}
       >
-        {formattedDate}
+        <span className={monthColorClass}>
+          {formatted}
+        </span>
       </motion.p>
+
+
 
       {/* Orders */}
       <motion.p

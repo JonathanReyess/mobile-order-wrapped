@@ -82,11 +82,11 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
 
   // Show crown after reaching step 3
   useEffect(() => {
-    if (step === 3 && isPlaying) {
+    if (step === 3) {
       timeoutRef.current = window.setTimeout(() => setShowCrown(true), 1500);
     }
     return () => clearTimeout(timeoutRef.current!);
-  }, [step, isPlaying]);
+  }, [step]); 
 
   // Motion variants
   const fade = {

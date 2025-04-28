@@ -54,7 +54,7 @@ export default function SlideShow({ stats }: { stats: any }) {
           isPlaying={isPlaying}
         />
       ),
-      duration: Math.max(7000, Math.min(stats.busiest_day_orders.length, 12) * 1420),
+      duration: Math.max(6000, Math.min(stats.busiest_day_orders.length, 12) * 1500),
     },
     
     { element: <EarliestOrderSlide key="earliest-order" order={stats.earliest_order_by_time} isPlaying={isPlaying} />, duration: 7000 },
@@ -159,13 +159,19 @@ export default function SlideShow({ stats }: { stats: any }) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") nextSlide();
       if (e.key === "ArrowLeft") prevSlide();
+      if (e.code === "Space") {
+        e.preventDefault(); // prevents page from scrolling when pressing Space
+        setIsPlaying((p) => !p); // toggle play/pause
+      }
     };
+  
     window.addEventListener("keydown", onKey);
     return () => {
       window.removeEventListener("keydown", onKey);
       clearInterval(timerRef.current!);
     };
   }, []);
+  
 
   const bind = useDrag(
     ({ movement: [mx], velocity: [vx], direction: [dx], last }) => {

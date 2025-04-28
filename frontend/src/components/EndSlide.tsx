@@ -41,23 +41,59 @@ export default function EndSlide({ isPlaying }: { isPlaying: boolean }) {
     };
   }, [isPlaying, step]);
 
-  // Typing effect
+  // Typing effect with pause after "semester."
   useEffect(() => {
     if (!isPlaying || step < 2) return; // Wait until after title shows
-
-    const typeSpeed = 50; // 50ms per character
-    const intervalId = window.setInterval(() => {
-      setTypedText((prev) => {
-        if (prev.length >= lineFull.length) {
-          clearInterval(intervalId);
-          return prev;
-        }
-        return lineFull.slice(0, prev.length + 1);
-      });
-    }, typeSpeed);
-
-    return () => clearInterval(intervalId);
+  
+    const normalSpeed = 50; // 50ms for first sentence
+    const slowSpeed = 120;  // 100ms for second sentence
+    const pauseAfterSemester = 800; // pause after "semester."
+    
+    let currentSpeed = normalSpeed;
+    let intervalId: number | null = null;
+  
+    function startTyping(speed: number) {
+      intervalId = window.setInterval(() => {
+        setTypedText((prev) => {
+          if (prev.length >= lineFull.length) {
+            if (intervalId) clearInterval(intervalId);
+            return prev;
+          }
+  
+          const newText = lineFull.slice(0, prev.length + 1);
+  
+          // Check if just typed "semester."
+          if (newText.endsWith("semester.")) {
+            if (intervalId) clearInterval(intervalId);
+  
+            setTimeout(() => {
+              startTyping(currentSpeed); // Resume typing after pause
+            }, pauseAfterSemester);
+  
+            return newText;
+          }
+  
+          // Check if just typed "\n" (newline between sentences)
+          if (lineFull[prev.length] === "\n") {
+            if (intervalId) clearInterval(intervalId);
+  
+            currentSpeed = slowSpeed; // slow down typing speed
+            startTyping(currentSpeed); // Restart typing at slower speed
+            return newText;
+          }
+  
+          return newText;
+        });
+      }, speed);
+    }
+  
+    startTyping(currentSpeed);
+  
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [isPlaying, step, lineFull]);
+  
 
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-tl from-duke-blue via-duke-royal to-duke-light text-white px-4">
@@ -74,14 +110,13 @@ export default function EndSlide({ isPlaying }: { isPlaying: boolean }) {
 
       {/* Typing paragraph */}
       <motion.p
-  className="mt-4 text-lg md:text-2xl text-center max-w-lg min-h-[6rem] whitespace-pre-line"
-  initial={{ opacity: 0 }}
-  animate={step >= 1 ? { opacity: 1 } : { opacity: 0 }}
-  transition={{ duration: 1 }}
->
-  {typedText}
-</motion.p>
-
+        className="mt-4 text-lg md:text-2xl text-center max-w-lg min-h-[6rem] whitespace-pre-line"
+        initial={{ opacity: 0 }}
+        animate={step >= 1 ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 1 }}
+      >
+        {typedText}
+      </motion.p>
 
     </div>
   );
