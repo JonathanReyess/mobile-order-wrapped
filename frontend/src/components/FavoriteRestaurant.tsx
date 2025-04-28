@@ -127,7 +127,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
             initial="initial"
             animate="animate"
             exit="exit"
-            className="text-3xl font-bold text-gray-800 text-center"
+            className="text-4xl font-bold text-gray-800 text-center"
           >
             {renderedLine1}
           </motion.p>
@@ -140,7 +140,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
             initial="initial"
             animate="animate"
             exit="exit"
-            className="mt-4 text-3xl font-bold text-gray-800 text-center"
+            className="mt-4 text-4xl font-bold text-gray-800 text-center"
           >
             {line2Full.slice(0, idx2)}
           </motion.p>
@@ -161,7 +161,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
                 variants={drop}
                 initial="initial"
                 animate="animate"
-                className="text-5xl absolute -top-12"
+                className="text-6xl absolute -top-12"
               >
                 👑
               </motion.span>
@@ -171,7 +171,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
               initial="initial"
               animate="animate"
               exit="exit"
-              className="text-7xl font-extrabold text-indigo-800 text-center"
+              className="text-8xl font-extrabold text-indigo-800 text-center"
             >
               {restaurant}
             </motion.h1>

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, ReactNode } from "react";
 import { useDrag } from "@use-gesture/react";
 import IntroSlide from "./IntroSlide";
 import TopItemsSlide from "./TopItemsSlide";
+import UniqueOrderSlide from "./UniqueOrderSlide";
 import TopRestaurantsSlide from "./TopRestaurantsSlide";
 import FavoriteRestaurant from "./FavoriteRestaurant";
 import BusiestDaySlide from "./BusiestDaySlide";
@@ -32,6 +33,7 @@ export default function SlideShow({ stats }: { stats: any }) {
 
   const slideConfigs: SlideConfig[] = [
     { element: <IntroSlide key="intro" name={stats.recipient_name} isPlaying={isPlaying} />, duration: 8000 },
+    { element: <UniqueOrderSlide totalUniqueItems={stats.total_unique_items} isPlaying={isPlaying} />, duration: 7750 },
     { element: <TopItemsSlide key="top-items" itemCounts={stats.item_counts} isPlaying={isPlaying} />, duration: 10000 },
     { element: <FavoriteRestaurant key="favorite-restaurant" uniqueCount={stats.unique_restaurants} restaurant={stats.top_restaurant.name} isPlaying={isPlaying} />, duration: 15000 },
     { element: <TopRestaurantsSlide key="top-restaurants" restaurantCounts={stats.restaurant_counts} isPlaying={isPlaying} />, duration: 10000 },
@@ -52,7 +54,7 @@ export default function SlideShow({ stats }: { stats: any }) {
           isPlaying={isPlaying}
         />
       ),
-      duration: Math.max(7000, Math.min(stats.busiest_day_orders.length, 12) * 1250),
+      duration: Math.max(7000, Math.min(stats.busiest_day_orders.length, 12) * 1420),
     },
     
     { element: <EarliestOrderSlide key="earliest-order" order={stats.earliest_order_by_time} isPlaying={isPlaying} />, duration: 7000 },

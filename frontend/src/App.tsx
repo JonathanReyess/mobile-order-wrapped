@@ -83,6 +83,8 @@ const EmailStatsViewer = () => {
     }
   };
 
+  
+
   if (stats) {
     return <SlideShow stats={stats} />;
   }

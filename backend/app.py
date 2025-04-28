@@ -150,6 +150,7 @@ def generate_receipt_statistics(email_data):
     earliest_rotated  = 1440  # max value in minutes (24 hrs)
     latest_rotated    = -1
 
+
     for email_entry in email_data:
         for attachment in email_entry.get("attachments", []):
             receipt = attachment.get("parsed_receipt", {})
@@ -213,11 +214,12 @@ def generate_receipt_statistics(email_data):
         top_restaurant = {"name": top_name, "count": top_visits}
     else:
         top_restaurant = {"name": None, "count": 0}
-
+    total_unique_items = len(item_counts)
     return (
         sorted_items,
         most_expensive,
         total_items_ordered,
+        total_unique_items,   # <-- ADD THIS
         {"date": busiest_day[0], "order_count": busiest_day[1]},
         dict(restaurant_counts),
         earliest_order,
@@ -272,7 +274,8 @@ def upload_emls():
             return jsonify({"error": "No valid .eml files found."}), 400
 
         # Generate statistics
-        item_stats, most_expensive, total_items, busiest_day, restaurant_counts, earliest_order, unique_restaurants, top_restaurant, latest_order = generate_receipt_statistics(email_data)
+        item_stats, most_expensive, total_items, total_unique_items, busiest_day, restaurant_counts, earliest_order, unique_restaurants, top_restaurant, latest_order = generate_receipt_statistics(email_data)
+
 
         # ── NEW: collect all receipts from the busiest day ─────────────
         busiest_date = busiest_day["date"]  # e.g. "2025-02-12"
@@ -301,6 +304,7 @@ def upload_emls():
             "item_counts": item_stats,
             "most_expensive_order": most_expensive,
             "total_items_ordered": total_items,
+            "total_unique_items": total_unique_items,    # <-- ADD THIS
             "busiest_day": busiest_day,
             "busiest_day_orders": busiest_day_orders,
             "restaurant_counts": restaurant_counts,
@@ -309,6 +313,7 @@ def upload_emls():
             "earliest_order_by_time": earliest_order,
             "latest_order_by_time": latest_order
         })
+
 
     except Exception as e:
         print("❌ Exception in /upload_emls:", e)
