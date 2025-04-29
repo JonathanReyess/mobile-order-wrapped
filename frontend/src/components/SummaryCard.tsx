@@ -124,31 +124,26 @@ export default function SummaryCard({
   
       const file = new File(
         [blob],
-        `wrapped-summary-${semester.replace(" ", "-")}.png`,
+        `my-wrapped${semester.replace(" ", "-")}.png`,
         { type: "image/png" }
       );
   
-      const shareUrl = "https://mobileorderwrapped.com/";
-  
-      if (
-        navigator.canShare &&
-        navigator.canShare({ files: [file], url: shareUrl })
-      ) {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
           title: `Mobile Order Wrapped for ${name || "User"} (${semester})`,
-          text: `Check out my Mobile Order Wrapped!`,
-          url: shareUrl,
+          text: `Check out my Mobile Order Wrapped! mobileorderwrapped.com`,
         });
       } else {
+        // fallback
+        const dataUrl = await toPng(cardRef.current);
+        download(dataUrl, `mobile-order-wrapped-${semester.replace(" ", "-")}.png`);
         alert(
-          "Sharing isn’t supported on this browser. You can download the image and manually share it along with this link:\n" +
-            shareUrl
+          "Sharing isn’t supported on this browser. The PNG has been downloaded instead."
         );
       }
     } catch (err: any) {
       if (err.name === "AbortError" || err.name === "NotAllowedError") {
-        // User canceled sharing → do nothing
         console.log("Share cancelled by user.");
       } else {
         console.error("Error sharing:", err);
@@ -156,6 +151,7 @@ export default function SummaryCard({
       }
     }
   };
+  
   
 
   const topItems = [...stats.item_counts]

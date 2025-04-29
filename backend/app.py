@@ -374,8 +374,8 @@ def generate_vibe():
     # Now build your prompt using filtered_stats
     prompt = (
         "Based on these mobile-order stats, describe the user's vibe in one catchy, Spotify-Wrapped-style sentence. "
-        "Use playful language and food-related descriptions. Don't use the word 'foodie' or 'penchant'. Don't use the phrase 'one mobile order at a time.' "
-        "Start with 'You're a...' and use flavorful adjectives and hyphenated phrases. "
+        "Use playful language that roasts and pokes fun at the person. Don't use the word 'foodie' or 'penchant'. Don't use the phrase 'one mobile order at a time.' "
+        "Start with 'You're a...' and don't be too abstract. Use hyphenated phrases. "
         "RESPOND ONLY as a JSON object with two fields: "
         "`sentence` (the vibe description) and `colors` (a dictionary mapping key words to a fitting color). "
         "For `colors`, you MUST choose from this exact list of hex codes: "
