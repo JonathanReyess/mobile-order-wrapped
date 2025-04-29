@@ -199,37 +199,50 @@ export default function Intro() {
       />
 
       {/* 3D Card */}
-      <div className="relative h-full w-full flex items-center justify-center perspective-800 z-20">
+      <div className="relative h-full w-full flex items-center justify-center perspective-800 z-20 pr-[6vw]">
         <div
           ref={cardRef}
           className="relative w-full h-full flex flex-col items-center justify-center transform-style-preserve-3d"
         >
           <div className="absolute top-[10%] left-1/2 transform -translate-x-1/2 callout z-20">
-            <p className="text-[7vw] font-extrabold text-[#d3f971] text-left w-[60vw] leading-none">
+            <p className="text-[6.5vw] font-extrabold  text-[#d3f971] text-left w-[60vw] leading-none">
               Welcome to the
             </p>
-            <p className="text-[7vw] font-extrabold text-[#4b917d] text-right w-[60vw] leading-none">
+            <p className="text-[6.5vw] font-extrabold text-[#4b917d] text-left w-[60vw] leading-none pl-[6vw]">
               end of the semester.
             </p>
-            <p className="text-[7vw] font-extrabold text-white text-left w-[60vw] leading-none">
+            <p className="text-[6.5vw] font-extrabold text-white text-left w-[60vw] leading-none">
               Ready for your
             </p>
-            <p className="text-[7vw] font-extrabold text-[#ee209c] text-right w-[60vw] leading-none">
-              2025 Wrapped?
+            <p className="text-[6.5vw] font-extrabold text-[#ee209c] text-left w-[60vw] leading-none pl-[6vw]">
+              Spring 2025
+            </p>
+            <p className="text-[6.5vw] font-extrabold text-[#ee209c] text-right w-[60vw] leading-none">
+               Wrapped?
             </p>
           </div>
         </div>
       </div>
 
       {/* Start Button */}
-      <div className="absolute bottom-20 w-full flex justify-center z-20">
-        <button
-          onClick={handleStart}
-          className="start-button px-8 py-4 bg-black text-[#d3f971] rounded-full text-xl font-bold border-2 border-[#d3f971] hover:bg-[#d3f971] hover:text-black transition-all duration-500 z-30"
-        >
-          Start
-        </button>
-      </div>
+      <div className="absolute bottom-10 w-full flex justify-center z-20">
+  <button
+    onClick={handleStart}
+    className="start-button 
+      px-4 py-2 text-md
+
+      sm:px-6 sm:py-3 sm:text-lg
+      xs:px-4 xs:py-2 xs:text-base
+
+      bg-black text-[#d3f971] rounded-full font-bold 
+      border-2 border-[#d3f971] 
+      hover:bg-[#d3f971] hover:text-black 
+      transition-all duration-500 z-30"
+  >
+    Start
+  </button>
+</div>
+
     </div>
   );
 }

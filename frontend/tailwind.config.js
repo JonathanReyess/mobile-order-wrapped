@@ -13,6 +13,10 @@ export default {
         'duke-light': '#A3CEF1',
         'duke-slate': '#274472',
       },
+      fontFamily: {
+        arc: ['Manrope', 'sans-serif'],
+      },
+      
     },
   },
   plugins: [],

@@ -1,8 +1,10 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { toPng, toBlob } from "html-to-image";
 import download from "downloadjs";
 // @ts-ignore
 import confetti from "canvas-confetti";
+import gsap from "gsap"; // <-- Add this line
+
 
 function formatToMonthDay(dateStr: string) {
   const [year, month, day] = dateStr.split("-").map(Number);
@@ -59,8 +61,53 @@ export default function SummaryCard({
   name?: string;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [background, setBackground] = useState("bg-gradient-to-br from-[#001A57] to-[#003366]");
-
+  const [background, setBackground] = useState("bg-gradient-to-br from-[#001A57] to-[#01478c]");
+  
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+  
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+  
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+  
+      const rotateY = (x - centerX) / centerX * 15; // 10 is the maximum rotation angle (left/right)
+      const rotateX = -(y - centerY) / centerY * 10; // 10 is the maximum rotation angle (up/down)
+      
+      gsap.to(card, {
+        rotateX: rotateX,
+        rotateY: rotateY,
+        scale: 1.00,
+        transformPerspective: 800,
+        transformOrigin: "center",
+        ease: "power2.out",
+        duration: 0.4,
+      });
+    };
+  
+    const resetMouseMove = () => {
+      gsap.to(card, {
+        rotateX: 0,
+        rotateY: 0,
+        scale: 1,
+        ease: "power2.out",
+        duration: 0.6,
+      });
+    };
+  
+    card.addEventListener("mousemove", handleMouseMove);
+    card.addEventListener("mouseleave", resetMouseMove);
+  
+    return () => {
+      card.removeEventListener("mousemove", handleMouseMove);
+      card.removeEventListener("mouseleave", resetMouseMove);
+    };
+  }, []);
+  
   const handleDownload = async () => {
     if (!cardRef.current) return;
     const dataUrl = await toPng(cardRef.current);
@@ -123,8 +170,6 @@ export default function SummaryCard({
   return (
 <div className="min-h-[96vh] md:min-h-[116vh] flex flex-col items-center justify-center pt-10 pb-20 md:pt-21 space-y-5">
 
-
-
       <div
         ref={cardRef}
         className={`
@@ -144,11 +189,11 @@ export default function SummaryCard({
         `}
       >
         {/* Big soft blob background */}
-        <div className="absolute -top-16 -left-16 w-[200%] h-[200%] rounded-full bg-white/10 transform rotate-45" />
+        <div className="absolute -top-24 -left-16 w-[200%] h-[200%] rounded-full bg-white/10 transform rotate-45" />
 
         {/* Header */}
         <div className="relative z-10">
-          <h1 className="text-xl md:text-2xl font-bold text-left">
+          <h1 className="text-2xl md:text-2xl font-bold text-left">
             Mobile Order Wrapped
             {name && (
               <span className="block text-base md:text-lg font-normal mt-1">{name}</span>
@@ -205,15 +250,15 @@ export default function SummaryCard({
         </div>
 
         {/* Footer */}
-        <p className="relative z-10 text-[10px] md:text-[11px] text-lime-300 opacity-80 uppercase">
+        <p className="relative z-10 text-[10px] md:text-[13px] text-lime-300 opacity-80 uppercase">
           mobileorderwrapped.com
         </p>
       </div>
       <div className="flex flex-wrap justify-center gap-4 mb-6">
   {[
-    { bg: "bg-gradient-to-br from-[#001A57] to-[#003366]" },
-    { bg: "bg-gradient-to-br from-purple-700 to-indigo-900" },
-    { bg: "bg-gradient-to-br from-green-600 to-emerald-600" },
+    { bg: "bg-gradient-to-br from-[#001A57] to-[#01478c]" },
+    { bg: "bg-gradient-to-br from-indigo-900 to-[#acaecc]" },
+    { bg: "bg-gradient-to-br from-[#4f6b60] to-[#95b189]"},
     { bg: "bg-gradient-to-br from-pink-600 to-rose-400" },
   ].map((color, index) => (
 <button
