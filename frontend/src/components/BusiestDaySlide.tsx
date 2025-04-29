@@ -17,18 +17,18 @@ function formatToMonthDay(dateStr: string) {
 
 function getMonthColor(month: string) {
   const colors: Record<string, string> = {
-    January: "text-sky-300",
-    February: "text-pink-300",
-    March: "text-green-300",
+    January: "text-sky-300", // 
+    February: "text-pink-300", // 
+    March: "text-[#34c230]",  //
     April: "text-yellow-300",
-    May: "text-lime-300",
-    June: "text-emerald-300",
-    July: "text-orange-300",
-    August: "text-amber-400",
-    September: "text-rose-300",
-    October: "text-red-400",
-    November: "text-amber-500",
-    December: "text-indigo-300",
+    May: "text-[#e1c4ff]", //
+    June: "text-[#E2DFD2]", //
+    July: "text-orange-300", //
+    August: "text-amber-400", //
+    September: "text-rose-300", //
+    October: "text-indigo-400", //
+    November: "text-amber-500", //
+    December: "text-[#248721]", //
   };
   return colors[month] || "text-white"; // fallback
 }

@@ -87,7 +87,13 @@ const EmailStatsViewer = () => {
   }
 
   return (
-<div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#003e7c] p-6">
+<div
+  className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#003e7c] p-6"
+  onDragOver={showInstructions ? handleDragOver : undefined}
+  onDrop={showInstructions ? handleDrop : undefined}
+  onDragLeave={showInstructions ? handleDragLeave : undefined}
+>
+
   {/* Grainy Overlay */}
   <div className="absolute inset-0 opacity-70 bg-[url('/white-teexture-1920x1080-2.png')] bg-cover bg-center pointer-events-none"></div>
 

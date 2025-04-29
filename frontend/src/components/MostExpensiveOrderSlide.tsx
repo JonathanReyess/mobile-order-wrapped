@@ -173,7 +173,7 @@ export default function MostExpensiveOrderSlide({
   
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-duke-slate to-duke-blue text-white px-4">
+    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-black to-[#06402B] via-[#51A687] text-white px-4">
 
       {/* Title */}
       <motion.h2

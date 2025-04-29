@@ -46,8 +46,9 @@ button {
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid white; /* or white, or your brand color */
 }
+
 
 /* Background container */
 .bg {

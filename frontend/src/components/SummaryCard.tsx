@@ -82,7 +82,7 @@ export default function SummaryCard({
         rotateX: rotateX,
         rotateY: rotateY,
         scale: 1.00,
-        transformPerspective: 800,
+        transformPerspective: 1000,
         transformOrigin: "center",
         ease: "power2.out",
         duration: 0.4,

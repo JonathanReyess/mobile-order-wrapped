@@ -15,8 +15,8 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
   const prefix = "You visited ";
   const numStr = uniqueCount.toString();
   const suffix = uniqueCount < 2 
-    ? " unique restaurant this semester." 
-    : " unique restaurants this semester.";
+    ? " unique restaurant." 
+    : " unique restaurants.";
   
   const fullLine1 = prefix + numStr + suffix;
   const numStart = prefix.length;
