@@ -225,23 +225,29 @@ export default function Intro() {
       </div>
 
       {/* Start Button */}
-      <div className="absolute bottom-10 w-full flex justify-center z-20">
+      <div
+  className="
+    absolute 
+    bottom-[5vh] sm:bottom-10 
+    w-full flex justify-center z-20
+    px-4
+  "
+>
   <button
     onClick={handleStart}
     className="start-button 
       px-4 py-2 text-md
-
       sm:px-6 sm:py-3 sm:text-lg
-      xs:px-4 xs:py-2 xs:text-base
-
       bg-black text-[#d3f971] rounded-full font-bold 
       border-2 border-[#d3f971] 
       hover:bg-[#d3f971] hover:text-black 
-      transition-all duration-500 z-30"
+      transition-all duration-500 z-30
+    "
   >
     Start
   </button>
 </div>
+
 
     </div>
   );
