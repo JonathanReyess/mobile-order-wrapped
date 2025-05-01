@@ -228,7 +228,7 @@ export default function Intro() {
       <div
   className="
     absolute 
-    bottom-[5vh] sm:bottom-10 
+    bottom-[12vh] sm:bottom-10 
     w-full flex justify-center z-20
     px-4
   "
@@ -247,6 +247,7 @@ export default function Intro() {
     Start
   </button>
 </div>
+
 
 
     </div>
