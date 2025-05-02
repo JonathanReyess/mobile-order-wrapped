@@ -103,25 +103,40 @@ const EmailStatsViewer = () => {
         {/* Upload Instructions Modal */}
         {showInstructions && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white p-6 rounded-lg w-full max-w-sm shadow-lg relative"
-            >
-              <button
-                onClick={() => setShowInstructions(false)}
-                className="absolute top-2 right-2 text-gray-500 hover:text-black text-lg"
-                aria-label="Close"
-              >
-                ✕
-              </button>
-              <h2 className="text-xl text-black font-semibold mb-4">
-                Export Your Mobile Order Receipts
-              </h2>
-              <p className="text-sm text-gray-700 mb-2">
-                1) Open the Outlook App and paste the following into the search bar:
+<motion.div
+  initial={{ opacity: 0, scale: 0.95 }}
+  animate={{ opacity: 1, scale: 1 }}
+  exit={{ opacity: 0, scale: 0.95 }}
+  transition={{ duration: 0.3 }}
+  className="bg-white p-6 rounded-lg w-full max-w-sm shadow-lg relative"
+>
+  <button
+    onClick={() => setShowInstructions(false)}
+    className="absolute top-2 right-2 text-gray-500 hover:text-black text-lg"
+    aria-label="Close"
+  >
+    ✕
+  </button>
+  <h2 className="text-xl text-black font-semibold mb-3">
+    How to Export Receipts
+  </h2>
+
+  <div className="mb-4 p-3 border-l-4 border-yellow-400 bg-yellow-100 text-sm text-gray-800 rounded">
+    ⚠️ This only works on a desktop or laptop <strong>with the Outlook app installed</strong>.<br />
+    Mobile apps or browser versions of Outlook <strong>won’t work</strong>.
+    <div className="mt-2 text-blue-700 underline">
+      <a href="https://go.microsoft.com/fwlink/?linkid=2236383&clcid=0x409&culture=en-us&country=us" target="_blank" rel="noopener noreferrer">
+        Download for Mac
+      </a>{" "}
+      |{" "}
+      <a href="https://go.microsoft.com/fwlink/?linkid=2270443&clcid=0x409&culture=en-us&country=us" target="_blank" rel="noopener noreferrer">
+        Download for Windows
+      </a>
+    </div>
+  </div>
+
+  <p className="text-sm text-gray-700 mb-2">
+    1) Open the Outlook App and paste the following into the search bar:
               </p>
               <div className="flex items-center space-x-2 mb-4">
                 <input
@@ -165,7 +180,7 @@ const EmailStatsViewer = () => {
           onClick={() => setShowInstructions(true)}
           className="bg-white text-[#003e7c] border border-gray-300 rounded-full w-64 py-3 text-center font-bold font-sans shadow-md transition-transform duration-200 hover:scale-105 hover:shadow-lg mb-6"
         >
-          Upload Instructions
+          View Upload Instructions
         </button>
 
 
