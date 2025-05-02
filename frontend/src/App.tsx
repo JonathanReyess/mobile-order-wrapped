@@ -87,56 +87,46 @@ const EmailStatsViewer = () => {
   }
 
   return (
-<div
-  className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#003e7c] p-6"
-  onDragOver={showInstructions ? handleDragOver : undefined}
-  onDrop={showInstructions ? handleDrop : undefined}
-  onDragLeave={showInstructions ? handleDragLeave : undefined}
->
+    <div
+      className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#003e7c] p-6"
+      onDragOver={showInstructions ? handleDragOver : undefined}
+      onDrop={showInstructions ? handleDrop : undefined}
+      onDragLeave={showInstructions ? handleDragLeave : undefined}
+    >
+      {/* Grainy Overlay */}
+      <div className="absolute inset-0 opacity-70 bg-[url('/white-teexture-1920x1080-2.png')] bg-cover bg-center pointer-events-none"></div>
 
-  {/* Grainy Overlay */}
-  <div className="absolute inset-0 opacity-70 bg-[url('/white-teexture-1920x1080-2.png')] bg-cover bg-center pointer-events-none"></div>
-
-  {/* Main Content */}
-  <div className="relative z-10 w-full max-w-md sm:max-w-lg md:max-w-xl flex flex-col items-center">
+      {/* Main Content */}
+      <div className="relative z-10 w-full max-w-md sm:max-w-lg md:max-w-xl flex flex-col items-center">
 
         {/* Upload Instructions Modal */}
         {showInstructions && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-<motion.div
-  initial={{ opacity: 0, scale: 0.95 }}
-  animate={{ opacity: 1, scale: 1 }}
-  exit={{ opacity: 0, scale: 0.95 }}
-  transition={{ duration: 0.3 }}
-  className="bg-white p-6 rounded-lg w-full max-w-sm shadow-lg relative"
->
-  <button
-    onClick={() => setShowInstructions(false)}
-    className="absolute top-2 right-2 text-gray-500 hover:text-black text-lg"
-    aria-label="Close"
-  >
-    ✕
-  </button>
-  <h2 className="text-xl text-black font-semibold mb-3">
-    How to Export Receipts
-  </h2>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white p-6 rounded-lg w-full max-w-sm shadow-lg relative"
+            >
+              <button
+                onClick={() => setShowInstructions(false)}
+                className="absolute top-2 right-2 text-gray-500 hover:text-black text-lg"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+              <h2 className="text-xl text-black font-semibold mb-3">
+                How to Export Receipts
+              </h2>
 
-  <div className="mb-4 p-3 border-l-4 border-yellow-400 bg-yellow-100 text-sm text-gray-800 rounded">
-    ⚠️ This only works on a desktop or laptop <strong>with the Outlook app installed</strong>.<br />
-    Mobile apps or browser versions of Outlook <strong>won’t work</strong>.
-    <div className="mt-2 text-blue-700 underline">
-      <a href="https://go.microsoft.com/fwlink/?linkid=2236383&clcid=0x409&culture=en-us&country=us" target="_blank" rel="noopener noreferrer">
-        Download for Mac
-      </a>{" "}
-      |{" "}
-      <a href="https://go.microsoft.com/fwlink/?linkid=2270443&clcid=0x409&culture=en-us&country=us" target="_blank" rel="noopener noreferrer">
-        Download for Windows
-      </a>
-    </div>
-  </div>
+              <div className="mb-4 p-3 border-l-4 border-yellow-400 bg-yellow-100 text-sm text-gray-800 rounded">
+                ⚠️ This only works on a desktop or laptop <strong>with the Outlook app installed</strong>.
+                The Outlook mobile app or browser versions <strong>won’t work</strong>.
+              </div>
 
-  <p className="text-sm text-gray-700 mb-2">
-    1) Open the Outlook App and paste the following into the search bar:
+              <p className="text-sm text-gray-700 mb-2">
+                1) Open Outlook and paste the following into the search bar:
               </p>
               <div className="flex items-center space-x-2 mb-4">
                 <input
@@ -161,7 +151,7 @@ const EmailStatsViewer = () => {
                 2) Scroll down to load all matching emails.
               </p>
               <p className="text-sm text-gray-700 mb-1">
-                3) Press ⌘+A (Command+A) or Ctrl+A to select all emails.
+                3) Press ⌘+A (Command+A) on Mac or Ctrl+A on Windows to select all emails.
               </p>
               <p className="text-sm text-gray-700">
                 4) Drag and drop the selected emails into this page.
@@ -182,7 +172,6 @@ const EmailStatsViewer = () => {
         >
           View Upload Instructions
         </button>
-
 
         {/* File Drop Area */}
         <div
@@ -216,53 +205,53 @@ const EmailStatsViewer = () => {
           </div>
         )}
 
-<button
-  onClick={handleUpload}
-  className="bg-[#032e56] text-white px-6 py-3 rounded-full w-64 font-sans font-bold transition-transform duration-200 hover:scale-105 hover:shadow-lg mb-6 flex items-center justify-center"
-  disabled={loading}
->
-  {loading ? (
-    <div className="flex items-center space-x-2">
-      <svg
-        className="animate-spin h-5 w-5 text-white"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <circle
-          className="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          strokeWidth="4"
-        ></circle>
-        <path
-          className="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8v8H4z"
-        ></path>
-      </svg>
-      <span>{uploading ? "Uploading..." : "Processing..."}</span>
-    </div>
-  ) : (
-    "Submit"
-  )}
-</button>
+        <button
+          onClick={handleUpload}
+          className="bg-[#032e56] text-white px-6 py-3 rounded-full w-64 font-sans font-bold transition-transform duration-200 hover:scale-105 hover:shadow-lg mb-6 flex items-center justify-center"
+          disabled={loading}
+        >
+          {loading ? (
+            <div className="flex items-center space-x-2">
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                ></path>
+              </svg>
+              <span>{uploading ? "Uploading..." : "Processing..."}</span>
+            </div>
+          ) : (
+            "Submit"
+          )}
+        </button>
 
-{/* Upload Progress Bar */}
-<div className="w-64 bg-gray-200 rounded-full h-2 overflow-hidden mb-6 relative">
-  {uploading ? (
-    <div
-      className="bg-blue-600 h-2 rounded-full transition-all duration-200"
-      style={{ width: `${progress}%` }}
-    ></div>
-  ) : processing ? (
-    <div className="h-2 w-full rounded-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-400 animate-shimmer"></div>
-  ) : (
-    <div className="bg-blue-600 h-2 rounded-full" style={{ width: '0%' }}></div>
-  )}
-</div>
+        {/* Upload Progress Bar */}
+        <div className="w-64 bg-gray-200 rounded-full h-2 overflow-hidden mb-6 relative">
+          {uploading ? (
+            <div
+              className="bg-blue-600 h-2 rounded-full transition-all duration-200"
+              style={{ width: `${progress}%` }}
+            ></div>
+          ) : processing ? (
+            <div className="h-2 w-full rounded-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-400 animate-shimmer"></div>
+          ) : (
+            <div className="bg-blue-600 h-2 rounded-full" style={{ width: '0%' }}></div>
+          )}
+        </div>
 
         {/* Error Message */}
         {error && (

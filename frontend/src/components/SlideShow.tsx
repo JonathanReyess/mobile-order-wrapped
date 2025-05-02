@@ -59,7 +59,17 @@ export default function SlideShow({ stats }: { stats: any }) {
     
     { element: <EarliestOrderSlide key="earliest-order" order={stats.earliest_order_by_time} isPlaying={isPlaying} />, duration: 7000 },
     { element: <LatestOrderSlide key="latest-order" order={stats.latest_order_by_time} isPlaying={isPlaying} />, duration: 7000 },
-    { element: <MostExpensiveOrderSlide key="most-expensive" order={stats.most_expensive_order} isPlaying={isPlaying} />, duration: 16000 },
+    {
+      element: (
+        <MostExpensiveOrderSlide 
+          key="most-expensive" 
+          order={stats.most_expensive_order} 
+          isPlaying={isPlaying} 
+        />
+      ), 
+      duration: Math.max(16000, 14000 + stats.most_expensive_order.items.length * 1250), // Adjust the 8000 base and 1000 ms per item as needed
+    },
+    
     { element: <VibeSlide key="vibe" vibe={vibe} colors={colors} isPlaying={isPlaying} />, duration: 15000 },
     { element: <EndSlide key="end" isPlaying={isPlaying} />, duration: 10000 },
     {
