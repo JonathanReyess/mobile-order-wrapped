@@ -26,8 +26,10 @@ const EmailStatsViewer = () => {
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = "copy"; // Fix for some Windows/Chrome combos
     setDragging(true);
   };
+  
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
