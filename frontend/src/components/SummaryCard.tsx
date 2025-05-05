@@ -106,7 +106,7 @@ export default function SummaryCard({ stats, semester = "Spring 2025", name }: {
   const topItems = [...stats.item_counts].sort((a, b) => b.count - a.count).slice(0, 5);
   const longestItemLength = Math.max(...topItems.map(it => it.item.length));
   const isLong = longestItemLength > 20;
-  const topItemFontSize = isLong ? "0.9rem" : "clamp(0.75rem,2.5vw,1rem)";
+  const topItemFontSize = isLong ? "0.88rem" : "clamp(0.75rem,2.5vw,1rem)";
   
   const [topRestaurantName, topRestaurantCount] = Object.entries(stats.restaurant_counts).sort((a, b) => b[1] - a[1])[0];
   const formattedBusiestDay = formatToMonthDay(stats.busiest_day.date);
