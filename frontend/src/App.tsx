@@ -138,7 +138,7 @@ const notificationElements = (
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="relative bg-white text-[#032e56] px-4 py-3 rounded shadow-lg w-72 text-sm overflow-hidden group"
+          className="relative bg-white text-[#032e56] px-4 py-3 rounded-xl shadow-lg w-72 text-sm overflow-hidden group"
         >
           {/* Message */}
           <div className="pr-8">{n.message}</div>
