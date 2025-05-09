@@ -3,3 +3,5 @@ Flask-Cors
 gunicorn
 beautifulsoup4
 google-genai
+python-dotenv
+extract-msg
