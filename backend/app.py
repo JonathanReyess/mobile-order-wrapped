@@ -11,13 +11,16 @@ from datetime import datetime, time
 from email.utils import parseaddr
 import json
 from google import genai
+import extract_msg
+from dotenv import load_dotenv
 
+
+load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
 
 CORS(app, resources={r"/*": {"origins": "*"}})
-
 
 # -----------------------
 # Helper functions
@@ -101,6 +104,8 @@ def extract_name_from_email_header(header_value):
     return None
 
 
+
+
 def parse_single_eml(msg, filename):
     attachments = []
     body = ""
@@ -137,6 +142,47 @@ def parse_single_eml(msg, filename):
             "parsed_receipt": parsed_receipt
         }]
     }
+
+def parse_msg_file(file_stream, filename):
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".msg") as temp_msg:
+            temp_msg.write(file_stream.read())
+            temp_msg_path = temp_msg.name
+
+        msg = extract_msg.Message(temp_msg_path)
+        msg_sender = msg.sender
+        msg_date = msg.date
+        msg_subject = msg.subject
+        msg_body = msg.body
+
+        parsed_receipt = parse_receipt_from_html(msg_body)
+        if not parsed_receipt:
+            return None
+
+        # 🧹 Strip price info from item names in .msg files only
+        for item in parsed_receipt.get("items", []):
+            name = item.get("name", "")
+            cleaned_name = re.sub(r'[\t ]+\$?\d+(\.\d{2})?$', '', name)
+            item["name"] = cleaned_name.strip()
+
+        recipient_name = extract_name_from_email_header(msg.to)
+
+
+        return {
+            "subject": msg_subject,
+            "to": msg_sender,
+            "recipient_name": recipient_name,
+            "attachments": [{
+                "filename": filename,
+                "parsed_subject": msg_subject,
+                "parsed_receipt": parsed_receipt
+            }]
+        }
+
+    except Exception as e:
+        print(f"⚠️ Error parsing .msg file {filename}: {e}")
+        return None
+
 
 
 def time_to_rotated_minutes(t: time) -> int:
@@ -245,6 +291,7 @@ def generate_receipt_statistics(email_data):
 # -----------------------
 
 @app.route("/upload_emls", methods=["POST"])
+@app.route("/upload_emls", methods=["POST"])
 def upload_emls():
     try:
         uploaded_files = request.files.getlist("files")
@@ -266,31 +313,39 @@ def upload_emls():
 
                     for root, _, files_inside in os.walk(temp_dir):
                         for name in files_inside:
+                            filepath = os.path.join(root, name)
                             if name.endswith(".eml"):
-                                eml_path = os.path.join(root, name)
-                                with open(eml_path, "rb") as f:
+                                with open(filepath, "rb") as f:
                                     content = f.read()
                                     msg = email.message_from_bytes(content)
                                     parsed_email = parse_single_eml(msg, name)
-                                    if parsed_email:  # 🛡️ Only append if valid
+                                    if parsed_email:
+                                        email_data.append(parsed_email)
+                            elif name.endswith(".msg"):
+                                with open(filepath, "rb") as f:
+                                    parsed_email = parse_msg_file(f, name)
+                                    if parsed_email:
                                         email_data.append(parsed_email)
 
             elif filename.endswith(".eml"):
                 content = file.read()
                 msg = email.message_from_bytes(content)
                 parsed_email = parse_single_eml(msg, filename)
-                if parsed_email:  # 🛡️ Only append if valid
+                if parsed_email:
+                    email_data.append(parsed_email)
+
+            elif filename.endswith(".msg"):
+                parsed_email = parse_msg_file(file.stream, filename)
+                if parsed_email:
                     email_data.append(parsed_email)
 
         if not email_data:
-            return jsonify({"error": "No valid .eml files found."}), 400
+            return jsonify({"error": "No valid .eml or .msg files found."}), 400
 
         # Generate statistics
         item_stats, most_expensive, total_items, total_unique_items, busiest_day, restaurant_counts, earliest_order, unique_restaurants, top_restaurant, latest_order = generate_receipt_statistics(email_data)
 
-
-        # ── NEW: collect all receipts from the busiest day ─────────────
-        busiest_date = busiest_day["date"]  # e.g. "2025-02-12"
+        busiest_date = busiest_day["date"]
         busiest_day_orders = []
         for entry in email_data:
             for attach in entry.get("attachments", []):
@@ -304,7 +359,6 @@ def upload_emls():
                         busiest_day_orders.append(receipt)
                 except ValueError:
                     continue
-        # ────────────────────────────────────────────────────────────────
 
         recipient_name = next(
             (entry.get("recipient_name") for entry in email_data if entry.get("recipient_name")),
@@ -316,7 +370,7 @@ def upload_emls():
             "item_counts": item_stats,
             "most_expensive_order": most_expensive,
             "total_items_ordered": total_items,
-            "total_unique_items": total_unique_items,    # <-- ADD THIS
+            "total_unique_items": total_unique_items,
             "busiest_day": busiest_day,
             "busiest_day_orders": busiest_day_orders,
             "restaurant_counts": restaurant_counts,
@@ -325,7 +379,6 @@ def upload_emls():
             "earliest_order_by_time": earliest_order,
             "latest_order_by_time": latest_order
         })
-
 
     except Exception as e:
         print("❌ Exception in /upload_emls:", e)
