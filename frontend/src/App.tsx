@@ -87,7 +87,7 @@ showNotification(
 
   const handleUpload = async () => {
     if (files.length === 0) {
-      setError("Please upload at least one .eml or .zip file.");
+      setError("Please upload at least one .eml, .msg or .zip file.");
       return;
     }
 
@@ -364,10 +364,20 @@ const notificationElements = (
           </div>
 
           {error && <p className="mt-4 text-red-600 font-semibold text-center">{error}</p>}
-        </div>
-      </div>
-    </>
-  );
-};
+
+          <p className="text-sm text-gray-100 mt-6 text-center">
+            Questions or issues?{" "}
+            <a
+              href="mailto:wrappedmobileorder@gmail.com"
+              className="text-blue-400 underline hover:text-blue-200 transition"
+            >
+              Contact us
+            </a>
+          </p>
+                  </div>
+                </div>
+              </>
+            );
+          };
 
 export default EmailStatsViewer;
