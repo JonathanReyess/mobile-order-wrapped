@@ -16,7 +16,6 @@ export const NotificationToast = ({
   onClose,
   duration = 5000,
 }: NotificationToastProps) => {
-  const [remaining, setRemaining] = useState(duration);
   const [progress, setProgress] = useState(100);
 
   useEffect(() => {
@@ -28,7 +27,6 @@ export const NotificationToast = ({
         clearInterval(interval);
         onClose(id);
       } else {
-        setRemaining(newRemaining);
         setProgress((newRemaining / duration) * 100);
       }
     }, 100);
