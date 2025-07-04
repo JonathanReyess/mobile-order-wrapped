@@ -154,7 +154,7 @@ export default function Intro() {
     container?.addEventListener("mouseleave", resetMouseMove);
 
     // Debounced resize
-    let resizeTimeout: NodeJS.Timeout;
+    let resizeTimeout: number;
     const handleResize = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
