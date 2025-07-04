@@ -291,7 +291,6 @@ def generate_receipt_statistics(email_data):
 # -----------------------
 
 @app.route("/upload_emls", methods=["POST"])
-@app.route("/upload_emls", methods=["POST"])
 def upload_emls():
     try:
         uploaded_files = request.files.getlist("files")
