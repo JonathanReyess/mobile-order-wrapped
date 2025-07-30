@@ -1,9 +1,17 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
+import { useEffect} from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import SlideShow from "./components/SlideShow";
 import { motion, AnimatePresence } from "framer-motion";
 
 const EmailStatsViewer = () => {
+  const navigate = useNavigate();
+
+useEffect(() => {
+  navigate("/", { replace: true });
+}, []);
+
   const [stats, setStats] = useState<any | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -22,44 +30,7 @@ const [notifications, setNotifications] = useState<
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const fileInputRef = useRef<HTMLInputElement>(null);
-const showNotification = (message: React.ReactNode) => {
 
-  const id = Date.now();
-  const duration = 10; // seconds
-
-  setNotifications((prev) => [...prev, { id, message, timeLeft: duration }]);
-
-  // Decrease timeLeft every second
-  const interval = setInterval(() => {
-    setNotifications((prev) =>
-      prev.map((n) =>
-        n.id === id ? { ...n, timeLeft: n.timeLeft - 1 } : n
-      )
-    );
-  }, 1000);
-
-  // Remove after duration
-  setTimeout(() => {
-    clearInterval(interval);
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  }, duration * 1000);
-};
-
-
-const hasShownNotification = useRef(false);
-
-useEffect(() => {
-  if (!hasShownNotification.current) {
-showNotification(
-  <>
-    <strong>New Update:</strong> .msg file support now works on Windows!
-  </>
-);
-
-
-    hasShownNotification.current = true;
-  }
-}, []);
 
 
   const handleFiles = (newFiles: FileList | File[]) => {
@@ -115,7 +86,6 @@ showNotification(
       setTimeout(() => {
         setProcessing(false);
         setStats(res.data);
-        showNotification("✅ Upload successful! Stats ready.");
       }, 1000);
     } catch (err: any) {
       console.error("❌ Backend error:", err?.response?.data || err.message);

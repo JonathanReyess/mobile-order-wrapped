@@ -1,6 +1,21 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
+
+function getTimeLeft() {
+  const now = new Date();
+  const finalsEnd = new Date("2025-12-05T23:59:59");
+  const diff = finalsEnd.getTime() - now.getTime();
+
+  const total = Math.max(0, diff);
+  const days = Math.floor(total / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((total / (1000 * 60)) % 60);
+  const seconds = Math.floor((total / 1000) % 60);
+
+  return { days, hours, minutes, seconds, total };
+}
+
 
 export default function Intro() {
   const navigate = useNavigate();
@@ -8,6 +23,15 @@ export default function Intro() {
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
   const exitTl = useRef<gsap.core.Timeline | null>(null);
+  const [timeLeft, setTimeLeft] = useState(getTimeLeft());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(getTimeLeft());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+  
 
   // panels config
   const numberOfPanels = 12;
@@ -233,19 +257,26 @@ export default function Intro() {
     px-4
   "
 >
-  <button
-    onClick={handleStart}
-    className="start-button 
-      px-4 py-2 text-md
-      sm:px-6 sm:py-3 sm:text-lg
-      bg-black text-[#d3f971] rounded-full font-bold 
-      border-2 border-[#d3f971] 
-      hover:bg-[#d3f971] hover:text-black 
-      transition-all duration-500 z-30
-    "
-  >
-    Start
-  </button>
+<button
+  onClick={() => {
+    if (timeLeft.total <= 0) handleStart();
+  }}
+  disabled={timeLeft.total > 0}
+  className={`start-button 
+    px-4 py-2 text-md
+    sm:px-6 sm:py-3 sm:text-lg
+    rounded-full font-bold border-2 transition-all duration-500 z-30
+    ${timeLeft.total > 0
+      ? 'bg-black text-[#d3f971] border-[#d3f971] opacity-70 cursor-not-allowed'
+      : 'bg-black text-[#d3f971] border-[#d3f971] hover:bg-[#d3f971] hover:text-black'}
+  `}
+>
+  {timeLeft.total > 0
+    ? `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`
+    : 'Start'}
+</button>
+
+
 </div>
 
 
