@@ -22,6 +22,7 @@ export default function Intro() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const panelTl = useRef<gsap.core.Timeline | null>(null);
   const exitTl = useRef<gsap.core.Timeline | null>(null);
   const [timeLeft, setTimeLeft] = useState(getTimeLeft());
 
@@ -57,17 +58,16 @@ export default function Intro() {
     let elHeight = window.innerHeight / numberOfPanels;
     let elWidth = window.innerWidth / numberOfPanels;
 
-    //
-    // 1) panelTl – loops forever
-    //
-    const panelTl = gsap.timeline({ repeat: -1, defaults: { ease: "sine.inOut" } });
+    panelTl.current = gsap.timeline({ repeat: -1, defaults: { ease: "sine.inOut" } });
+
     function buildPanelTimeline() {
-      panelTl.clear();
+      panelTl.current?.clear();
+
       panels.forEach((panel, i) => {
         const wi = window.innerWidth - elWidth * (numberOfPanels - i) + elWidth;
         const he = window.innerHeight - elHeight * (numberOfPanels - i) + elHeight;
 
-        panelTl
+        panelTl.current!
           .fromTo(
             panel,
             {
@@ -117,21 +117,16 @@ export default function Intro() {
           );
       });
     }
+
     buildPanelTimeline();
 
-    //
-    // 2) introTl – runs once on mount
-    //
     const introTl = gsap.timeline({ defaults: { ease: "expo.out" } });
     introTl
       .fromTo(textCall, { left: "150%" }, { left: "50%", duration: 1, delay: 1.2 }, 0)
-      .to(textCall, { y: "-60px", duration: 0.5, delay: 3 }, 0)
+      .to(textCall, { y: -60, duration: 0.5, delay: 3 }, 0) // changed from "-60px" string to -60 number
       .fromTo(textSub, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.5, delay: 3 }, 0)
       .fromTo(startBtn, { opacity: 0, scale: 0.5, y: 100 }, { opacity: 1, scale: 1, y: -50, duration: 1 }, 2);
 
-    //
-    // 3) exitTl – paused until handleStart()
-    //
     exitTl.current = gsap.timeline({
       paused: true,
       defaults: { ease: "power1.inOut" },
@@ -145,61 +140,63 @@ export default function Intro() {
       .to(panels, { opacity: 0, duration: 0.8 }, "<")
       .to(overlay, { opacity: 1, duration: 0.5 }, "<0.2");
 
-    //
-    // 4) mousemove 3D rotation
-    //
     const handleMouseMove = (e: MouseEvent) => {
       if (!card || !container) return;
-    
+
       const rect = container.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-    
+
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
-    
-      const rotateY = (x - centerX) / centerX * 10; // Max 10deg
-      const rotateX = -(y - centerY) / centerY * 10; // Max 10deg
-    
+
+      const rotateY = ((x - centerX) / centerX) * 10;
+      const rotateX = (-(y - centerY) / centerY) * 10;
+
       gsap.to(card, {
-        rotateX: rotateX,
-        rotateY: rotateY,
-        scale: 1.03, // 🌟 Add slight scale up while hovering
+        rotateX,
+        rotateY,
+        scale: 1.03,
         transformPerspective: 800,
         transformOrigin: "center",
         ease: "power2.out",
         duration: 0.4,
       });
     };
-    
 
     const resetMouseMove = () => {
       if (!card) return;
       gsap.to(card, {
         rotateX: 0,
         rotateY: 0,
-        scale: 1, // 🌟 Reset scale back to normal
+        scale: 1,
         ease: "power2.out",
         duration: 0.6,
       });
     };
-    
 
     container?.addEventListener("mousemove", handleMouseMove);
     container?.addEventListener("mouseleave", resetMouseMove);
 
-    window.addEventListener("resize", () => {
-      elHeight = window.innerHeight / numberOfPanels;
-      elWidth = window.innerWidth / numberOfPanels;
-      buildPanelTimeline();
-      panelTl.restart();
-    });
+    // Debounced resize
+    let resizeTimeout: number;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        elHeight = window.innerHeight / numberOfPanels;
+        elWidth = window.innerWidth / numberOfPanels;
+        buildPanelTimeline();
+        panelTl.current?.restart();
+      }, 200);
+    };
+
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener("resize", () => {});
+      window.removeEventListener("resize", handleResize);
       container?.removeEventListener("mousemove", handleMouseMove);
       container?.removeEventListener("mouseleave", resetMouseMove);
-      panelTl.kill();
+      panelTl.current?.kill();
       introTl.kill();
       exitTl.current?.kill();
     };
@@ -229,20 +226,20 @@ export default function Intro() {
           className="relative w-full h-full flex flex-col items-center justify-center transform-style-preserve-3d"
         >
           <div className="absolute top-[10%] left-1/2 transform -translate-x-1/2 callout z-20">
-            <p className="text-[6.5vw] font-extrabold  text-[#d3f971] text-left w-[60vw] leading-none">
+            <p className="text-[6vw] font-extrabold text-[#d3f971] text-left w-[60vw] leading-none">
               Welcome to the
             </p>
-            <p className="text-[6.5vw] font-extrabold text-[#4b917d] text-left w-[60vw] leading-none pl-[6vw]">
+            <p className="text-[6vw] font-extrabold text-[#4b917d] text-left w-[60vw] leading-none pl-[6vw]">
               end of the semester.
             </p>
-            <p className="text-[6.5vw] font-extrabold text-white text-left w-[60vw] leading-none">
+            <p className="text-[6vw] font-extrabold text-white text-left w-[60vw] leading-none">
               Ready for your
             </p>
-            <p className="text-[6.5vw] font-extrabold text-[#ee209c] text-left w-[60vw] leading-none pl-[6vw]">
+            <p className="text-[6vw] font-extrabold text-[#ee209c] text-left w-[60vw] leading-none pl-[6vw]">
               Spring 2025
             </p>
-            <p className="text-[6.5vw] font-extrabold text-[#ee209c] text-right w-[60vw] leading-none">
-               Wrapped?
+            <p className="text-[6vw] font-extrabold text-[#ee209c] text-right w-[55vw] leading-none">
+              Wrapped?
             </p>
           </div>
         </div>
