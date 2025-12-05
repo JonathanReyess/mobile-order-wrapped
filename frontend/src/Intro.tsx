@@ -2,146 +2,106 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 
-function getTimeLeft() {
-  const now = new Date();
-  const finalsEnd = new Date("2025-12-05T23:59:59");
-  const diff = finalsEnd.getTime() - now.getTime();
+// --- Components ---
 
-  const total = Math.max(0, diff);
-  const days = Math.floor(total / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
-  const minutes = Math.floor((total / (1000 * 60)) % 60);
-  const seconds = Math.floor((total / 1000) % 60);
+/**
+ * NoiseOverlay adds a grainy texture to the screen to give it that "printed/grunge" look
+ * seen in the reference images.
+ */
+const NoiseOverlay = () => (
+  <div className="pointer-events-none fixed inset-0 z-40 opacity-[0.08] mix-blend-overlay">
+    <svg className="h-full w-full">
+      <filter id="noiseFilter">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.8"
+          numOctaves="3"
+          stitchTiles="stitch"
+        />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#noiseFilter)" />
+    </svg>
+  </div>
+);
 
-  return { days, hours, minutes, seconds, total };
-}
-
+/**
+ * CurvedText uses SVG to render the "Wrapped" text on a bezier curve path.
+ */
+const CurvedText = ({ text, color }: { text: string; color: string }) => {
+  return (
+    <svg viewBox="0 0 500 150" className="w-full h-full overflow-visible">
+      <path
+        id="curvePath"
+        d="M 10,120 Q 250,20 490,120"
+        fill="transparent"
+      />
+      <text width="500">
+        <textPath
+          xlinkHref="#curvePath"
+          startOffset="50%"
+          textAnchor="middle"
+          className="font-black tracking-tighter uppercase fill-current"
+          style={{ fontSize: "110px", fontFamily: "'Anton', sans-serif" }}
+          fill={color}
+        >
+          {text}
+        </textPath>
+      </text>
+    </svg>
+  );
+};
 
 export default function Intro() {
   const navigate = useNavigate();
+
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const overlayRef = useRef<HTMLDivElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
-  const panelTl = useRef<gsap.core.Timeline | null>(null);
-  const exitTl = useRef<gsap.core.Timeline | null>(null);
-  const [timeLeft, setTimeLeft] = useState(getTimeLeft());
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(getTimeLeft());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
   
+  // Animation refs
+  const stripesRef = useRef<HTMLDivElement[]>([]);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const bigYearRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  
+  const [isHovering, setIsHovering] = useState(false);
 
-  // panels config
-  const numberOfPanels = 12;
-  const rotationCoef = 5;
-  const panelGradient = `linear-gradient(
-    105deg,
-    #F5FBFF 0%,
-    #ADD8E6 6%,
-    #0059b3 19%,
-    #003366 72%,
-    black 100%
-  )`;
-
+  // -- Animation Setup --
   useEffect(() => {
-    const panels = document.querySelectorAll<HTMLDivElement>(".panel1");
-    const textCall = document.querySelector<HTMLDivElement>(".callout")!;
-    const textSub = document.querySelector<HTMLDivElement>(".subtitle")!;
-    const startBtn = document.querySelector<HTMLButtonElement>(".start-button")!;
-    const overlay = overlayRef.current!;
-    const card = cardRef.current;
     const container = containerRef.current;
+    if (!container) return;
 
-    let elHeight = window.innerHeight / numberOfPanels;
-    let elWidth = window.innerWidth / numberOfPanels;
+    // 1. Initial Intro Animation Timeline
+    const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
 
-    panelTl.current = gsap.timeline({ repeat: -1, defaults: { ease: "sine.inOut" } });
+    // Stagger in the background racing stripes
+    tl.fromTo(
+      stripesRef.current,
+      { yPercent: -100, opacity: 0 },
+      { yPercent: 0, opacity: 1, duration: 1.2, stagger: 0.05, ease: "expo.inOut" }
+    )
+    .fromTo(
+      bigYearRef.current, 
+      { scale: 0.8, opacity: 0, rotation: -5 },
+      { scale: 1, opacity: 1, rotation: 0, duration: 1.5, ease: "elastic.out(1, 0.5)" },
+      "-=0.5"
+    )
+    .fromTo(
+      contentRef.current,
+      { y: 100, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1 },
+      "-=1"
+    )
+    .fromTo(
+      buttonRef.current,
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.8, ease: "back.out(1.7)" },
+      "-=0.5"
+    );
 
-    function buildPanelTimeline() {
-      panelTl.current?.clear();
-
-      panels.forEach((panel, i) => {
-        const wi = window.innerWidth - elWidth * (numberOfPanels - i) + elWidth;
-        const he = window.innerHeight - elHeight * (numberOfPanels - i) + elHeight;
-
-        panelTl.current!
-          .fromTo(
-            panel,
-            {
-              y: elHeight * 5.5,
-              x: elWidth * 5.5,
-              width: 0,
-              height: 0,
-              rotation: -360,
-              background: panelGradient,
-            },
-            {
-              width: wi,
-              height: he,
-              y: -elHeight / 1.33 + ((numberOfPanels - i) * elHeight) / 1.33,
-              x: 0,
-              rotation: 0,
-              duration: 1 + 0.1 * (numberOfPanels - i),
-            },
-            0
-          )
-          .to(
-            panel,
-            {
-              rotation: 12 * rotationCoef - (i + 1) * rotationCoef,
-              duration: 3,
-              background: panelGradient,
-            },
-            ">"
-          )
-          .to(
-            panel,
-            {
-              rotation: 360,
-              y: -elHeight / 6 + ((numberOfPanels - i) * elHeight) / 6,
-              x: -elWidth / 1.2 + ((numberOfPanels - i) * elWidth) / 1.2,
-              duration: 1,
-            },
-            ">"
-          )
-          .to(
-            panel,
-            {
-              rotation: 12 * rotationCoef - (i + 1) * rotationCoef + 360,
-              duration: 4,
-            },
-            ">"
-          );
-      });
-    }
-
-    buildPanelTimeline();
-
-    const introTl = gsap.timeline({ defaults: { ease: "expo.out" } });
-    introTl
-      .fromTo(textCall, { left: "150%" }, { left: "50%", duration: 1, delay: 1.2 }, 0)
-      .to(textCall, { y: -60, duration: 0.5, delay: 3 }, 0) // changed from "-60px" string to -60 number
-      .fromTo(textSub, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.5, delay: 3 }, 0)
-      .fromTo(startBtn, { opacity: 0, scale: 0.5, y: 100 }, { opacity: 1, scale: 1, y: -50, duration: 1 }, 2);
-
-    exitTl.current = gsap.timeline({
-      paused: true,
-      defaults: { ease: "power1.inOut" },
-      onComplete: () => {
-        navigate("/upload");
-      },
-    });
-
-    exitTl.current
-      .to([textCall, textSub, startBtn], { opacity: 0, y: 30, stagger: 0.1, duration: 0.4 })
-      .to(panels, { opacity: 0, duration: 0.8 }, "<")
-      .to(overlay, { opacity: 1, duration: 0.5 }, "<0.2");
-
+    // 2. Mouse Movement Parallax Logic (3D Card Effect)
     const handleMouseMove = (e: MouseEvent) => {
-      if (!card || !container) return;
+      if (!cardRef.current) return;
 
       const rect = container.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -150,133 +110,222 @@ export default function Intro() {
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
 
-      const rotateY = ((x - centerX) / centerX) * 10;
-      const rotateX = (-(y - centerY) / centerY) * 10;
+      // Calculate rotation based on mouse position
+      // Increased multiplier for more dramatic effect
+      const rotateY = ((x - centerX) / centerX) * 15; 
+      const rotateX = (-(y - centerY) / centerY) * 15;
 
-      gsap.to(card, {
-        rotateX,
-        rotateY,
-        scale: 1.03,
-        transformPerspective: 800,
+      gsap.to(cardRef.current, {
+        rotateX: rotateX,
+        rotateY: rotateY,
+        transformPerspective: 1000,
         transformOrigin: "center",
         ease: "power2.out",
-        duration: 0.4,
+        duration: 0.5,
       });
+      
+      // Also slight parallax on the year background
+      if (bigYearRef.current) {
+        gsap.to(bigYearRef.current, {
+          x: (x - centerX) * 0.05,
+          y: (y - centerY) * 0.05,
+          duration: 1
+        });
+      }
     };
 
     const resetMouseMove = () => {
-      if (!card) return;
-      gsap.to(card, {
+      if (!cardRef.current) return;
+      gsap.to(cardRef.current, {
         rotateX: 0,
         rotateY: 0,
-        scale: 1,
         ease: "power2.out",
         duration: 0.6,
       });
+       if (bigYearRef.current) {
+        gsap.to(bigYearRef.current, { x: 0, y: 0, duration: 1 });
+      }
     };
 
-    container?.addEventListener("mousemove", handleMouseMove);
-    container?.addEventListener("mouseleave", resetMouseMove);
-
-    // Debounced resize
-    let resizeTimeout: number;
-    const handleResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        elHeight = window.innerHeight / numberOfPanels;
-        elWidth = window.innerWidth / numberOfPanels;
-        buildPanelTimeline();
-        panelTl.current?.restart();
-      }, 200);
-    };
-
-    window.addEventListener("resize", handleResize);
+    container.addEventListener("mousemove", handleMouseMove);
+    container.addEventListener("mouseleave", resetMouseMove);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
-      container?.removeEventListener("mousemove", handleMouseMove);
-      container?.removeEventListener("mouseleave", resetMouseMove);
-      panelTl.current?.kill();
-      introTl.kill();
-      exitTl.current?.kill();
+      container.removeEventListener("mousemove", handleMouseMove);
+      container.removeEventListener("mouseleave", resetMouseMove);
+      tl.kill();
     };
-  }, [navigate]);
+  }, []);
 
   const handleStart = () => {
-    exitTl.current?.play();
+    // Exit Animation
+    const tl = gsap.timeline({
+      onComplete: () => {
+        // Navigate to the correct upload page route
+        navigate("/upload"); 
+      }
+    });
+
+    // Zoom everything out and fade to white
+    tl.to([cardRef.current, bigYearRef.current], {
+      scale: 5,
+      opacity: 0,
+      duration: 0.8,
+      ease: "power2.in"
+    })
+    .to(stripesRef.current, {
+      yPercent: 100,
+      stagger: 0.02,
+      duration: 0.5
+    }, "<")
+    .to(overlayRef.current, {
+      opacity: 1,
+      duration: 0.3
+    }, "-=0.2");
+  };
+
+  // --- Render Helpers ---
+
+  // Generate the background racing stripes (Panels)
+  const renderStripes = () => {
+    const stripes = [];
+    const count = 10;
+    for (let i = 0; i < count; i++) {
+      stripes.push(
+        <div
+          key={i}
+          ref={(el) => {
+            if (el) stripesRef.current[i] = el;
+          }}
+          className={`h-full flex-1 transform origin-top ${
+            i % 2 === 0 ? "bg-[#e0e0e0]" : "bg-white"
+          }`}
+          style={{
+             // Add a subtle skew to make it look fast
+            transform: 'skewX(-10deg) scale(1.2)'
+          }}
+        />
+      );
+    }
+    return (
+      <div className="absolute inset-0 flex flex-row -mx-20 pointer-events-none opacity-20 z-0">
+        {stripes}
+      </div>
+    );
   };
 
   return (
-    <div ref={containerRef} className="h-screen w-screen bg-black overflow-hidden relative">
-      {/* looping panels */}
-      {Array.from({ length: numberOfPanels }).map((_, idx) => (
-        <div key={idx} className="panel1 absolute top-0 left-0 z-0" />
-      ))}
+    <div
+      ref={containerRef}
+      className="relative h-screen w-screen bg-[#0a0a0a] overflow-hidden flex items-center justify-center font-sans selection:bg-[#ff1e1e] selection:text-white"
+    >
+      <NoiseOverlay />
 
-      {/* white flash overlay */}
+      {/* Background Pattern Layer */}
+      <div className="absolute inset-0 bg-checkered opacity-10 z-0" />
+      
+      {/* Animated Stripes Background */}
+      {renderStripes()}
+
+      {/* Flash Overlay */}
       <div
         ref={overlayRef}
-        className="absolute inset-0 bg-white z-50 pointer-events-none opacity-0"
+        className="absolute inset-0 bg-white z-[60] pointer-events-none opacity-0"
       />
 
-      {/* 3D Card */}
-      <div className="relative h-full w-full flex items-center justify-center perspective-800 z-20 pr-[6vw]">
+      {/* Main 3D Container */}
+      <div className="relative w-full max-w-5xl aspect-video flex items-center justify-center perspective-1000 z-10 px-4">
+        
+        {/* The Card (Tilts on mousemove) */}
         <div
           ref={cardRef}
-          className="relative w-full h-full flex flex-col items-center justify-center transform-style-preserve-3d"
+          className="relative w-full h-full transform-style-3d flex items-center justify-center"
         >
-          <div className="absolute top-[10%] left-1/2 transform -translate-x-1/2 callout z-20">
-            <p className="text-[6vw] font-extrabold text-[#d3f971] text-left w-[60vw] leading-none">
-              Welcome to the
+          {/* Giant Background Year - Stays flat relative to card but behind text */}
+          <div 
+            ref={bigYearRef}
+            className="absolute z-0 select-none pointer-events-none"
+          >
+             <h1 className="text-[30vw] md:text-[30rem] leading-none font-black text-transparent italic tracking-tighter"
+                 style={{ 
+                   WebkitTextStroke: '2px #202020', 
+                   opacity: 0.75
+                 }}>
+              2025
+            </h1>
+          </div>
+
+          {/* Foreground Content */}
+          <div ref={contentRef} className="z-10 flex flex-col items-center relative">
+            
+            {/* Top Tagline */}
+            <div className="bg-[#ff1e1e] text-white px-3 py-1 mb-14 transform -skew-x-12 inline-block shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+              <p className="font-bold text-sm md:text-lg uppercase tracking-widest transform skew-x-12">
+                End of Semester
+              </p>
+            </div>
+
+            {/* Curved 'Wrapped' Text */}
+            <div className="w-[90vw] md:w-[600px] h-[100px] md:h-[180px] relative -mt-4 md:-mt-8">
+              {/* Stroke Layer (Behind) */}
+              <div className="absolute inset-0 z-0 translate-x-1 translate-y-1">
+                 <CurvedText text="WRAPPED" color="#333" />
+              </div>
+              {/* Fill Layer */}
+              <div className="absolute inset-0 z-10">
+                 <CurvedText text="WRAPPED" color="#fff" />
+              </div>
+            </div>
+
+            {/* Subtitle - Bigger size (text-3xl md:text-5xl) and moved button down (mb-24) */}
+             <p className="text-[#ff1e1e] font-black italic text-3xl md:text-5xl uppercase tracking-tighter mb-24 mix-blend-difference">
+               Fall Edition
             </p>
-            <p className="text-[6vw] font-extrabold text-[#4b917d] text-left w-[60vw] leading-none pl-[6vw]">
-              end of the semester.
-            </p>
-            <p className="text-[6vw] font-extrabold text-white text-left w-[60vw] leading-none">
-              Ready for your
-            </p>
-            <p className="text-[6vw] font-extrabold text-[#ee209c] text-left w-[60vw] leading-none pl-[6vw]">
-              Spring 2025
-            </p>
-            <p className="text-[6vw] font-extrabold text-[#ee209c] text-right w-[55vw] leading-none">
-              Wrapped?
-            </p>
+
+            {/* Start Button */}
+            <div className="relative group">
+              {/* Decorative checkerboard border for button */}
+              <div className={`absolute -inset-2 bg-checkered opacity-50 transition-all duration-300 ${isHovering ? 'scale-110 opacity-100 rotate-2' : ''}`} />
+              
+              <button
+                ref={buttonRef}
+                type="button" // <--- FIX APPLIED HERE: Prevents page refresh
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+                onClick={handleStart}
+                className={`
+                  relative px-8 py-4 md:px-12 md:py-6 
+                  font-black italic text-xl md:text-3xl uppercase tracking-wider
+                  border-4 transition-all duration-300 transform
+                  shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]
+                  bg-[#ff1e1e] text-white border-white hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_rgba(255,255,255,0.2)] cursor-pointer
+                `}
+              >
+                <span className="flex items-center gap-2">
+                  START 
+                  {/* Simple chevron icon */}
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
-
-      {/* Start Button */}
-      <div
-  className="
-    absolute 
-    bottom-[12vh] sm:bottom-10 
-    w-full flex justify-center z-20
-    px-4
-  "
->
-<button
-  onClick={() => {
-    if (timeLeft.total <= 0) handleStart();
-  }}
-  disabled={timeLeft.total > 0}
-  className={`start-button 
-    px-4 py-2 text-md
-    sm:px-6 sm:py-3 sm:text-lg
-    rounded-full font-bold border-2 transition-all duration-500 z-30
-    ${timeLeft.total > 0
-      ? 'bg-black text-[#d3f971] border-[#d3f971] opacity-70 cursor-not-allowed'
-      : 'bg-black text-[#d3f971] border-[#d3f971] hover:bg-[#d3f971] hover:text-black'}
-  `}
->
-  {timeLeft.total > 0
-    ? `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`
-    : 'Start'}
-</button>
-
-
-</div>
-
-
+      
+      {/* Decorative Corners */}
+      <div className="absolute top-8 left-8 w-16 h-16 border-l-4 border-t-4 border-white opacity-20"></div>
+      <div className="absolute bottom-8 right-8 w-16 h-16 border-r-4 border-b-4 border-[#ff1e1e] opacity-50"></div>
+      
+      {/* Floating abstract element (F1 Wheel visual metaphor) */}
+      <div className="absolute bottom-10 left-10 hidden md:block opacity-30 animate-spin-slow" style={{ animationDuration: '10s' }}>
+        <svg width="100" height="100" viewBox="0 0 100 100">
+           <path d="M50 0 L100 50 L50 100 L0 50 Z" fill="none" stroke="white" strokeWidth="2" />
+           <circle cx="50" cy="50" r="20" fill="none" stroke="#ff1e1e" strokeWidth="4" />
+        </svg>
+      </div>
 
     </div>
   );
