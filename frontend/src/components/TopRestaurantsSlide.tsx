@@ -64,7 +64,6 @@ export default function TopRestaurantsSlide({
 
   // --- Theming Variables (Reverting colors back to blue/cyan) ---
   const primaryColor = "text-cyan-400"; // For main highlights
-  const accentColor = "text-cyan-500";  // For borders/icons
   const rankBackgroundColor = "bg-blue-700/60"; // For rank circles
   const rankBorderColor = "border-blue-500/30";
   const mainGradient = "bg-gradient-to-tl from-cyan-950 via-gray-900 to-blue-900";
