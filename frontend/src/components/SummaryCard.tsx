@@ -69,7 +69,7 @@ const THEMES = [
     textColor: "text-blue-50",
     subTextColor: "text-blue-200/60",
     accentColor: "text-[#40e0d0]",
-    borderColor: "border-[#004d99]",
+    borderColor: "border-[#FFFFFF]",
     dividerColor: "bg-[#004d99]",
     barColor: "bg-[#1e90ff]",
     shadow: "shadow-[0_20px_60px_-15px_rgba(30,144,255,0.2)]",
@@ -156,64 +156,7 @@ interface SummaryCardProps {
   name?: string;
 }
 
-// Mock data for demo
-const mockStats: Stats = {
-  total_items_ordered: 247,
-  item_counts: [
-    { item: "Iced Latte", count: 45 },
-    { item: "Avocado Toast", count: 38 },
-    { item: "Caesar Salad", count: 32 },
-    { item: "Breakfast Burrito", count: 28 },
-    { item: "Cold Brew", count: 24 }
-  ],
-  restaurant_counts: {
-    "Campus Café": 89,
-    "The Bistro": 67,
-    "Quick Bites": 45,
-    "Green Bowl": 32,
-    "Daily Grind": 14
-  },
-  most_expensive_order: {
-    total: 47.85,
-    order_time: "2024-11-15 12:30 PM",
-    transaction_id: "TXN001"
-  },
-  busiest_day: {
-    date: "2024-11-12",
-    order_count: 8
-  },
-  busiest_day_orders: [],
-  earliest_order: {
-    order_time: "2024-09-01 08:15 AM",
-    total: 12.50,
-    transaction_id: "TXN002",
-    items: [{ name: "Coffee" }]
-  },
-  latest_order: {
-    order_time: "2024-11-30 09:30 PM",
-    total: 18.75,
-    transaction_id: "TXN003",
-    items: [{ name: "Pizza" }]
-  },
-  earliest_order_by_time: {
-    order_time: "2024-10-05 06:45 AM",
-    pickup_time: "07:00 AM",
-    restaurant_name: "Early Bird Cafe",
-    total: "8.50",
-    transaction_id: "TXN004",
-    items: [{ name: "Bagel" }]
-  },
-  latest_order_by_time: {
-    order_time: "2024-11-30 11:47 PM",
-    pickup_time: "12:00 AM",
-    restaurant_name: "Late Night Diner",
-    total: "22.00",
-    transaction_id: "TXN005",
-    items: [{ name: "Burger" }]
-  }
-};
-
-export default function SummaryCard({ stats = mockStats, semester = "Fall 2025", name = "Alex Chen" }: SummaryCardProps) {
+export default function SummaryCard({ stats, semester = "Fall 2025", name = "Alex Chen" }: SummaryCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -387,14 +330,14 @@ export default function SummaryCard({ stats = mockStats, semester = "Fall 2025",
               </div>
 
               {/* Big Stat - Reduced font sizes and spacing */}
-              <div className="mb-4">
+              <div className="mb-3">
                  <div className="flex items-baseline gap-1">
-                   <span className="text-4xl font-bold tracking-tighter leading-none">
+                   <span className="text-4xl -mt-3 font-bold tracking-tighter leading-none">
                      {stats.total_items_ordered}
                    </span>
                    <span className={`${activeTheme.accentColor} font-serif italic text-base`}>items</span>
                  </div>
-                 <p className={`text-[10px] mt-1 ${activeTheme.subTextColor}`}>Total orders placed this semester.</p>
+                 <p className={`text-[11px] mt-1 ${activeTheme.subTextColor}`}>Total orders placed this semester.</p>
               </div>
 
               {/* Divider - Reduced margin */}
@@ -466,7 +409,7 @@ export default function SummaryCard({ stats = mockStats, semester = "Fall 2025",
 
               {/* Footer text - Reduced font size */}
               <div className="text-center">
-                <span className="text-[8px] font-bold block">mobileorderwrapped.com</span>
+                <span className="text-[9px] -mt-2.5 font-bold block">mobileorderwrapped.com</span>
               </div>
             </div>
           </div>

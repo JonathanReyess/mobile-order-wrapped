@@ -59,7 +59,7 @@ const IntroSlide = ({ name, isPlaying, onComplete }: IntroSlideProps) => {
               w-full max-w-full
               px-2
               /* Larger, bolder text, and often slightly condensed */
-              text-[clamp(2.5rem,10vw,5rem)]
+              text-[clamp(2.5rem,10vw,4rem)]
               font-extrabold 
               text-center 
               leading-snug
@@ -96,7 +96,7 @@ const IntroSlide = ({ name, isPlaying, onComplete }: IntroSlideProps) => {
             <h1 className="
                 w-full max-w-full
                 /* Massive headline for maximum impact */
-                text-[clamp(3rem,12vw,6rem)]
+                text-[clamp(3rem,12vw,5rem)]
                 font-black 
                 leading-[1.1] /* Tight leading */
                 break-words

@@ -102,7 +102,7 @@ const UniqueOrdersSlide: React.FC<UniqueOrdersSlideProps> = ({
             initial="initial"
             animate="animate"
             exit="exit"
-            className="text-5xl font-extrabold text-gray-200 text-center tracking-wide" // Adjusted text color
+            className="text-4xl font-extrabold text-gray-200 text-center tracking-wide" // Adjusted text color
           >
             {renderedLine1}
           </motion.p>
@@ -115,7 +115,7 @@ const UniqueOrdersSlide: React.FC<UniqueOrdersSlideProps> = ({
             initial="initial"
             animate="animate"
             exit="exit"
-            className="mt-6 text-5xl font-extrabold text-white text-center tracking-wide" // Adjusted text color
+            className="mt-6 text-4xl font-extrabold text-white text-center tracking-wide" // Adjusted text color
           >
             {line2Full.slice(0, idx2)}
           </motion.p>

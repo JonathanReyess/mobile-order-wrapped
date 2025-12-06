@@ -88,10 +88,10 @@ export default function OrdersOfBusiestDaySlide({
     // NEW: Background Gradient (Vibrant Dark Purple/Magenta)
     <div className="h-screen w-full flex flex-col items-center justify-start bg-gradient-to-br from-fuchsia-950 via-gray-900 to-purple-900 pt-16 pb-24 px-4 overflow-auto">
       {/* New Title matching dark theme */}
-      <h2 className="text-5xl font-extrabold text-white  mb-6 tracking-wide">
-        Orders Logged
+      <h2 className="text-3xl md:text-4xl font-black italic tracking-tighter uppercase leading-none drop-shadow-xl">
+      What did you order?
       </h2>
-      <div className="flex flex-wrap justify-center gap-4 w-full max-w-6xl">
+      <div className="flex flex-wrap justify-center gap-4 w-full max-w-6xl mt-8">
         {orders.map((receipt, idx) => (
           <motion.div
             key={idx}

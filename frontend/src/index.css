@@ -53,21 +53,10 @@ button:focus-visible {
   outline: 2px solid white; /* or white, or your brand color */
 }
 
-
-/* Background container */
-.bg {
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-/* Main Title */
 .callout {
   position: absolute;
   font-size: 50px;
-  top: 52%;
+  top: 50%;
   left: 50%;
   font-weight: 900;
   color: white;
@@ -75,50 +64,7 @@ button:focus-visible {
   text-align: center;
   transform: translate(-50%, -50%);
   white-space: nowrap;
+  transform-style: preserve-3d;
+  perspective: 800px;
+  
 }
-
-/* Subtitle */
-.subtitle {
-  position: absolute;
-  font-size: 20px;
-  top: 52%;
-  left: 50%;
-  margin-top: 50px;
-  font-weight: 400;
-  color: white;
-  z-index: 999;
-  text-align: center;
-  transform: translate(-50%, -50%);
-}
-
-
-/* More variations for deeper stacking (optional) */
-.panel1:nth-of-type(1) { z-index: 12; }
-.panel1:nth-of-type(2) { z-index: 11; }
-.panel1:nth-of-type(3) { z-index: 10; }
-.panel1:nth-of-type(4) { z-index: 9; }
-.panel1:nth-of-type(5) { z-index: 8; }
-.panel1:nth-of-type(6) { z-index: 7; }
-.panel1:nth-of-type(7) { z-index: 6; }
-.panel1:nth-of-type(8) { z-index: 5; }
-.panel1:nth-of-type(9) { z-index: 4; }
-.panel1:nth-of-type(10) { z-index: 3; }
-.panel1:nth-of-type(11) { z-index: 2; }
-.panel1:nth-of-type(12) { z-index: 1; }
-
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-.animate-shimmer {
-  background-size: 200% 100%;
-  background-repeat: no-repeat;
-  animation: shimmer 2s linear infinite;
-}
-

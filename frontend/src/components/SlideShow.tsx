@@ -44,7 +44,7 @@ export default function SlideShow({ stats }: { stats: any }) {
         orderCount={stats.busiest_day.order_count} 
         isPlaying={isPlaying} 
       />, 
-      duration: 8000 
+      duration: 10000 
     },
     {
       element: (

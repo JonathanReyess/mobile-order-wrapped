@@ -113,7 +113,7 @@ export default function VibeSlide({ vibe, colors, isPlaying }: VibeSlideProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             // NEW: White/Silver text color
-            className="text-4xl font-extrabold text-gray-100 mb-8 text-center tracking-wider"
+            className="text-4xl font-extrabold italic text-gray-100 mb-8 text-center tracking-wider"
           >
             {line1.slice(0, idx1)}
           </motion.h2>

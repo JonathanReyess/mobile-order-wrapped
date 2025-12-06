@@ -187,7 +187,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
                 variants={dropCrown}
                 initial="initial"
                 animate="animate"
-                className="text-[4rem] md:text-[6rem] absolute -top-16 md:-top-20"
+                className="text-[4rem] md:text-[6rem] absolute -top-15 md:-top-24"
               >
                 👑
               </motion.span>
@@ -201,7 +201,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
               animate="animate"
               exit="exit"
               className={`
-                text-[clamp(2.5rem,12vw,6.5rem)] 
+                text-[clamp(2.5rem,12vw,6rem)] 
                 font-black 
 
                 text-center
