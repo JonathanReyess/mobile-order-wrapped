@@ -1,11 +1,9 @@
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import SlideShow from "./components/SlideShow";
 import { motion, AnimatePresence } from "framer-motion";
 
 const EmailStatsViewer = () => {
-  const navigate = useNavigate();
 
 
   const [stats, setStats] = useState<any | null>(null);
