@@ -1,10 +1,17 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import gsap from "gsap";
+import React, { useRef, useLayoutEffect, useCallback, useState } from 'react';
+import { gsap } from 'gsap';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import './_intro.scss';
 
+// Define the number of panels as a constant for clarity
+const NUMBER_OF_PANELS = 12;
+const ROTATION_COEF = 5;
+
+// --- 1. Countdown Logic ---
 function getTimeLeft() {
   const now = new Date();
-  const finalsEnd = new Date("2025-12-05T23:59:59");
+  // Using the same date as the source code (Dec 5, 2025)
+  const finalsEnd = new Date("2025-12-05T23:59:59"); 
   const diff = finalsEnd.getTime() - now.getTime();
 
   const total = Math.max(0, diff);
@@ -16,268 +23,476 @@ function getTimeLeft() {
   return { days, hours, minutes, seconds, total };
 }
 
+const Intro: React.FC = () => {
+  const navigate = useNavigate(); // Hook for navigation
 
-export default function Intro() {
-  const navigate = useNavigate();
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const overlayRef = useRef<HTMLDivElement | null>(null);
-  const cardRef = useRef<HTMLDivElement | null>(null);
-  const panelTl = useRef<gsap.core.Timeline | null>(null);
-  const exitTl = useRef<gsap.core.Timeline | null>(null);
+  // 1. Refs to target the DOM elements for GSAP
+  const bgRef = useRef<HTMLDivElement>(null);
+  const textCalloutRef = useRef<HTMLHeadingElement>(null);
+  // textSubRef has been removed
+  const startBtnRef = useRef<HTMLButtonElement>(null); // Ref for the new button
+  const overlayRef = useRef<HTMLDivElement>(null); // Ref for the overlay
+  
+  // 2. State to manage window dimensions and countdown
+  const [windowSize, setWindowSize] = useState({ 
+    width: typeof window !== 'undefined' ? window.innerWidth : 0, 
+    height: typeof window !== 'undefined' ? window.innerHeight : 0 
+  });
   const [timeLeft, setTimeLeft] = useState(getTimeLeft());
 
-  useEffect(() => {
+  // 3. GSAP Timeline refs
+  const tl = useRef(gsap.timeline({ repeat: -1, paused: true })); 
+  const exitTl = useRef(gsap.timeline({ paused: true })); // Timeline for the exit sequence
+
+  // Hook to run the countdown timer
+  React.useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(getTimeLeft());
     }, 1000);
     return () => clearInterval(timer);
   }, []);
-  
 
-  // panels config
-  const numberOfPanels = 12;
-  const rotationCoef = 5;
-  const panelGradient = `linear-gradient(
-    105deg,
-    #F5FBFF 0%,
-    #ADD8E6 6%,
-    #0059b3 19%,
-    #003366 72%,
-    black 100%
-  )`;
+  // --- Start Handler (Logic for exiting) ---
+  const handleStart = useCallback(() => {
+    // Check if the exit timeline exists and is not running
+    if (exitTl.current && !exitTl.current.isActive()) {
+      exitTl.current.play();
+    }
+  }, []);
 
-  useEffect(() => {
-    const panels = document.querySelectorAll<HTMLDivElement>(".panel1");
-    const textCall = document.querySelector<HTMLDivElement>(".callout")!;
-    const textSub = document.querySelector<HTMLDivElement>(".subtitle")!;
-    const startBtn = document.querySelector<HTMLButtonElement>(".start-button")!;
-    const overlay = overlayRef.current!;
-    const card = cardRef.current;
-    const container = containerRef.current;
+  // Helper function to calculate dimensions based on current window size
+  const calculateDimensions = useCallback(() => {
+    const { width, height } = windowSize;
+    const elHeight = height / NUMBER_OF_PANELS;
+    const elWidth = width / NUMBER_OF_PANELS;
+    return { elHeight, elWidth, width, height };
+  }, [windowSize]);
 
-    let elHeight = window.innerHeight / numberOfPanels;
-    let elWidth = window.innerWidth / numberOfPanels;
+  // 4. Function to define all GSAP animations
+  const addItemsToTimeline = useCallback(() => {
+    if (!bgRef.current || !overlayRef.current) return;
 
-    panelTl.current = gsap.timeline({ repeat: -1, defaults: { ease: "sine.inOut" } });
+    tl.current.clear();
+    exitTl.current.clear(); // Clear exit timeline on resize/re-run
+    const { elHeight, elWidth, width, height } = calculateDimensions();
+    
+    // Select all panel elements dynamically using the ref
+    const panels = bgRef.current.querySelectorAll('.panel1');
+    const secondaryPanels = bgRef.current.querySelectorAll('.panel2');
 
-    function buildPanelTimeline() {
-      panelTl.current?.clear();
+    // --- ENTRANCE Timeline (Combined Intro) ---
+    const introTl = gsap.timeline({ defaults: { ease: "expo.out" } });
 
-      panels.forEach((panel, i) => {
-        const wi = window.innerWidth - elWidth * (numberOfPanels - i) + elWidth;
-        const he = window.innerHeight - elHeight * (numberOfPanels - i) + elHeight;
+    // Text Entrance (Modified to match the new H1 setup)
+    introTl.fromTo(
+      textCalloutRef.current,
+      { left: "150%" }, // Initial state
+      { 
+        left: "50%", 
+        // ADD THIS LINE: Move it up by -30 pixels (or use a percentage/vh/vw)
+        y: -30, 
+        duration: 1, 
+        delay: 1.2 
+      }, 
+      0
+    );
+    // Removed the secondary Y-shift for the H1
 
-        panelTl.current!
-          .fromTo(
-            panel,
+    // BUTTON Entrance
+    introTl.fromTo(
+      startBtnRef.current, 
+      { opacity: 0, scale: 0.5, y: 100 }, 
+      { opacity: 1, scale: 1, y: -50, duration: 1 }, 
+      2 // Starts 2 seconds into the introTl
+    );
+
+
+    // --- EXIT Timeline (New) ---
+    exitTl.current.to(
+      [textCalloutRef.current, startBtnRef.current], // Removed textSubRef
+      { opacity: 0, y: 30, stagger: 0.1, duration: 0.4, ease: "power1.inOut" }
+    )
+    .to(panels, 
+      { opacity: 0, duration: 0.8 }, 
+      "<" // Start simultaneously with text fade
+    )
+    .to(overlayRef.current, 
+      { opacity: 1, duration: 0.5 }, 
+      "<0.2" // Start slightly after panel fade begins
+    )
+    .call(() => {
+        navigate("/upload"); // Navigation to the next page
+    });
+    
+    // --- Panel Animations (Setup for the Looping Timeline) ---
+    panels.forEach((panel, i) => {
+      // (Panel logic is complex and remains identical to your previous code)
+      // ... [The entire panels.forEach loop code goes here] ...
+
+      const stopPosition = 100 - i * 1;
+      const wi = width - elWidth * (12 - i) + elWidth;
+      const he = height - elHeight * (12 - i) + elHeight;
+
+      const backgroundGradient = (stop: number | string) => 
+        `linear-gradient(105deg, rgba(173, 216, 230, 1) 0%, rgba(100, 149, 237, 1) 6%, rgba(0, 100, 255, 1) 19%, rgba(0, 51, 153, 1) 72%, rgba(0, 0, 0, 1) ${stop}%)`;
+
+      const backgroundGradient2 = (stop: number | string) => 
+        `linear-gradient(90deg, rgba(200, 220, 255, 1) 0%, rgba(100, 149, 237, 1) 6%, rgba(0, 100, 255, 1) 19%, rgba(0, 51, 153, 1) 72%, rgba(0, 0, 0, 1) ${stop}%)`;
+      
+      // Initial rotation/scaling
+      tl.current.fromTo(
+        panel,
+        {
+          y: elHeight * 5.5,
+          x: elWidth * 5.5,
+          width: 0,
+          height: 0,
+          rotation: -360,
+          background: backgroundGradient(stopPosition),
+        },
+        {
+          width: wi,
+          height: he,
+          y: -elHeight / 1.33 + ((12 - i) * elHeight) / 1.33,
+          x: 0,
+          duration: 1 + 0.1 * (12 - i),
+          ease: "sine.inOut",
+          rotation: 0,
+          background: backgroundGradient(stopPosition),
+        },
+        0
+      );
+
+      // Linear rotation 1
+      tl.current.to(
+        panel,
+        {
+          rotation: 12 * ROTATION_COEF - (i + 1) * ROTATION_COEF,
+          duration: 3,
+          background: backgroundGradient2(stopPosition),
+          ease: "linear",
+        },
+        ">"
+      );
+
+      // Reordering/transformation
+      tl.current.to(
+        panel,
+        {
+          rotation: 360,
+          y: -elHeight / 6 + ((12 - i) * elHeight) / 6,
+          x: -elWidth / 1.2 + ((12 - i) * elWidth) / 1.2,
+          background: backgroundGradient2("100%"),
+          ease: "sine.inOut",
+          duration: 1,
+        },
+        ">"
+      );
+
+      // Linear rotation 2
+      tl.current.to(
+        panel,
+        {
+          rotation: 12 * ROTATION_COEF - (i + 1) * ROTATION_COEF + 360,
+          duration: 4,
+          background: backgroundGradient2("100%"),
+          ease: "linear",
+        },
+        ">"
+      );
+
+      // Set label for secondary panels start
+      if (i === 0) {
+        tl.current.addLabel("splitStart", "-=0.8");
+      }
+
+      // --- Panel2 Animations (Secondary panels) ---
+      secondaryPanels.forEach((twoPanel, index) => {
+        // Only run for the first panel in the main loop to avoid repetition
+        if (i !== 0) return; 
+
+        const wi2 = width - elWidth * index + elWidth;
+        const backgroundGradient3 = 
+        `linear-gradient(
+          90deg,
+          rgba(200, 220, 255, 1) 0%, /* Very Light Blue */
+          rgba(100, 149, 237, 1) 6%, /* Cornflower Blue */
+          rgba(0, 100, 255, 1) 19%, /* Bright Blue */
+          rgba(0, 51, 153, 1) 72%,  /* Dark Blue/Navy */
+          rgba(0, 0, 0, 1) 100%
+        )`;
+        tl.current.fromTo(
+          twoPanel,
+          {
+            y: elHeight * 5.5,
+            x: elWidth * 5.5,
+            width: 0,
+            height: 0,
+            rotation: -360,
+            background: backgroundGradient("100%"),
+          },
+          {
+            rotation: -90,
+            y: 0 + (index * elHeight) / 4 - wi2,
+            x: -elWidth / 2 + (index * elWidth) / 2,
+            width: wi2,
+            height: wi2,
+            background: backgroundGradient3,
+            ease: "sine.inOut",
+            duration: 1,
+          },
+          "splitStart" + `+=${0.05 * index}`
+        );
+
+        tl.current.to(
+          twoPanel,
+          {
+            rotation: 12 * ROTATION_COEF - (12 - index) * ROTATION_COEF - 90,
+            duration: 5,
+            background: backgroundGradient3,
+            ease: "linear",
+          },
+          ">"
+        );
+        
+        tl.current.to(
+            twoPanel,
             {
-              y: elHeight * 5.5,
-              x: elWidth * 5.5,
-              width: 0,
-              height: 0,
-              rotation: -360,
-              background: panelGradient,
-            },
-            {
-              width: wi,
-              height: he,
-              y: -elHeight / 1.33 + ((numberOfPanels - i) * elHeight) / 1.33,
-              x: 0,
-              rotation: 0,
-              duration: 1 + 0.1 * (numberOfPanels - i),
-            },
-            0
-          )
-          .to(
-            panel,
-            {
-              rotation: 12 * rotationCoef - (i + 1) * rotationCoef,
-              duration: 3,
-              background: panelGradient,
-            },
-            ">"
-          )
-          .to(
-            panel,
-            {
-              rotation: 360,
-              y: -elHeight / 6 + ((numberOfPanels - i) * elHeight) / 6,
-              x: -elWidth / 1.2 + ((numberOfPanels - i) * elWidth) / 1.2,
+              rotation: 300,
+              y: 0 + (index * elHeight) /2 - wi2,
+              x: (width*1.1 - wi2 * 1.2 ),
+              width: wi2,
+              height: wi2,
+              background: backgroundGradient3,
+              ease: "sine.inOut",
               duration: 1,
             },
             ">"
-          )
-          .to(
-            panel,
+          );
+          
+          tl.current.to(
+            twoPanel,
             {
-              rotation: 12 * rotationCoef - (i + 1) * rotationCoef + 360,
-              duration: 4,
+              rotation: "+=15",
+              duration: 5,
+              background: backgroundGradient3,
+              ease: "linear",
+            },
+            ">"
+          );
+          
+          tl.current.to(
+            twoPanel,
+            {
+              rotation: "+=360",
+              y: `-=${wi2*2}`,
+              x: `+=${wi2*2}`,
+              width: wi2,
+              height: wi2,
+              background: backgroundGradient3,
+              ease: "sine.inOut",
+              duration: 1,
             },
             ">"
           );
       });
-    }
+      // --- End of Panel2 Animations ---
 
-    buildPanelTimeline();
+      // --- Panel1 Exit Animations ---
+      // The logic for the first panel is slightly different (opacity 0)
+      if (i === 0) {
+        tl.current.to(
+          panel,
+          {
+            rotation: 720 + 90,
+            y: height - ((12 - i) * elHeight) / 4,
+            x: -elWidth / 2 + ((12 - i) * elWidth) / 2,
+            width: 0,
+            height: 0,
+            opacity: 0, // Key difference from the original code
+            background: backgroundGradient2("100%"),
+            ease: "sine.inOut",
+            duration: 1,
+          },
+          "splitStart" + `+=${0.05 * i}`
+        );
+      } else {
+        // Remaining panels
+        tl.current.to(
+          panel,
+          {
+            rotation: 720 + 90,
+            y: height - ((12 - i) * elHeight) / 4,
+            x: -elWidth / 2 + ((12 - i) * elWidth) / 2,
+            width: wi,
+            height: wi,
+            background: backgroundGradient2("100%"),
+            ease: "sine.inOut",
+            duration: 1,
+          },
+          "splitStart" + `+=${0.05 * i}`
+        );
 
-    const introTl = gsap.timeline({ defaults: { ease: "expo.out" } });
-    introTl
-      .fromTo(textCall, { left: "150%" }, { left: "50%", duration: 1, delay: 1.2 }, 0)
-      .to(textCall, { y: -60, duration: 0.5, delay: 3 }, 0) // changed from "-60px" string to -60 number
-      .fromTo(textSub, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.5, delay: 3 }, 0)
-      .fromTo(startBtn, { opacity: 0, scale: 0.5, y: 100 }, { opacity: 1, scale: 1, y: -50, duration: 1 }, 2);
+        // Subsequent animations for remaining panels
+        tl.current.to(
+          panel,
+          {
+            rotation: (12 * ROTATION_COEF - (i + 1) * ROTATION_COEF) / 1.2 + 810,
+            duration: 5,
+            background: backgroundGradient2("100%"),
+            ease: "linear",
+          },
+          ">"
+        );
 
-    exitTl.current = gsap.timeline({
-      paused: true,
-      defaults: { ease: "power1.inOut" },
-      onComplete: () => {
-        navigate("/upload");
-      },
+        tl.current.to(
+          panel,
+          {
+            y: height - ((12 - i) * elHeight) / 2,
+            x: 0 - elWidth * 1.2,
+            rotation: (12 * ROTATION_COEF - (i + 1) * ROTATION_COEF) / 1.2 + 1180,
+            ease: "sine.inOut",
+            duration: 1,
+            background: backgroundGradient2("100%"),
+          },
+          ">"
+        );
+
+        tl.current.to(
+          panel,
+          {
+            rotation: (12 * ROTATION_COEF - (i + 1) * ROTATION_COEF) / 1.2 + 1200,
+            duration: 5,
+            background: backgroundGradient2("100%"),
+            ease: "linear",
+          },
+          ">"
+        );
+
+        tl.current.to(
+          panel,
+          {
+            y: `+=${elHeight * 4}`,
+            x: `-=${elWidth * 4}`,
+            rotation: (12 * ROTATION_COEF - (i + 1) * ROTATION_COEF) / 1.2 + 1500,
+            ease: "sine.inOut",
+            duration: 1,
+            background: backgroundGradient2("100%"),
+          },
+          ">"
+        );
+      }
     });
+    
+    // Calculate the actual duration of the panel animations
+    const loopDuration = tl.current.duration(); 
 
-    exitTl.current
-      .to([textCall, textSub, startBtn], { opacity: 0, y: 30, stagger: 0.1, duration: 0.4 })
-      .to(panels, { opacity: 0, duration: 0.8 }, "<")
-      .to(overlay, { opacity: 1, duration: 0.5 }, "<0.2");
+    // Explicitly set the text/button elements to their final stable state for the loop
+    tl.current.to(textCalloutRef.current, { left: "50%", duration: 0.01 }, loopDuration); // Only setting left
+    tl.current.to(startBtnRef.current, { opacity: 1, scale: 1, y: -50, duration: 0.01 }, loopDuration);
+    
+    // Start the timeline after all animations are added
+    tl.current.play(0); 
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!card || !container) return;
+  }, [calculateDimensions, windowSize, navigate]);
 
-      const rect = container.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+  // 5. useLayoutEffect for initial setup and window resize listener
+  useLayoutEffect(() => {
+    // Initial timeline setup
+    addItemsToTimeline();
 
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      const rotateY = ((x - centerX) / centerX) * 10;
-      const rotateX = (-(y - centerY) / centerY) * 10;
-
-      gsap.to(card, {
-        rotateX,
-        rotateY,
-        scale: 1.03,
-        transformPerspective: 800,
-        transformOrigin: "center",
-        ease: "power2.out",
-        duration: 0.4,
-      });
-    };
-
-    const resetMouseMove = () => {
-      if (!card) return;
-      gsap.to(card, {
-        rotateX: 0,
-        rotateY: 0,
-        scale: 1,
-        ease: "power2.out",
-        duration: 0.6,
-      });
-    };
-
-    container?.addEventListener("mousemove", handleMouseMove);
-    container?.addEventListener("mouseleave", resetMouseMove);
-
-    // Debounced resize
-    let resizeTimeout: number;
+    // Resize handler function
     const handleResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        elHeight = window.innerHeight / numberOfPanels;
-        elWidth = window.innerWidth / numberOfPanels;
-        buildPanelTimeline();
-        panelTl.current?.restart();
-      }, 200);
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
 
+    // Cleanup function for event listener
     return () => {
-      window.removeEventListener("resize", handleResize);
-      container?.removeEventListener("mousemove", handleMouseMove);
-      container?.removeEventListener("mouseleave", resetMouseMove);
-      panelTl.current?.kill();
-      introTl.kill();
-      exitTl.current?.kill();
+      window.removeEventListener('resize', handleResize);
+      tl.current.kill(); 
+      exitTl.current.kill();
     };
-  }, [navigate]);
+  }, [addItemsToTimeline]);
 
-  const handleStart = () => {
-    exitTl.current?.play();
-  };
-
+  // 6. JSX Markup
   return (
-    <div ref={containerRef} className="h-screen w-screen bg-black overflow-hidden relative">
-      {/* looping panels */}
-      {Array.from({ length: numberOfPanels }).map((_, idx) => (
-        <div key={idx} className="panel1 absolute top-0 left-0 z-0" />
-      ))}
+    <>
+      <div className="bg" ref={bgRef}>
+        {/* Render Panel 1s */}
+        {Array.from({ length: NUMBER_OF_PANELS }).map((_, i) => (
+          <div key={`p1-${i}`} className="panel panel1"></div>
+        ))}
+        {/* Render Panel 2s */}
+        {Array.from({ length: NUMBER_OF_PANELS }).map((_, i) => (
+          <div key={`p2-${i}`} className="panel panel2"></div>
+        ))}
+      </div>
 
-      {/* white flash overlay */}
+      {/* White flash overlay */}
       <div
         ref={overlayRef}
         className="absolute inset-0 bg-white z-50 pointer-events-none opacity-0"
       />
 
-      {/* 3D Card */}
-      <div className="relative h-full w-full flex items-center justify-center perspective-800 z-20 pr-[6vw]">
-        <div
-          ref={cardRef}
-          className="relative w-full h-full flex flex-col items-center justify-center transform-style-preserve-3d"
-        >
-          <div className="absolute top-[10%] left-1/2 transform -translate-x-1/2 callout z-20">
-            <p className="text-[6vw] font-extrabold text-[#d3f971] text-left w-[60vw] leading-none">
-              Welcome to the
+      {/* CALLOUT (H1) - Modified Text Structure for new layout */}
+      <h1 
+        className="callout absolute top-[0%] left-1/2 transform -translate-x-1/2 **-translate-y-[10vh]** z-20"
+        ref={textCalloutRef}
+      >
+        <div className="w-[60vw] text-center leading-none font-extrabold">
+            
+            {/* Multi-line text with offsets and specific colors */}
+            <p className="text-[7.5vw] font-extrabold text-[#d3f971] text-left w-[20vw] leading-none">
+                Welcome to the
             </p>
-            <p className="text-[6vw] font-extrabold text-[#4b917d] text-left w-[60vw] leading-none pl-[6vw]">
-              end of the semester.
+            <p className="text-[7.5vw] font-extrabold text-[#4b917d] text-left w-[20vw] leading-none pl-[6vw]">
+                end of the semester.
             </p>
-            <p className="text-[6vw] font-extrabold text-white text-left w-[60vw] leading-none">
-              Ready for your
+            <p className="text-[7.5vw] font-extrabold text-white text-left w-[45vw] leading-none">
+                Ready for your
             </p>
-            <p className="text-[6vw] font-extrabold text-[#ee209c] text-left w-[60vw] leading-none pl-[6vw]">
-              Spring 2025
+            <p className="text-[7.5vw] font-extrabold text-[#ee209c] text-left w-[45vw] leading-none pl-[6vw]">
+                Fall 2025
             </p>
-            <p className="text-[6vw] font-extrabold text-[#ee209c] text-right w-[55vw] leading-none">
-              Wrapped?
+            <p className="text-[7.5vw] font-extrabold text-[#ee209c] text-right w-[50vw] leading-none">
+                Wrapped?
             </p>
-          </div>
         </div>
-      </div>
+      </h1>
 
-      {/* Start Button */}
+      {/* --- START BUTTON --- */}
       <div
-  className="
-    absolute 
-    bottom-[12vh] sm:bottom-10 
-    w-full flex justify-center z-20
-    px-4
-  "
->
-<button
-  onClick={() => {
-    if (timeLeft.total <= 0) handleStart();
-  }}
-  disabled={timeLeft.total > 0}
-  className={`start-button 
-    px-4 py-2 text-md
-    sm:px-6 sm:py-3 sm:text-lg
-    rounded-full font-bold border-2 transition-all duration-500 z-30
-    ${timeLeft.total > 0
-      ? 'bg-black text-[#d3f971] border-[#d3f971] opacity-70 cursor-not-allowed'
-      : 'bg-black text-[#d3f971] border-[#d3f971] hover:bg-[#d3f971] hover:text-black'}
-  `}
->
-  {timeLeft.total > 0
-    ? `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`
-    : 'Start'}
-</button>
-
-
-</div>
-
-
-
-    </div>
+        className="
+          absolute 
+          bottom-[12vh] sm:bottom-10 
+          w-full flex justify-center z-20
+          px-4
+        "
+      >
+        <button
+          ref={startBtnRef}
+          onClick={() => {
+            if (timeLeft.total <= 0) handleStart();
+          }}
+          disabled={timeLeft.total > 0}
+          className={`start-button 
+            px-4 py-2 text-md
+            sm:px-6 sm:py-3 sm:text-lg
+            rounded-full font-bold border-2 transition-all duration-500 z-30
+            ${timeLeft.total > 0
+              ? 'bg-black text-[#d3f971] border-[#d3f971] opacity-70 cursor-not-allowed'
+              : 'bg-black text-[#d3f971] border-[#d3f971] hover:bg-[#d3f971] hover:text-black'}
+          `}
+        >
+          {timeLeft.total > 0
+            ? `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`
+            : 'Start'}
+        </button>
+      </div>
+    </>
   );
-}
+};
+
+export default Intro;

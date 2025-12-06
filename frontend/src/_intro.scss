@@ -1,0 +1,96 @@
+body {
+  overflow: hidden;
+  background-color: #000;
+}
+
+.bg {
+  width: 100vw;
+  height: 100vh;
+}
+
+.callout {
+  position: absolute;
+  font-size: 50px;
+  top: 52%;
+  left: 50%;
+  font-weight: 900;
+  color: white;
+  z-index: 999;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+.subtitle {
+  position: absolute;
+  font-size: 20px;
+  top: 52%;
+  left: 50%;
+  margin-top: 50px;
+  font-weight: 400;
+  color: white;
+  z-index: 999;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+// Variables for the loop
+$number-of-panels: 12;
+
+.panel1 {
+  width: 100vw;
+  height: 100vh;
+  background: rgb(255, 149, 236);
+  position: absolute;
+  
+  // SCSS Loop to set Z-index and initial gradient
+  @for $i from 1 through $number-of-panels {
+    &:nth-of-type(#{$i}) {
+      z-index: $number-of-panels - $i;
+      
+      $stop-position: 100% - ($i * 1%);
+      
+      background: linear-gradient(
+        105deg,
+        rgba(173, 216, 230, 1) 0%, /* Light Sky Blue */
+        rgba(100, 149, 237, 1) 6%, /* Cornflower Blue */
+        rgba(0, 100, 255, 1) 19%, /* Bright Blue */
+        rgba(0, 51, 153, 1) 72%,  /* Dark Blue/Navy */
+        rgba(0, 0, 0, 1) $stop-position
+      );
+    }
+  }
+}
+
+.panel2 {
+  // Initial state is 0, GSAP will animate this
+  width: 0; 
+  height: 0;
+  background: rgb(255, 149, 236);
+  position: absolute;
+  
+  // SCSS Loop to set Z-index and initial gradient (same as panel1 for initial state)
+  // NOTE: In the HTML, panel2 elements appear *after* panel1 elements, 
+  // so nth-of-type selector needs to start counting after the 12th element.
+  // We use the same loop for the gradient logic, which the JS will ultimately override.
+  @for $i from 1 through $number-of-panels {
+    // This targets the 13th to 24th child of .bg
+    &:nth-of-type(#{$i + $number-of-panels}) { 
+      // The original code has panel2 with z-index 12-i, but since they appear after 
+      // all panel1s, their effective z-index stack depends on panel1's max z-index.
+      // We will rely on GSAP's z-index control if needed, but here we set a basic stack.
+      z-index: $number-of-panels - $i;
+      
+      $stop-position: 100% - ($i * 1%);
+      
+      background: linear-gradient(
+        105deg,
+        rgba(173, 216, 230, 1) 0%, /* Light Sky Blue */
+        rgba(100, 149, 237, 1) 6%, /* Cornflower Blue */
+        rgba(0, 100, 255, 1) 19%, /* Bright Blue */
+        rgba(0, 51, 153, 1) 72%,  /* Dark Blue/Navy */
+        rgba(0, 0, 0, 1) $stop-position
+      );
+    }
+  }
+}
