@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
 export default function EndSlide({ isPlaying }: { isPlaying: boolean }) {
-  const lineFull = "Thanks for ordering, munching, and making memories this semester.\nCan’t wait to see what you’ll order next! 💙";
+  // Retaining original text content
+  const lineFull = "Thanks for ordering, munching, and making memories this semester.\nCan’t wait to see what you’ll order next! 💖";
 
   const [step, setStep] = useState(0); // Step control
   const [typedText, setTypedText] = useState("");
@@ -96,21 +97,22 @@ export default function EndSlide({ isPlaying }: { isPlaying: boolean }) {
   
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-tl from-duke-blue via-duke-royal to-duke-light text-white px-4">
+    // NEW: Background Gradient (Vibrant Pink/Yellow/Orange Celebration)
+    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-fuchsia-800 via-pink-600 to-yellow-400 text-white px-4">
       
       {/* Title */}
       <motion.h2
-        className="text-4xl md:text-6xl font-extrabold text-center"
-        initial={{ opacity: 0, y: 40 }}
-        animate={step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-        transition={{ duration: 1 }}
+        className="text-5xl md:text-7xl font-black text-center mb-4 tracking-tight" // Sharper, heavier font
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={step >= 1 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }} // Dynamic scale up
+        transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
       >
-        That’s a Wrap! 🎬
+        That’s a Wrap! 🎉
       </motion.h2>
 
       {/* Typing paragraph */}
       <motion.p
-        className="mt-4 text-lg md:text-2xl text-center max-w-lg min-h-[6rem] whitespace-pre-line"
+        className="mt-6 text-xl md:text-3xl font-medium text-center max-w-lg min-h-[6rem] whitespace-pre-line text-yellow-50" // Light yellow/off-white text
         initial={{ opacity: 0 }}
         animate={step >= 1 ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 1 }}

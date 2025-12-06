@@ -103,7 +103,8 @@ export default function VibeSlide({ vibe, colors, isPlaying }: VibeSlideProps) {
   
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-white via-gray-200 to-gray-300 p-6">
+    // NEW: Background Gradient (Cinematic Dark Red/Black)
+    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-black via-red-950 to-gray-950 p-6">
       <AnimatePresence mode="wait">
         {step === 1 && (
           <motion.h2
@@ -111,7 +112,8 @@ export default function VibeSlide({ vibe, colors, isPlaying }: VibeSlideProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-3xl font-bold text-gray-800 mb-6 text-center"
+            // NEW: White/Silver text color
+            className="text-4xl font-extrabold text-gray-100 mb-8 text-center tracking-wider"
           >
             {line1.slice(0, idx1)}
           </motion.h2>
@@ -122,7 +124,8 @@ export default function VibeSlide({ vibe, colors, isPlaying }: VibeSlideProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-3xl font-bold text-gray-800 whitespace-pre-wrap text-center max-w-2xl leading-relaxed"
+            // NEW: Large, Silver text
+            className="text-4xl md:text-5xl font-extrabold text-gray-300 whitespace-pre-wrap text-center max-w-3xl leading-snug"
           >
             {highlightText(vibe.slice(0, idx2))}
           </motion.p>

@@ -38,7 +38,7 @@ export default function OrdersOfBusiestDaySlide({
   orders: Receipt[];
   isPlaying: boolean;
 }) {
-  // jagged torn-edge on top and bottom
+  // jagged torn-edge on top and bottom - RETAINED
   const tornEdge = `polygon(
     0% 2%, 5% 0%, 10% 3%, 15% 0%, 20% 2%, 25% 0%, 30% 3%, 35% 0%, 40% 2%,
     45% 0%, 50% 3%, 55% 0%, 60% 2%, 65% 0%, 70% 3%, 75% 0%, 80% 2%, 85% 0%,
@@ -85,20 +85,27 @@ export default function OrdersOfBusiestDaySlide({
   }, [isPlaying, step]);
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-start bg-gradient-to-br from-sky-100 via-sky-600 to-sky-800 pt-20 pb-24 px-4 overflow-auto">
+    // NEW: Background Gradient (Vibrant Dark Purple/Magenta)
+    <div className="h-screen w-full flex flex-col items-center justify-start bg-gradient-to-br from-fuchsia-950 via-gray-900 to-purple-900 pt-16 pb-24 px-4 overflow-auto">
+      {/* New Title matching dark theme */}
+      <h2 className="text-5xl font-extrabold text-pink-400 mb-6 tracking-wide">
+        Orders Logged
+      </h2>
       <div className="flex flex-wrap justify-center gap-4 w-full max-w-6xl">
         {orders.map((receipt, idx) => (
           <motion.div
             key={idx}
+            // RETAINED: Receipt Card Styling (White background, torn edge, mono font)
             className="w-[40vw] max-w-xs min-w-[200px] h-[18vh] bg-white p-2 font-mono text-sm tracking-wide relative overflow-hidden bg-[url('/crumple.png')] bg-cover bg-center"
             style={{
-              clipPath: tornEdge,
-              boxShadow: "inset 0 0 10px rgba(0,0,0,0.2)",
+              clipPath: tornEdge, // RETAINED: Jagged edge
+              boxShadow: "0 10px 15px rgba(0,0,0,0.5)", // Dark shadow for depth
             }}
             initial={{ opacity: 0, y: 10 }}
             animate={step > idx ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
             transition={{ duration: 0.5 }}
           >
+            {/* RETAINED TEXT STYLES */}
             <p className="text-lg font-semibold text-gray-700 text-center break-words">
               {receipt.restaurant_name || "Unknown Restaurant"}
             </p>
@@ -117,7 +124,7 @@ export default function OrdersOfBusiestDaySlide({
               ))}
             </ul>
             {typeof receipt.total === "number" && (
-              <p className="mt-1 text-sm font-bold text-gray-800 text-center break-words">
+              <p className="mt-1 text-sm font-bold text-gray-800 text-center break-words border-t border-dashed border-gray-400 pt-1">
                 Total: ${receipt.total.toFixed(2)}
               </p>
             )}

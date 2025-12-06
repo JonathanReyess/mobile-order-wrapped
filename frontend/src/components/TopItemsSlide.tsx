@@ -48,16 +48,17 @@ export default function TopItemsSlide({
   }, [isPlaying, step]);
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-tr from-duke-royal to-duke-sky text-white px-4">
+    // NEW: Background Gradient (Sunset Fire)
+    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-red-950 via-gray-900 to-amber-900 text-gray-100 px-4">
       
       {/* Title */}
       <motion.h2
-        className="pt-18 md:pt-0 text-3xl md:text-5xl font-extrabold text-center"
+        className="pt-18 md:pt-0 text-3xl md:text-5xl font-extrabold text-center tracking-tight"
         initial={{ opacity: 0, y: 40 }}
         animate={step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
         transition={{ duration: 0.8 }}
       >
-        My Top <span className="text-yellow-200">Cravings</span>
+        My Top <span className="text-orange-400">Cravings</span> {/* NEW: Orange Highlight */}
       </motion.h2>
 
       {/* Items */}
@@ -65,14 +66,15 @@ export default function TopItemsSlide({
         {topItems.map((item, idx) => (
           <motion.div
             key={item.item}
-            className="bg-white/10 rounded-xl px-6 py-4 shadow-lg w-full max-w-xs"
+            // Adjusted card for warmer theme
+            className="bg-red-900/40 backdrop-blur-sm border border-red-800 rounded-xl px-6 py-4 shadow-2xl w-full max-w-xs"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={step >= idx + 2 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="text-xl md:text-2xl font-bold text-center">{item.item}</div>
-            <div className="text-base md:text-lg text-yellow-100 text-center">
-              Ordered <span className="text-yellow-300">{item.count}</span> times
+            <div className="text-xl md:text-2xl font-extrabold text-gray-50 text-center tracking-wide">{item.item}</div>
+            <div className="text-base md:text-lg text-gray-400 text-center mt-1">
+              Ordered <span className="text-orange-400 font-bold">{item.count}</span> times {/* NEW: Orange Highlight */}
             </div>
           </motion.div>
         ))}

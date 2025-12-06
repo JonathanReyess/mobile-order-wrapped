@@ -425,13 +425,13 @@ def generate_vibe():
     print("DEBUG stats:", reformatted_stats )
     # Now build your prompt using filtered_stats
     prompt = (
-        "Based on these mobile-order stats, describe the user's vibe in one catchy, Spotify-Wrapped-style sentence. "
+        "Based on these mobile-order stats, roast the user and be as mean, sassy, and funny as possible in one catchy, Spotify-Wrapped-style sentence. "
         "Use playful language that roasts and pokes fun at the person. Don't use the word 'foodie' or 'penchant'. Don't use the phrase 'one mobile order at a time.' "
-        "Start with 'You're a...' and don't be too abstract. "
+        "Start with 'You're a...' and don't be too abstract. This is aimed at GenZ and college students "
         "RESPOND ONLY as a JSON object with two fields: "
         "`sentence` (the vibe description) and `colors` (a dictionary mapping key words to a fitting color). "
         "For `colors`, you MUST choose from this exact list of hex codes: "
-        "#5a8b5d, #907350, #7a4b8f, #3d2758, #dd660d, #dd660d, #8faab3, #c4bd8b, #aeb8f9, #d4a1a1, #400000, #02006c, #026a81, #aeb8f9, #feb204. "
+        "#907350, #7a4b8f, #87CEEB, #F7A3BA, #70996D, #3d2758, #dd660d, #dd660d, #c4bd8b, #feb204. "
         "Do not invent new colors. Only use these. "
         "Wrap your response inside triple backticks like ```json ... ```.\n\n"
         f"{reformatted_stats }"

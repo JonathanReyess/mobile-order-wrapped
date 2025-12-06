@@ -85,14 +85,15 @@ const UniqueOrdersSlide: React.FC<UniqueOrdersSlideProps> = ({
     .split("")
     .map((char, i) =>
       i >= numStart && i < numEnd ? (
-        <span key={i} className="text-green-600">{char}</span>
+        <span key={i} className="text-lime-400">{char}</span> // NEW: Neon Green Highlight
       ) : (
         <React.Fragment key={i}>{char}</React.Fragment>
       )
     );
 
   return (
-    <div className="relative h-full w-full flex flex-col items-center justify-center bg-gradient-to-r from-duke-royal to-duke-blue to-duke-royal p-4">
+    // NEW: Background Gradient (Deep Space Blue/Purple)
+    <div className="relative h-full w-full flex flex-col items-center justify-center bg-gradient-to-tr from-gray-900 via-indigo-900 to-purple-900 p-4">
       <AnimatePresence mode="wait">
         {step === 1 && (
           <motion.p
@@ -101,7 +102,7 @@ const UniqueOrdersSlide: React.FC<UniqueOrdersSlideProps> = ({
             initial="initial"
             animate="animate"
             exit="exit"
-            className="text-4xl font-bold text-white-800 text-center"
+            className="text-5xl font-extrabold text-gray-200 text-center tracking-wide" // Adjusted text color
           >
             {renderedLine1}
           </motion.p>
@@ -114,7 +115,7 @@ const UniqueOrdersSlide: React.FC<UniqueOrdersSlideProps> = ({
             initial="initial"
             animate="animate"
             exit="exit"
-            className="mt-4 text-4xl font-bold text-white-800 text-center"
+            className="mt-6 text-5xl font-extrabold text-indigo-300 text-center tracking-wide" // Adjusted text color
           >
             {line2Full.slice(0, idx2)}
           </motion.p>

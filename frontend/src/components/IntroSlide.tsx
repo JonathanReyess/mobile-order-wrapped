@@ -12,7 +12,8 @@ const IntroSlide = ({ name, isPlaying, onComplete }: IntroSlideProps) => {
   const stepStartTime = useRef<number | null>(null);
   const elapsedTime = useRef<number>(0);
   const timerRef = useRef<number | null>(null);
-  const stepDelays = [2000, 5000];
+  // Adjusted step delays for a slightly faster, snappier feel
+  const stepDelays = [1500, 4500];
 
   useEffect(() => {
     function startTimerForStep() {
@@ -41,9 +42,14 @@ const IntroSlide = ({ name, isPlaying, onComplete }: IntroSlideProps) => {
     <div className="
         h-screen w-full 
         flex flex-col items-center justify-center 
-        bg-gradient-to-r from-duke-blue to-duke-royal 
+        /* * SPOTIFY WRAPPED STYLES 
+         * Dark background with a vibrant, dynamic gradient
+         * Using deep purple and neon pink/cyan. 
+         */
+        bg-gradient-to-br from-[#1E004B] via-[#0A0724] to-[#4A003D] 
         text-white 
         px-4
+        font-sans /* Use a modern sans-serif font */
       ">
       <AnimatePresence mode="wait">
         {step === 0 && (
@@ -52,16 +58,19 @@ const IntroSlide = ({ name, isPlaying, onComplete }: IntroSlideProps) => {
             className="
               w-full max-w-full
               px-2
-              text-[clamp(2rem,8vw,4rem)]
+              /* Larger, bolder text, and often slightly condensed */
+              text-[clamp(2.5rem,10vw,5rem)]
               font-extrabold 
               text-center 
               leading-snug
               break-words
+              /* Use a neon-like color for an eye-catching effect */
+              text-white 
             "
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 1 }}
+            transition={{ duration: 0.8 }}
           >
             Hello{ name ? `, ${name}` : "" }{" "}
             <motion.span
@@ -78,34 +87,41 @@ const IntroSlide = ({ name, isPlaying, onComplete }: IntroSlideProps) => {
           <motion.div
             key="wrapped"
             className="w-full max-w-full px-2 text-center"
-            initial={{ opacity: 0, y: 50, scale: 1 }}
-            animate={{ opacity: 1, y: 0, scale: 1.15 }}
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            /* Wrapped usually has a zoom-in/pop effect */
+            animate={{ opacity: 1, y: 0, scale: 1.05 }}
             exit={{ opacity: 0, scale: 20 }}
-            transition={{ duration: 0.94 }}
+            transition={{ duration: 0.75 }}
           >
-<h1 className="
-    w-full max-w-full
-    text-[clamp(2rem,5vw,4rem)]
-    font-extrabold 
-    leading-none
-    break-words
-    mx-auto
-  ">
-  Your Mobile Order <br /> Wrapped is Here 🎉
-</h1>
-<p className="
-    mt-4 
-    w-full
-    text-[clamp(0.75rem,2vw,1.5rem)]
-    leading-tight
-    break-words
-    mx-auto
-  ">
-  Let’s take a look at what you’ve been craving all<br/>
-  <span className="block">semester at Duke.</span>
-</p>
-
-
+            <h1 className="
+                w-full max-w-full
+                /* Massive headline for maximum impact */
+                text-[clamp(3rem,12vw,6rem)]
+                font-black 
+                leading-[1.1] /* Tight leading */
+                break-words
+                mx-auto
+                /* Bold white text for contrast */
+                text-white
+              ">
+              Your Mobile Order <br /> <span className="
+                /* Highlighted 'Wrapped' text with another neon color */
+                text-[#FF3086]
+                ">Wrapped</span> is Here 🎉
+            </h1>
+            <p className="
+                mt-6 
+                w-full
+                /* Subdued but legible secondary text */
+                text-[clamp(1rem,3vw,2rem)]
+                leading-snug
+                break-words
+                mx-auto
+                text-gray-200
+              ">
+              Let’s take a look at what you’ve been craving all<br/>
+              <span className="block">semester at Duke.</span>
+            </p>
           </motion.div>
         )}
       </AnimatePresence>

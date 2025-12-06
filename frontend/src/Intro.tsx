@@ -1,27 +1,14 @@
 import React, { useRef, useLayoutEffect, useCallback, useState } from 'react';
 import { gsap } from 'gsap';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import './_intro.scss';
 
 // Define the number of panels as a constant for clarity
 const NUMBER_OF_PANELS = 12;
 const ROTATION_COEF = 5;
 
-// --- 1. Countdown Logic ---
-function getTimeLeft() {
-  const now = new Date();
-  // Using the same date as the source code (Dec 5, 2025)
-  const finalsEnd = new Date("2025-12-05T23:59:59"); 
-  const diff = finalsEnd.getTime() - now.getTime();
-
-  const total = Math.max(0, diff);
-  const days = Math.floor(total / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
-  const minutes = Math.floor((total / (1000 * 60)) % 60);
-  const seconds = Math.floor((total / 1000) % 60);
-
-  return { days, hours, minutes, seconds, total };
-}
+// --- 1. Countdown Logic Removed ---
+// The getTimeLeft function and timeLeft state are removed.
 
 const Intro: React.FC = () => {
   const navigate = useNavigate(); // Hook for navigation
@@ -29,28 +16,21 @@ const Intro: React.FC = () => {
   // 1. Refs to target the DOM elements for GSAP
   const bgRef = useRef<HTMLDivElement>(null);
   const textCalloutRef = useRef<HTMLHeadingElement>(null);
-  // textSubRef has been removed
   const startBtnRef = useRef<HTMLButtonElement>(null); // Ref for the new button
   const overlayRef = useRef<HTMLDivElement>(null); // Ref for the overlay
   
-  // 2. State to manage window dimensions and countdown
+  // 2. State to manage window dimensions
   const [windowSize, setWindowSize] = useState({ 
     width: typeof window !== 'undefined' ? window.innerWidth : 0, 
     height: typeof window !== 'undefined' ? window.innerHeight : 0 
   });
-  const [timeLeft, setTimeLeft] = useState(getTimeLeft());
+  // timeLeft state has been removed
 
   // 3. GSAP Timeline refs
   const tl = useRef(gsap.timeline({ repeat: -1, paused: true })); 
   const exitTl = useRef(gsap.timeline({ paused: true })); // Timeline for the exit sequence
 
-  // Hook to run the countdown timer
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(getTimeLeft());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  // Hook to run the countdown timer has been removed
 
   // --- Start Handler (Logic for exiting) ---
   const handleStart = useCallback(() => {
@@ -83,20 +63,18 @@ const Intro: React.FC = () => {
     // --- ENTRANCE Timeline (Combined Intro) ---
     const introTl = gsap.timeline({ defaults: { ease: "expo.out" } });
 
-    // Text Entrance (Modified to match the new H1 setup)
+    // Text Entrance
     introTl.fromTo(
       textCalloutRef.current,
       { left: "150%" }, // Initial state
       { 
         left: "50%", 
-        // ADD THIS LINE: Move it up by -30 pixels (or use a percentage/vh/vw)
         y: -30, 
         duration: 1, 
         delay: 1.2 
       }, 
       0
     );
-    // Removed the secondary Y-shift for the H1
 
     // BUTTON Entrance
     introTl.fromTo(
@@ -121,14 +99,15 @@ const Intro: React.FC = () => {
       "<0.2" // Start slightly after panel fade begins
     )
     .call(() => {
-        navigate("/upload"); // Navigation to the next page
+        // NAVIGATE TO /about AS REQUESTED
+        navigate("/upload"); 
     });
     
     // --- Panel Animations (Setup for the Looping Timeline) ---
     panels.forEach((panel, i) => {
       // (Panel logic is complex and remains identical to your previous code)
-      // ... [The entire panels.forEach loop code goes here] ...
-
+      // ... [The entire panels.forEach loop code is unchanged and omitted for brevity] ...
+      
       const stopPosition = 100 - i * 1;
       const wi = width - elWidth * (12 - i) + elWidth;
       const he = height - elHeight * (12 - i) + elHeight;
@@ -462,7 +441,7 @@ const Intro: React.FC = () => {
         </div>
       </h1>
 
-      {/* --- START BUTTON --- */}
+      {/* --- START BUTTON (Modified) --- */}
       <div
         className="
           absolute 
@@ -473,22 +452,17 @@ const Intro: React.FC = () => {
       >
         <button
           ref={startBtnRef}
-          onClick={() => {
-            if (timeLeft.total <= 0) handleStart();
-          }}
-          disabled={timeLeft.total > 0}
+          onClick={handleStart} 
           className={`start-button 
-            px-4 py-2 text-md
-            sm:px-6 sm:py-3 sm:text-lg
+            // 🚀 MODIFICATIONS HERE 🚀
+            px-8 py-4 text-xl // Increased padding and text size for mobile
+            sm:px-10 sm:py-5 sm:text-2xl // Increased padding and text size for small screens and up
             rounded-full font-bold border-2 transition-all duration-500 z-30
-            ${timeLeft.total > 0
-              ? 'bg-black text-[#d3f971] border-[#d3f971] opacity-70 cursor-not-allowed'
-              : 'bg-black text-[#d3f971] border-[#d3f971] hover:bg-[#d3f971] hover:text-black'}
+            bg-black text-[#d3f971] border-[#d3f971] hover:bg-[#d3f971] hover:text-black
           `}
         >
-          {timeLeft.total > 0
-            ? `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`
-            : 'Start'}
+          {/* Button text is now permanently 'Start' */}
+          Start
         </button>
       </div>
     </>

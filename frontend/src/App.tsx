@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import SlideShow from "./components/SlideShow";
@@ -8,9 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 const EmailStatsViewer = () => {
   const navigate = useNavigate();
 
-useEffect(() => {
-  navigate("/", { replace: true });
-}, []);
 
   const [stats, setStats] = useState<any | null>(null);
   const [files, setFiles] = useState<File[]>([]);
@@ -99,6 +95,7 @@ const [notifications, setNotifications] = useState<
   };
 
 const notificationElements = (
+  // 🚀 Notifications: Increased w-72 to w-80 and text-sm to text-base
   <div className="fixed top-4 right-4 space-y-2 z-50">
     <AnimatePresence>
       {notifications.map((n) => (
@@ -108,13 +105,13 @@ const notificationElements = (
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="relative bg-white text-[#032e56] px-4 py-3 rounded-xl shadow-lg w-72 text-sm overflow-hidden group"
+          className="relative bg-white text-[#032e56] px-4 py-3 rounded-xl shadow-lg w-80 text-base overflow-hidden group"
         >
           {/* Message */}
           <div className="pr-8">{n.message}</div>
 
 <div className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-blue-600 group">
-  {/* Circle countdown timer */}
+  {/* Circle countdown timer - (Size kept for visual integrity) */}
   <svg viewBox="0 0 36 36" className="w-full h-full">
     <path
       className="text-gray-300"
@@ -206,7 +203,8 @@ const notificationElements = (
       >
         <div className="absolute inset-0 opacity-70 bg-[url('/white-teexture-1920x1080-2.png')] bg-cover bg-center pointer-events-none"></div>
 
-        <div className="relative z-10 w-full max-w-md sm:max-w-lg md:max-w-xl flex flex-col items-center">
+        {/* 🚀 Main Content Container: Increased max-w-xl to max-w-2xl */}
+        <div className="relative z-10 w-full max-w-md sm:max-w-lg md:max-w-2xl flex flex-col items-center">
           {/* Modal */}
           {showInstructions && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -215,7 +213,8 @@ const notificationElements = (
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white p-6 rounded-lg w-full max-w-sm shadow-lg relative"
+                // 🚀 Modal: Increased max-w-sm to max-w-lg and p-6 to p-8
+                className="bg-white p-8 rounded-lg w-full max-w-lg shadow-lg relative"
               >
                 <button
                   onClick={() => setShowInstructions(false)}
@@ -224,18 +223,22 @@ const notificationElements = (
                 >
                   ✕
                 </button>
-                <h2 className="text-xl text-black font-semibold mb-3">How to Export Receipts</h2>
+                {/* 🚀 Modal Heading: Increased text-xl to text-2xl and mb-3 to mb-4 */}
+                <h2 className="text-2xl text-black font-semibold mb-4">How to Export Receipts</h2>
 
-                <div className="mb-4 p-3 border-l-4 border-yellow-400 bg-yellow-100 text-sm text-gray-800 rounded">
+                {/* 🚀 Warning Box: Increased text-sm to text-base and p-3 to p-4 */}
+                <div className="mb-4 p-4 border-l-4 border-yellow-400 bg-yellow-100 text-base text-gray-800 rounded">
                   ⚠️ This only works on a desktop or laptop <strong>with the Outlook app installed</strong>.
                 </div>
 
-                <p className="text-sm text-gray-700 mb-2">1) Open Outlook and paste this in the search bar:</p>
+                {/* 🚀 Instruction Text: Increased text-sm to text-base */}
+                <p className="text-base text-gray-700 mb-2">1) Open Outlook and paste this in the search bar:</p>
                 <div className="flex items-center space-x-2 mb-4">
                   <input
                     readOnly
-                    value={`from:mobileorder@transactcampus.com AND received>=2024-08-26 AND received<=2025-04-23`}
-                    className="flex-1 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-2 py-1 rounded text-sm font-mono shadow-sm"
+                    value={`from:mobileorder@transactcampus.com AND received>=2025-08-18 AND received<=2025-12-8`}
+                    // 🚀 Input: Increased px-2 py-1 to px-3 py-2 and text-sm to text-base
+                    className="flex-1 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-3 py-2 rounded text-base font-mono shadow-sm"
                   />
                   <button
                     onClick={() => {
@@ -245,26 +248,30 @@ const notificationElements = (
                       setCopied(true);
                       setTimeout(() => setCopied(false), 2000);
                     }}
-                    className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition min-w-[72px]"
+                    // 🚀 Copy Button: Increased py-1 to py-2 and text-sm to text-base
+                    className="px-3 py-2 bg-blue-500 text-white rounded text-base hover:bg-blue-600 transition min-w-[72px]"
                   >
                     {copied ? "Copied!" : "Copy"}
                   </button>
                 </div>
 
-                <p className="text-sm text-gray-700 mb-1">2) Scroll to load all emails.</p>
-                <p className="text-sm text-gray-700 mb-1">3) Ctrl+A (Windows) or ⌘+A (Mac) to select.</p>
-                <p className="text-sm text-gray-700">4) Drag and drop them into this page.</p>
+                {/* 🚀 Instruction Text: Increased text-sm to text-base */}
+                <p className="text-base text-gray-700 mb-1">2) Scroll to load all emails.</p>
+                <p className="text-base text-gray-700 mb-1">3) Ctrl+A (Windows) or ⌘+A (Mac) to select.</p>
+                <p className="text-base text-gray-700">4) Drag and drop them into this page.</p>
               </motion.div>
             </div>
           )}
 
-          <h1 className="text-5xl font-extrabold text-center mb-8 text-white font-[Manrope] tracking-tight leading-tight">
+          {/* 🚀 Main H1: Increased text-5xl to text-6xl and mb-8 to mb-10 */}
+          <h1 className="text-6xl font-extrabold text-center mb-10 text-white font-[Manrope] tracking-tight leading-tight">
             Mobile Order Wrapped
           </h1>
 
           <button
             onClick={() => setShowInstructions(true)}
-            className="bg-white text-[#003e7c] border border-gray-300 rounded-full w-64 py-3 text-center font-bold font-sans shadow-md transition-transform duration-200 hover:scale-105 hover:shadow-lg mb-6"
+            // 🚀 Instructions Button: Increased w-64 to w-80 and py-3 to py-4, text-center font-bold font-sans shadow-md transition-transform duration-200 hover:scale-105 hover:shadow-lg mb-6
+            className="bg-white text-[#003e7c] border border-gray-300 rounded-full w-80 py-4 text-lg text-center font-bold font-sans shadow-md transition-transform duration-200 hover:scale-105 hover:shadow-lg mb-8"
           >
             View Upload Instructions
           </button>
@@ -275,12 +282,14 @@ const notificationElements = (
                 ? "border-2 border-blue-600 bg-blue-50"
                 : "border-2 border-dashed border-blue-400 bg-blue-400/0 hover:bg-blue-400/40"
             }`}
+            // 🚀 Drag and Drop Area: Increased p-8 to p-12, and increased the text size
             onDragOver={handleDragOver}
             onDrop={handleDrop}
             onDragLeave={handleDragLeave}
             onClick={() => fileInputRef.current?.click()}
           >
-            <p className="text-gray-100">
+            {/* 🚀 Drag Area Text: Increased text-gray-100 to text-lg and font size */}
+            <p className="text-lg text-gray-100 font-medium">
               Drag and drop your <strong>.eml</strong>, <strong>.msg</strong> or <strong>.zip</strong> files here,
               or click to select files.
             </p>
@@ -295,20 +304,23 @@ const notificationElements = (
           </div>
 
           {files.length > 0 && (
-            <div className="mb-6 text-md font-medium text-gray-100 text-center animate-fadeIn">
+            // 🚀 File Count Text: Increased text-md to text-lg and mb-6 to mb-8
+            <div className="mb-8 text-lg font-medium text-gray-100 text-center animate-fadeIn">
               {files.length} {files.length === 1 ? "file" : "files"} ready to upload
             </div>
           )}
 
           <button
             onClick={handleUpload}
-            className="bg-[#032e56] text-white px-6 py-3 rounded-full w-64 font-sans font-bold transition-transform duration-200 hover:scale-105 hover:shadow-lg mb-6 flex items-center justify-center"
+            // 🚀 Submit Button: Increased px-6 py-3 to px-8 py-4, w-64 to w-80, and text size
+            className="bg-[#032e56] text-white px-8 py-4 rounded-full w-80 text-lg font-sans font-bold transition-transform duration-200 hover:scale-105 hover:shadow-lg mb-6 flex items-center justify-center"
             disabled={loading}
           >
             {loading ? (
               <div className="flex items-center space-x-2">
+                {/* 🚀 Loader text increased from default to text-lg */}
                 <svg
-                  className="animate-spin h-5 w-5 text-white"
+                  className="animate-spin h-6 w-6 text-white" // Increased size h-5 w-5 to h-6 w-6
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -316,26 +328,29 @@ const notificationElements = (
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
-                <span>{uploading ? "Uploading..." : "Processing..."}</span>
+                <span className="text-lg">{uploading ? "Uploading..." : "Processing..."}</span>
               </div>
             ) : (
               "Submit"
             )}
           </button>
 
-          <div className="w-64 bg-gray-200 rounded-full h-2 overflow-hidden mb-6 relative">
+          {/* 🚀 Progress Bar: Increased w-64 to w-80 and h-2 to h-3 */}
+          <div className="w-80 bg-gray-200 rounded-full h-3 overflow-hidden mb-6 relative">
             {uploading ? (
-              <div className="bg-blue-600 h-2 rounded-full transition-all duration-200" style={{ width: `${progress}%` }}></div>
+              <div className="bg-blue-600 h-3 rounded-full transition-all duration-200" style={{ width: `${progress}%` }}></div>
             ) : processing ? (
-              <div className="h-2 w-full rounded-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-400 animate-shimmer"></div>
+              <div className="h-3 w-full rounded-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-400 animate-shimmer"></div>
             ) : (
-              <div className="bg-blue-600 h-2 rounded-full" style={{ width: "0%" }}></div>
+              <div className="bg-blue-600 h-3 rounded-full" style={{ width: "0%" }}></div>
             )}
           </div>
 
-          {error && <p className="mt-4 text-red-600 font-semibold text-center">{error}</p>}
+          {/* 🚀 Error Text: Increased from default to text-lg */}
+          {error && <p className="mt-4 text-red-600 font-semibold text-center text-lg">{error}</p>}
 
-          <p className="text-sm text-gray-100 mt-6 text-center">
+          {/* 🚀 Contact Text: Increased text-sm to text-base and mt-6 to mt-8 */}
+          <p className="text-base text-gray-100 mt-8 text-center">
             Questions or issues?{" "}
             <a
               href="mailto:wrappedmobileorder@gmail.com"

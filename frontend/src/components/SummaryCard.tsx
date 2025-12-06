@@ -1,29 +1,140 @@
-import { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { toPng, toBlob } from "html-to-image";
 import download from "downloadjs";
 // @ts-ignore
 import confetti from "canvas-confetti";
 import gsap from "gsap";
 
+// --- Utilities ---
 function formatToMonthDay(dateStr: string) {
   const [year, month, day] = dateStr.split("-").map(Number);
   const date = new Date(year, month - 1, day);
   if (isNaN(date.getTime())) return "Invalid date";
-  return date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 function formatToTimeOnly(dateStr: string) {
-  const [datePart, timePart, meridiem] = dateStr.split(/\s+/);
-  const [hourStr, minuteStr] = timePart.split(":"),
-    [year, month, day] = datePart.split("-").map(Number);
+  if (!dateStr) return "N/A";
+  const parts = dateStr.split(/\s+/);
+  if (parts.length < 2) return dateStr;
+  
+  const [datePart, timePart, meridiem] = parts;
+  const [hourStr, minuteStr] = timePart.split(":");
+  const [year, month, day] = datePart.split("-").map(Number);
+  
   let hour = parseInt(hourStr, 10);
   const minute = parseInt(minuteStr, 10);
+  
   if (meridiem === "PM" && hour !== 12) hour += 12;
   else if (meridiem === "AM" && hour === 12) hour = 0;
+  
   const dateObj = new Date(year, month - 1, day, hour, minute);
   return dateObj.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 }
 
+// --- Icons ---
+const ShareIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
+);
+const DownloadIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+);
+const EyeOffIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+);
+const EyeIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+);
+const TrophyIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+);
+const CalendarIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+);
+const ClockIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+);
+const DollarIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+);
+
+// --- Theme Configurations ---
+const THEMES = [
+  {
+    id: "deepocean",
+    label: "Deep Ocean",
+    pageBg: "bg-[#001f3f]",
+    cardBg: "bg-[#003366]",
+    textColor: "text-blue-50",
+    subTextColor: "text-blue-200/60",
+    accentColor: "text-[#40e0d0]",
+    borderColor: "border-[#004d99]",
+    dividerColor: "bg-[#004d99]",
+    barColor: "bg-[#1e90ff]",
+    shadow: "shadow-[0_20px_60px_-15px_rgba(30,144,255,0.2)]",
+    // ACCESSIBILITY FIX: Changed button background to a darker blue
+    // to achieve 4.5:1 contrast against white text.
+    buttonBg: "bg-[#005a9c] text-white hover:bg-[#007acc]" // Darker Blue, Lighter Blue on hover
+  },
+  {
+    id: "noir",
+    label: "Noir",
+    pageBg: "bg-[#0a0a0a]",
+    cardBg: "bg-[#111111]",
+    textColor: "text-zinc-100",
+    subTextColor: "text-zinc-500",
+    accentColor: "text-white",
+    borderColor: "border-zinc-800",
+    dividerColor: "bg-zinc-800",
+    barColor: "bg-zinc-100",
+    shadow: "shadow-[0_20px_60px_-15px_rgba(255,255,255,0.05)]",
+    buttonBg: "bg-zinc-100 text-black hover:bg-zinc-200"
+  },
+  {
+    id: "midnight",
+    label: "Midnight",
+    pageBg: "bg-slate-950",
+    cardBg: "bg-[#0f172a]",
+    textColor: "text-slate-100",
+    subTextColor: "text-slate-400",
+    accentColor: "text-indigo-400",
+    borderColor: "border-slate-800",
+    dividerColor: "bg-slate-800",
+    barColor: "bg-indigo-500",
+    shadow: "shadow-[0_20px_60px_-15px_rgba(99,102,241,0.15)]",
+    buttonBg: "bg-indigo-500 text-white hover:bg-indigo-400"
+  },
+  {
+    id: "matcha",
+    label: "Matcha Latte",
+    pageBg: "bg-[#f7f4ec]", // Creamy, light background (like the foam/milk)
+    cardBg: "bg-[#ffffff]", // Clean white for the main card (like a bowl)
+    textColor: "text-gray-900", // Darker text for readability
+    subTextColor: "text-gray-500", // Soft grey for secondary text
+    accentColor: "text-[#587e6c]", // Muted, deep matcha green for highlights
+    borderColor: "border-[#e0ddd4]", // Very subtle, light border
+    dividerColor: "bg-[#e0ddd4]", // Light, subtle divider
+    barColor: "bg-[#7aa08a]", // Medium, creamy matcha green for progress/bars
+    shadow: "shadow-[0_10px_30px_-5px_rgba(122,160,138,0.2)]", // Soft shadow with a hint of matcha color
+    buttonBg: "bg-[#7aa08a] text-white hover:bg-[#587e6c]" // Matcha button, darkening on hover
+  },
+  {
+    id: "hojicha",
+    label: "Hojicha Roast",
+    pageBg: "bg-[#fcf8f3]", // Very light, creamy off-white (like a warm ceramic bowl)
+    cardBg: "bg-[#ffffff]", // Clean white for main card
+    textColor: "text-stone-800", // Soft, dark brown/grey for main text
+    subTextColor: "text-stone-500", // Muted grey/brown for secondary text
+    accentColor: "text-[#a0522d]", // Sienna/deep reddish-brown (the roasted leaf color)
+    borderColor: "border-[#f1ece6]", // Extremely light border
+    dividerColor: "bg-[#f1ece6]", // Very light, subtle divider
+    barColor: "bg-[#8b4513]", // Saddle brown/deep coffee color (rich roasted tone)
+    shadow: "shadow-[0_10px_30px_-5px_rgba(139,69,19,0.1)]", // Soft shadow with a hint of the roast color
+    buttonBg: "bg-[#8b4513] text-white hover:bg-[#a0522d]" // Deep brown button, changing to roasted accent color on hover
+  },
+];
+
+// Type definition matching the reference
 type Stats = {
   item_counts: { item: string; count: number }[];
   restaurant_counts: Record<string, number>;
@@ -40,175 +151,345 @@ type Stats = {
   top_restaurant?: { name: string };
 };
 
-export default function SummaryCard({ stats, semester = "Spring 2025", name }: { stats: Stats; semester?: string; name?: string }) {
+interface SummaryCardProps {
+  stats: Stats;
+  semester?: string;
+  name?: string;
+}
+
+// Mock data for demo
+const mockStats: Stats = {
+  total_items_ordered: 247,
+  item_counts: [
+    { item: "Iced Latte", count: 45 },
+    { item: "Avocado Toast", count: 38 },
+    { item: "Caesar Salad", count: 32 },
+    { item: "Breakfast Burrito", count: 28 },
+    { item: "Cold Brew", count: 24 }
+  ],
+  restaurant_counts: {
+    "Campus Café": 89,
+    "The Bistro": 67,
+    "Quick Bites": 45,
+    "Green Bowl": 32,
+    "Daily Grind": 14
+  },
+  most_expensive_order: {
+    total: 47.85,
+    order_time: "2024-11-15 12:30 PM",
+    transaction_id: "TXN001"
+  },
+  busiest_day: {
+    date: "2024-11-12",
+    order_count: 8
+  },
+  busiest_day_orders: [],
+  earliest_order: {
+    order_time: "2024-09-01 08:15 AM",
+    total: 12.50,
+    transaction_id: "TXN002",
+    items: [{ name: "Coffee" }]
+  },
+  latest_order: {
+    order_time: "2024-11-30 09:30 PM",
+    total: 18.75,
+    transaction_id: "TXN003",
+    items: [{ name: "Pizza" }]
+  },
+  earliest_order_by_time: {
+    order_time: "2024-10-05 06:45 AM",
+    pickup_time: "07:00 AM",
+    restaurant_name: "Early Bird Cafe",
+    total: "8.50",
+    transaction_id: "TXN004",
+    items: [{ name: "Bagel" }]
+  },
+  latest_order_by_time: {
+    order_time: "2024-11-30 11:47 PM",
+    pickup_time: "12:00 AM",
+    restaurant_name: "Late Night Diner",
+    total: "22.00",
+    transaction_id: "TXN005",
+    items: [{ name: "Burger" }]
+  }
+};
+
+export default function SummaryCard({ stats = mockStats, semester = "Fall 2025", name = "Alex Chen" }: SummaryCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [background, setBackground] = useState("bg-gradient-to-br from-[#001A57] to-[#01478c]");
+  const tiltRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeTheme, setActiveTheme] = useState(THEMES[0]); 
   const [anonymize, setAnonymize] = useState(false);
 
+  // 3D Tilt Effect
   useEffect(() => {
-    const card = cardRef.current;
-    if (!card) return;
+    const card = tiltRef.current;
+    const container = containerRef.current;
+    if (!card || !container) return;
+
     const handleMouseMove = (e: MouseEvent) => {
+      if(window.innerWidth < 768) return; 
+      
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
+      
+      const rotateX = -((y - centerY) / centerY) * 5; 
+      const rotateY = ((x - centerX) / centerX) * 5;
+
       gsap.to(card, {
-        rotateX: -((y - centerY) / centerY) * 10,
-        rotateY: ((x - centerX) / centerX) * 15,
-        scale: 1.0,
+        rotateX: rotateX,
+        rotateY: rotateY,
         transformPerspective: 1000,
         transformOrigin: "center",
         ease: "power2.out",
-        duration: 0.4
+        duration: 0.4,
       });
     };
+
     const resetMouseMove = () => {
-      gsap.to(card, { rotateX: 0, rotateY: 0, scale: 1, ease: "power2.out", duration: 0.6 });
+      gsap.to(card, { 
+        rotateX: 0, 
+        rotateY: 0, 
+        ease: "power2.out", 
+        duration: 0.6 
+      });
     };
-    card.addEventListener("mousemove", handleMouseMove);
-    card.addEventListener("mouseleave", resetMouseMove);
+
+    container.addEventListener("mousemove", handleMouseMove);
+    container.addEventListener("mouseleave", resetMouseMove);
     return () => {
-      card.removeEventListener("mousemove", handleMouseMove);
-      card.removeEventListener("mouseleave", resetMouseMove);
+      container.removeEventListener("mousemove", handleMouseMove);
+      container.removeEventListener("mouseleave", resetMouseMove);
     };
   }, []);
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
-    const dataUrl = await toPng(cardRef.current);
-    download(dataUrl, `mobile-order-wrapped-${semester.replace(" ", "-")}.png`);
-    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    
+    if (tiltRef.current) gsap.set(tiltRef.current, { clearProps: "transform" });
+
+    try {
+      const dataUrl = await toPng(cardRef.current, { pixelRatio: 3, cacheBust: true });
+      download(dataUrl, `mobile-order-wrapped-${semester.replace(" ", "-")}.png`);
+      confetti({ 
+        particleCount: 150, 
+        spread: 70, 
+        origin: { y: 0.6 }, 
+        colors: activeTheme.id === 'deepforest' ? ['#D4AF37', '#141b14', '#ffffff'] : (activeTheme.id === 'porcelain' ? ['#000', '#555'] : ['#ffffff', '#fbbf24', '#f472b6']) 
+      });
+    } catch (e) {
+      console.error("Download failed", e);
+    }
   };
 
   const handleShare = async () => {
     if (!cardRef.current) return;
+    if (tiltRef.current) gsap.set(tiltRef.current, { clearProps: "transform" });
+    
     try {
-      const blob = await toBlob(cardRef.current);
+      const blob = await toBlob(cardRef.current, { pixelRatio: 3 });
       if (!blob) throw new Error("Could not generate image blob");
-      const file = new File([blob], `my-wrapped${semester.replace(" ", "-")}.png`, { type: "image/png" });
+      
+      const file = new File([blob], `my-wrapped-${semester.replace(" ", "-")}.png`, { type: "image/png" });
+      
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: `Mobile Order Wrapped for ${name || "User"} (${semester})`, text: `Check out my Mobile Order Wrapped! mobileorderwrapped.com` });
+        await navigator.share({ 
+          files: [file], 
+          title: `My Mobile Order Wrapped`, 
+          text: `I ordered ${stats.total_items_ordered} items this semester! #MobileOrderWrapped` 
+        });
       } else {
-        const dataUrl = await toPng(cardRef.current);
-        download(dataUrl, `mobile-order-wrapped-${semester.replace(" ", "-")}.png`);
-        alert("Sharing isn’t supported on this browser. The PNG has been downloaded instead.");
+        handleDownload();
       }
     } catch (err: any) {
       if (err.name !== "AbortError" && err.name !== "NotAllowedError") {
-        console.error("Error sharing:", err);
-        alert("Oops! Something went wrong while sharing.");
+        handleDownload();
       }
     }
   };
 
+  // Data
   const topItems = [...stats.item_counts].sort((a, b) => b.count - a.count).slice(0, 5);
-  const longestItemLength = Math.max(...topItems.map(it => it.item.length));
-  const isLong = longestItemLength > 20;
-  const topItemFontSize = isLong ? "0.86rem" : "clamp(0.75rem,2.5vw,1rem)";
-  
-  const [topRestaurantName, topRestaurantCount] = Object.entries(stats.restaurant_counts).sort((a, b) => b[1] - a[1])[0];
+  const [topRestaurantName, topRestaurantCount] = Object.entries(stats.restaurant_counts).sort((a, b) => b[1] - a[1])[0] || ["Unknown", 0];
   const formattedBusiestDay = formatToMonthDay(stats.busiest_day.date);
+  const maxItemCount = topItems[0]?.count || 1;
 
   return (
-    <div className="min-h-[96vh] md:min-h-[116vh] flex flex-col items-center justify-center pt-10 pb-20 md:pt-21 space-y-5">
-      <div ref={cardRef} className={`${background} relative overflow-hidden rounded-3xl shadow-2xl w-[80vw] max-w-[350px] h-auto max-h-[90vh] p-4 md:p-6 space-y-2 flex flex-col text-white transform scale-90 md:scale-95`}>
-        <div className="absolute -top-24 -left-16 w-[200%] h-[200%] rounded-full bg-white/10 transform rotate-45" />
-        <div className="relative z-10">
-          <h1 className="text-2xl md:text-2xl font-bold text-left">
-            Mobile Order Wrapped
-            {name && !anonymize && (
-  <span className="block text-base md:text-lg font-normal mt-1 truncate">{name}</span>
-)}
-            </h1>
-          <p className="uppercase text-[10px] md:text-sm opacity-75 mt-1">{semester}</p>
-        </div>
-        <div className="relative z-10 space-y-4">
-        <div className="flex justify-between items-start">
-  <div>
-    <p className="uppercase text-[10px] md:text-xs opacity-75">Top Items</p>
-    {topItems.map((it, i) => (
-      <p
-        key={i}
-        className="font-semibold max-w-[14rem] leading-tight whitespace-nowrap overflow-hidden text-ellipsis"
-        style={{ fontSize: topItemFontSize }}
-        title={`${i + 1}. ${it.item} (${it.count}×)`}
-      >
-        {i + 1}. {it.item} <span className="opacity-75">({it.count}×)</span>
-      </p>
-    ))}
-  </div>
-  <div className="text-center">
-    <p className="uppercase text-[10px] md:text-xs opacity-75">Total Items</p>
-    <p className="text-base md:text-lg font-semibold">{stats.total_items_ordered}</p>
-  </div>
-</div>
-
-          <div className="flex justify-between">
-            <div>
-              <p className="uppercase text-[10px] md:text-xs opacity-75">Top Spot</p>
-              <p className="text-[clamp(0.75rem,2.5vw,1rem)] font-semibold truncate max-w-[14rem]" title={topRestaurantName}>{topRestaurantName}</p>
-              <p className="text-xs md:text-sm opacity-75">{topRestaurantCount} visits</p>
-            </div>
-            <div>
-              <p className="uppercase text-[10px] md:text-xs opacity-75">Busiest Day</p>
-              <p className="text-base md:text-lg font-semibold">{formattedBusiestDay}</p>
-              <p className="text-xs md:text-sm opacity-75">{stats.busiest_day.order_count} orders</p>
-            </div>
-          </div>
-          <div className="flex flex-wrap justify-center items-center gap-7 w-full">
-            {[{ label: "Most Spent", value: `$${stats.most_expensive_order.total.toFixed(2)}` }, { label: "Earliest", value: formatToTimeOnly(stats.earliest_order_by_time.order_time) }, { label: "Latest", value: formatToTimeOnly(stats.latest_order_by_time.order_time) }].map((item, index) => (
-              <div key={index} className="flex flex-col text-center min-w-[60px]">
-                <p className="uppercase text-[10px] md:text-xs opacity-75">{item.label}</p>
-                <p className="text-base md:text-lg font-semibold">{item.value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <p className="relative z-10 text-[10px] md:text-[13px] text-lime-300 opacity-80 uppercase">mobileorderwrapped.com</p>
-      </div>
-      <div className="flex flex-wrap justify-center gap-4 mb-6">
-        {["bg-gradient-to-br from-[#001A57] to-[#01478c]", "bg-gradient-to-br from-indigo-900 to-[#acaecc]", "bg-gradient-to-br from-[#4f6b60] to-[#95b189]", "bg-gradient-to-br from-pink-600 to-rose-400"].map((bg, index) => (
-          <button key={index} onClick={() => setBackground(bg)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-md hover:opacity-80 transition">
-            <div className={`w-5 h-5 rounded-full ${bg}`} />
+    <div className={`min-h-screen w-full flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-500 ${activeTheme.pageBg} font-sans`}>
+      
+      {/* Controls */}
+      <div className="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
+        <div className="bg-black/20 backdrop-blur-xl border border-white/10 p-2 rounded-full flex gap-3 shadow-lg pointer-events-auto">
+          {THEMES.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setActiveTheme(t)}
+              className={`w-6 h-6 rounded-full border border-white/10 transition-transform hover:scale-110 ${t.id === activeTheme.id ? 'ring-2 ring-white scale-110' : 'opacity-70'}`}
+              style={{ 
+                background: 
+                  t.id === 'noir' ? '#FFFFFF' : 
+                  t.id === 'midnight' ? '#1e293b' : 
+                  t.id === 'deepocean' ? '#003366' : // Using cardBg as the preview color
+                  t.id === 'matcha' ? '#B3C6A9' :    // Using a muted green for the preview
+                  t.id === 'hojicha' ? '#8b4513' :   // Using the barColor/deep brown for the preview
+                  'gray' 
+              }}
+            />
+          ))}
+          <div className="w-px bg-white/10 mx-1" />
+          <button 
+            onClick={() => setAnonymize(!anonymize)}
+            className="text-white/70 hover:text-white transition-colors"
+          >
+            {anonymize ? <EyeOffIcon /> : <EyeIcon />}
           </button>
-        ))}
+        </div>
       </div>
-      <div className="flex items-center gap-3 mb-4">
-      <span className="text-[#1C274C] text-sm md:text-base font-bold flex items-center gap-2">
-      <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-5 h-5"
-    >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M4.6138 8.54479L4.1875 10.25H2C1.58579 10.25 1.25 10.5858 1.25 11C1.25 11.4142 1.58579 11.75 2 11.75H22C22.4142 11.75 22.75 11.4142 22.75 11C22.75 10.5858 22.4142 10.25 22 10.25H19.8125L19.3862 8.54479C18.8405 6.36211 18.5677 5.27077 17.7539 4.63538C16.9401 4 15.8152 4 13.5653 4H10.4347C8.1848 4 7.05988 4 6.24609 4.63538C5.43231 5.27077 5.15947 6.36211 4.6138 8.54479ZM6.5 21C8.12316 21 9.48826 19.8951 9.88417 18.3963L10.9938 17.8415C11.6272 17.5248 12.3728 17.5248 13.0062 17.8415L14.1158 18.3963C14.5117 19.8951 15.8768 21 17.5 21C19.433 21 21 19.433 21 17.5C21 15.567 19.433 14 17.5 14C15.8399 14 14.4498 15.1558 14.0903 16.7065L13.6771 16.4999C12.6213 15.972 11.3787 15.972 10.3229 16.4999L9.90967 16.7065C9.55023 15.1558 8.16009 14 6.5 14C4.567 14 3 15.567 3 17.5C3 19.433 4.567 21 6.5 21Z"
-        fill="#1C274C"
-      />
-    </svg>
-    Anonymize
-  </span>
-  <button
-    onClick={() => setAnonymize(prev => !prev)}
-    className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${
-      anonymize ? "bg-blue-600" : "bg-gray-300"
-    }`}
-  >
-    <div
-      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
-        anonymize ? "translate-x-6" : "translate-x-0"
-      }`}
-    />
-  </button>
+
+      <div className="relative z-10 w-full max-w-[420px]" ref={containerRef}>
+        <div ref={tiltRef} className="will-change-transform">
+          
+          {/* Main Card */}
+          <div
+            ref={cardRef}
+            className={`
+              relative w-full aspect-[4/6] rounded-[32px] overflow-hidden 
+              flex flex-col
+              transition-all duration-500
+              ${activeTheme.cardBg}
+              ${activeTheme.textColor}
+              ${activeTheme.shadow}
+            `}
+          >
+            {/* Border Layer */}
+            <div className={`absolute inset-0 border-[6px] ${activeTheme.borderColor} rounded-[32px] pointer-events-none z-20 opacity-50`} />
+
+            {/* Content Padding */}
+            <div className="flex-1 flex flex-col p-6 relative z-10">
+              
+              {/* Header */}
+              <div className="flex justify-between items-start mb-5">
+                <div className="flex flex-col">
+                  <span className={`text-[10px] font-mono tracking-widest uppercase mb-1 ${activeTheme.subTextColor}`}>Mobile Order Wrapped</span>
+                  <h1 className={`text-xl font-bold tracking-tight ${anonymize ? 'blur-sm select-none' : ''}`}>
+                    {anonymize ? "HIDDEN NAME" : (name || "USER")}
+                  </h1>
+                </div>
+                
+                <div className={`px-2.5 py-1 rounded-full border ${activeTheme.borderColor} ${activeTheme.subTextColor} text-[9px] font-mono font-bold uppercase`}>
+                  {semester}
+                </div>
+              </div>
+
+              {/* Big Stat */}
+              <div className="mb-5">
+                 <div className="flex items-baseline gap-1">
+                   <span className="text-5xl md:text-6xl font-bold tracking-tighter leading-none">
+                     {stats.total_items_ordered}
+                   </span>
+                   <span className={`${activeTheme.accentColor} font-serif italic text-lg`}>items</span>
+                 </div>
+                 <p className={`text-[11px] mt-1.5 ${activeTheme.subTextColor}`}>Total orders placed this semester.</p>
+              </div>
+
+              {/* Divider */}
+              <div className={`h-px w-full ${activeTheme.dividerColor} mb-4`} />
+
+              {/* Top Items List */}
+              <div className="flex-1 mb-4">
+                <h3 className={`text-[10px] font-mono uppercase tracking-widest mb-3 ${activeTheme.subTextColor}`}>Top Cravings</h3>
+                <div className="flex flex-col gap-2.5">
+                  {topItems.map((item, i) => (
+                    <div key={i} className="flex items-center gap-2.5 group">
+                      <span className={`font-mono text-[11px] w-4 opacity-40`}>0{i + 1}</span>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-baseline mb-0.5">
+                          <span className="text-[13px] font-semibold truncate pr-2 max-w-[180px]">{item.item}</span>
+                          <span className={`text-[10px] ${activeTheme.subTextColor}`}>{item.count}</span>
+                        </div>
+                        {/* Custom Progress Bar */}
+                        <div className={`h-1 w-full ${activeTheme.dividerColor} rounded-full overflow-hidden`}>
+                           <div 
+                             className={`h-full ${activeTheme.barColor} transition-all duration-1000 ease-out`} 
+                             style={{ width: `${(item.count / maxItemCount) * 100}%` }}
+                           />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Grid Stats */}
+              <div className="grid grid-cols-2 gap-2.5 mb-4">
+                 {/* Top Spot */}
+                 <div className={`p-2.5 rounded-xl ${activeTheme.dividerColor} flex flex-col justify-between min-h-[70px]`}>
+                    <div className={`${activeTheme.subTextColor} mb-1`}><TrophyIcon /></div>
+                    <div>
+                      <div className="text-[9px] opacity-60 uppercase tracking-wider">Top Spot</div>
+                      <div className="text-[11px] font-bold truncate leading-tight">{topRestaurantName}</div>
+                    </div>
+                 </div>
+                 
+                 {/* Spend */}
+                 <div className={`p-2.5 rounded-xl ${activeTheme.dividerColor} flex flex-col justify-between min-h-[70px]`}>
+                    <div className={`${activeTheme.subTextColor} mb-1`}><DollarIcon /></div>
+                    <div>
+                      <div className="text-[9px] opacity-60 uppercase tracking-wider">Top Spend</div>
+                      <div className="text-[11px] font-bold">${stats.most_expensive_order.total.toFixed(2)}</div>
+                    </div>
+                 </div>
+
+                 {/* Day */}
+                 <div className={`p-2.5 rounded-xl ${activeTheme.dividerColor} flex flex-col justify-between min-h-[70px]`}>
+                    <div className={`${activeTheme.subTextColor} mb-1`}><CalendarIcon /></div>
+                    <div>
+                      <div className="text-[9px] opacity-60 uppercase tracking-wider">Busy Day</div>
+                      <div className="text-[11px] font-bold">{formattedBusiestDay}</div>
+                    </div>
+                 </div>
+
+                 {/* Time */}
+                 <div className={`p-2.5 rounded-xl ${activeTheme.dividerColor} flex flex-col justify-between min-h-[70px]`}>
+                    <div className={`${activeTheme.subTextColor} mb-1`}><ClockIcon /></div>
+                    <div>
+                      <div className="text-[9px] opacity-60 uppercase tracking-wider">Latest</div>
+                      <div className="text-[11px] font-bold">{formatToTimeOnly(stats.latest_order_by_time.order_time).toLowerCase()}</div>
+                    </div>
+                 </div>
+              </div>
+
+              <div className="text-center">
+
+<span className="text-[9px] font-bold block">mobileorderwrapped.com</span>
+
 </div>
 
-      <div className="flex flex-wrap justify-center gap-3 md:gap-5">
-        <button onClick={handleDownload} className="bg-white hover:bg-gray-100 text-gray-900 px-5 py-2.5 md:px-6 md:py-3 rounded-full shadow-lg font-semibold transition">Download</button>
-        <button onClick={handleShare} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 md:px-6 md:py-3 rounded-full shadow-lg font-semibold transition">Share</button>
+
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons below card */}
+        <div className="mt-8 flex gap-3 justify-center w-full">
+           <button 
+             onClick={handleShare}
+             className={`flex-1 flex items-center justify-center gap-2 ${activeTheme.buttonBg} font-medium py-3 px-6 rounded-full transition-all active:scale-95 shadow-lg`}
+           >
+             <ShareIcon />
+             Share
+           </button>
+           <button 
+             onClick={handleDownload}
+             className={`flex-1 flex items-center justify-center gap-2 bg-transparent border ${activeTheme.borderColor} ${activeTheme.textColor} hover:bg-white/5 font-medium py-3 px-6 rounded-full transition-all active:scale-95`}
+           >
+             <DownloadIcon />
+             Save
+           </button>
+        </div>
       </div>
     </div>
   );

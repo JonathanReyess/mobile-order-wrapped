@@ -7,6 +7,12 @@ interface FavoriteRestaurantProps {
   isPlaying: boolean;
 }
 
+// Reusing the theme constants
+const NEON_HIGHLIGHT = "text-[#E600FF]"; // Hot Pink / Magenta
+const NEON_ACCENT = "text-[#0091FF]";    // Electric Blue
+const PRIMARY_TEXT = "text-white";
+const BACKGROUND_GRADIENT = "bg-gradient-to-br from-[#0D003B] via-[#000428] to-[#0091FF]"; // Dark Blue to Electric Blue
+
 const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
   uniqueCount,
   restaurant,
@@ -46,11 +52,11 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
           return prev + 1;
         } else {
           clearInterval(typingIntervalRef.current!);
-          timeoutRef.current = window.setTimeout(() => setStep(2), 2000);
+          timeoutRef.current = window.setTimeout(() => setStep(2), 1750); // Slightly faster transition
           return prev;
         }
       });
-    }, 50);
+    }, 45); // Slightly faster typing
 
     return () => {
       clearInterval(typingIntervalRef.current!);
@@ -68,11 +74,11 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
           return prev + 1;
         } else {
           clearInterval(typingIntervalRef.current!);
-          timeoutRef.current = window.setTimeout(() => setStep(3), 2750);
+          timeoutRef.current = window.setTimeout(() => setStep(3), 2000); // Wait less before the reveal
           return prev;
         }
       });
-    }, 50);
+    }, 40); // Slightly faster typing
 
     return () => {
       clearInterval(typingIntervalRef.current!);
@@ -83,27 +89,32 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
   // Show crown after reaching step 3
   useEffect(() => {
     if (step === 3) {
-      timeoutRef.current = window.setTimeout(() => setShowCrown(true), 1500);
+      timeoutRef.current = window.setTimeout(() => setShowCrown(true), 500); // Crown appears quickly after text
     }
     return () => clearTimeout(timeoutRef.current!);
   }, [step]); 
 
   // Motion variants
-  const fade = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 },
+  const fadeAndScale = {
+    initial: { opacity: 0, scale: 0.95 },
+    animate: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
+    exit:    { opacity: 0, scale: 1.05, transition: { duration: 0.4 } },
+  };
+  
+  // Adjusted pop for maximum visual impact (massive text with spring)
+  const popReveal = {
+    initial: { scale: 0.1, opacity: 0, rotate: -5 },
+    animate: { scale: 1, opacity: 1, rotate: 0, transition: { type: "spring", stiffness: 100, damping: 10 } },
     exit:    { opacity: 0 },
   };
-  const pop = {
-    initial: { scale: 0.5, opacity: 0 },
-    animate: { scale: 1,   opacity: 1, transition: { type: "spring", stiffness: 300 } },
+  
+  // Crown drop is faster and snappier
+  const dropCrown = {
+    initial: { y: -100, opacity: 0, rotate: 15 },
+    animate: { y: -20, opacity: 1, rotate: 0, transition: { type: "spring", stiffness: 200, damping: 10 } },
     exit:    { opacity: 0 },
   };
-  const drop = {
-    initial: { y: -50, opacity: 0 },
-    animate: { y: 0,   opacity: 1, transition: { type: "spring", stiffness: 300, damping: 12 } },
-    exit:    { opacity: 0 },
-  };
+
 
   // Render the first line with number highlighted
   const renderedLine1 = fullLine1
@@ -111,67 +122,92 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
     .split("")
     .map((char, i) =>
       i >= numStart && i < numEnd ? (
-        <span key={i} className="text-blue-600">{char}</span>
+        <span key={i} className={NEON_HIGHLIGHT + " font-black"}>{char}</span> // Apply Hot Pink highlight
       ) : (
         <React.Fragment key={i}>{char}</React.Fragment>
       )
     );
 
   return (
-    <div className="relative h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-white via-indigo-100 to-indigo-300 p-4">
+    <div className={`relative h-screen w-full flex flex-col items-center justify-center ${BACKGROUND_GRADIENT} ${PRIMARY_TEXT} p-4 font-sans`}>
       <AnimatePresence mode="wait">
+        
+        {/* Step 1: Unique Restaurant Count */}
         {step === 1 && (
           <motion.p
             key="line1"
-            variants={fade}
+            variants={fadeAndScale}
             initial="initial"
             animate="animate"
             exit="exit"
-            className="text-4xl font-bold text-gray-800 text-center"
+            className={`
+              text-[clamp(1.75rem,5.5vw,3rem)] 
+              font-bold 
+              ${PRIMARY_TEXT} 
+              text-center 
+              leading-snug 
+              max-w-2xl
+            `}
           >
             {renderedLine1}
           </motion.p>
         )}
 
+        {/* Step 2: The Setup Line */}
         {step === 2 && (
           <motion.p
             key="line2"
-            variants={fade}
+            variants={fadeAndScale}
             initial="initial"
             animate="animate"
             exit="exit"
-            className="mt-4 text-4xl font-bold text-gray-800 text-center"
+            className={`
+              text-[clamp(1.75rem,5.5vw,3rem)] 
+              font-bold 
+              ${PRIMARY_TEXT} 
+              text-center
+              leading-snug 
+              max-w-2xl
+            `}
           >
             {line2Full.slice(0, idx2)}
           </motion.p>
         )}
 
+        {/* Step 3: The Big Reveal */}
         {step === 3 && (
           <motion.div
             key="final"
-            variants={fade}
-            initial="initial"
-            animate="animate"
-            exit="exit"
             className="relative flex flex-col items-center"
           >
+            
+            {/* Crown Animation */}
             {showCrown && (
               <motion.span
                 key="crown"
-                variants={drop}
+                variants={dropCrown}
                 initial="initial"
                 animate="animate"
-                className="text-5xl absolute -top-12"
+                className="text-[4rem] md:text-[6rem] absolute -top-16 md:-top-20"
               >
                 👑
               </motion.span>
             )}
+            
+            {/* Restaurant Name Reveal */}
             <motion.h1
-              variants={pop}
+              key="restaurant-name"
+              variants={popReveal}
               initial="initial"
               animate="animate"
               exit="exit"
-              className="text-7xl font-extrabold text-indigo-800 text-center"
+              className={`
+                text-[clamp(2.5rem,15vw,8rem)] 
+                font-black 
+                ${NEON_ACCENT} /* Electric Blue for the main title */
+                text-center
+                leading-tight
+              `}
             >
               {restaurant}
             </motion.h1>
