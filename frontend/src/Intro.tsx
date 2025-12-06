@@ -423,19 +423,19 @@ const Intro: React.FC = () => {
         <div className="w-[60vw] text-center leading-none font-extrabold">
             
             {/* Multi-line text with offsets and specific colors */}
-            <p className="text-[7.5vw] font-extrabold text-[#d3f971] text-left w-[20vw] leading-none">
+            <p className="text-[6vw] font-extrabold text-[#d3f971] text-left w-[20vw] leading-none">
                 Welcome to the
             </p>
-            <p className="text-[7.5vw] font-extrabold text-[#4b917d] text-left w-[20vw] leading-none pl-[6vw]">
+            <p className="text-[6vw] font-extrabold text-[#4b917d] text-left w-[20vw] leading-none pl-[6vw]">
                 end of the semester.
             </p>
-            <p className="text-[7.5vw] font-extrabold text-white text-left w-[45vw] leading-none">
+            <p className="text-[6vw] font-extrabold text-white text-left w-[45vw] leading-none">
                 Ready for your
             </p>
-            <p className="text-[7.5vw] font-extrabold text-[#ee209c] text-left w-[45vw] leading-none pl-[6vw]">
+            <p className="text-[6vw] font-extrabold text-[#ee209c] text-left w-[45vw] leading-none pl-[6vw]">
                 Fall 2025
             </p>
-            <p className="text-[7.5vw] font-extrabold text-[#ee209c] text-right w-[50vw] leading-none">
+            <p className="text-[6vw] font-extrabold text-[#ee209c] text-right w-[50vw] leading-none">
                 Wrapped?
             </p>
         </div>
@@ -450,20 +450,20 @@ const Intro: React.FC = () => {
           px-4
         "
       >
-        <button
-          ref={startBtnRef}
-          onClick={handleStart} 
-          className={`start-button 
-            // 🚀 MODIFICATIONS HERE 🚀
-            px-8 py-4 text-xl // Increased padding and text size for mobile
-            sm:px-10 sm:py-5 sm:text-2xl // Increased padding and text size for small screens and up
-            rounded-full font-bold border-2 transition-all duration-500 z-30
-            bg-black text-[#d3f971] border-[#d3f971] hover:bg-[#d3f971] hover:text-black
-          `}
-        >
-          {/* Button text is now permanently 'Start' */}
-          Start
-        </button>
+<button
+  ref={startBtnRef}
+  onClick={handleStart}
+  className={`start-button 
+    // 🚀 MODIFICATIONS HERE 🚀
+    px-6 py-3 text-lg // Reduced padding and text size for mobile
+    sm:px-8 sm:py-4 sm:text-xl // Reduced padding and text size for small screens and up
+    rounded-full font-bold border-2 transition-all duration-500 z-30
+    bg-black text-[#d3f971] border-[#d3f971] hover:bg-[#d3f971] hover:text-black
+  `}
+>
+  {/* Button text is now permanently 'Start' */}
+  Start
+</button>
       </div>
     </>
   );
