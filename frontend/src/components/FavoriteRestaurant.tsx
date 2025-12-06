@@ -202,9 +202,9 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
               animate="animate"
               exit="exit"
               className={`
-                text-[clamp(2.5rem,15vw,8rem)] 
+                text-[clamp(2.5rem,12vw,6.5rem)] 
                 font-black 
-                ${NEON_ACCENT} /* Electric Blue for the main title */
+
                 text-center
                 leading-tight
               `}

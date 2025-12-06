@@ -241,7 +241,7 @@ const notificationElements = (
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(
-                        "from:mobileorder@transactcampus.com AND received>=2025-01-07 AND received<=2025-04-28"
+                        "from:mobileorder@transactcampus.com AND received>=2025-08-18 AND received<=2025-12-8"
                       );
                       setCopied(true);
                       setTimeout(() => setCopied(false), 2000);

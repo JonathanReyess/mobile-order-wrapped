@@ -16,22 +16,21 @@ function formatToMonthDay(dateStr: string) {
 }
 
 function getMonthColor(month: string) {
-  // Existing color logic is retained, providing unique color pops for the date.
   const colors: Record<string, string> = {
-    January: "text-sky-300",
-    February: "text-pink-300",
-    March: "text-lime-300", // Adjusted for theme
+    January: "text-sky-300", // 
+    February: "text-pink-300", // 
+    March: "text-[#34c230]",  //
     April: "text-yellow-300",
-    May: "text-purple-300", 
-    June: "text-gray-300", 
-    July: "text-orange-300", 
-    August: "text-amber-300", 
-    September: "text-rose-300", 
-    October: "text-indigo-300", 
-    November: "text-amber-400", 
-    December: "text-lime-400", // Adjusted for theme
+    May: "text-[#e1c4ff]", //
+    June: "text-[#E2DFD2]", //
+    July: "text-orange-300", //
+    August: "text-amber-400", //
+    September: "text-rose-300", //
+    October: "text-indigo-400", //
+    November: "text-amber-500", //
+    December: "text-[#248721]", //
   };
-  return colors[month] || "text-gray-400"; // fallback
+  return colors[month] || "text-white"; // fallback
 }
 
 
@@ -112,13 +111,11 @@ export default function BusiestDaySlide({
   }, [isPlaying, localIsTyping, line3Full]);
 
   return (
-    // NEW: Background Gradient (Dark Earth & Black)
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-black via-gray-900 to-stone-900 text-white px-4">
+    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-tr from-gray-900 via-indigo-900 to-fuchsia-600 text-white px-4">
       
       {/* Title */}
       <motion.h2
-        // Electric Lime Title Accent
-        className="text-4xl md:text-5xl font-extrabold text-center text-lime-400 tracking-tight"
+        className="text-4xl md:text-5xl font-extrabold text-center"
         initial={{ opacity: 0, y: 30 }}
         animate={step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
         transition={{ duration: 0.75 }}
@@ -128,12 +125,11 @@ export default function BusiestDaySlide({
 
       {/* Date */}
       <motion.p
-        className="mt-6 text-2xl md:text-4xl font-extrabold text-center tracking-wide text-gray-200"
+        className="mt-6 text-2xl md:text-4xl font-bold text-center"
         initial={{ opacity: 0 }}
         animate={step >= 2 ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 1 }}
       >
-        {/* Uses existing color logic for highlight */}
         <span className={monthColorClass}>
           {formatted}
         </span>
@@ -142,20 +138,17 @@ export default function BusiestDaySlide({
 
       {/* Orders */}
       <motion.p
-        // Secondary text color
-        className="mt-4 text-lg md:text-2xl text-stone-300 font-medium text-center"
+        className="mt-4 text-lg md:text-2xl text-blue-100 text-center"
         initial={{ opacity: 0 }}
         animate={step >= 3 ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 1 }}
       >
-        {/* Large count is highlighted with main accent color */}
-        <span className="text-4xl font-extrabold text-lime-400">{orderCount}</span> orders
+        {orderCount} orders
       </motion.p>
 
       {/* Typing line */}
       <motion.p
-        // Tertiary text color (Gray)
-        className="mt-4 text-lg md:text-2xl text-gray-400 italic text-center min-h-[2rem]"
+        className="mt-4 text-lg md:text-2xl text-blue-100 text-center min-h-[2rem]"
         initial={{ opacity: 0 }}
         animate={localIsTyping ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 0.5 }}
