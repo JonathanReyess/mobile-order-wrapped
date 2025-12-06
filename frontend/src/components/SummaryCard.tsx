@@ -313,7 +313,7 @@ export default function SummaryCard({ stats = mockStats, semester = "Fall 2025",
 
   // Data
   const topItems = [...stats.item_counts].sort((a, b) => b.count - a.count).slice(0, 5);
-  const [topRestaurantName, topRestaurantCount] = Object.entries(stats.restaurant_counts).sort((a, b) => b[1] - a[1])[0] || ["Unknown", 0];
+  const [topRestaurantName] = Object.entries(stats.restaurant_counts).sort((a, b) => b[1] - a[1])[0] || ["Unknown", 0];
   const formattedBusiestDay = formatToMonthDay(stats.busiest_day.date);
   const maxItemCount = topItems[0]?.count || 1;
 

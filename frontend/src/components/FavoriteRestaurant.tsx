@@ -9,7 +9,6 @@ interface FavoriteRestaurantProps {
 
 // Reusing the theme constants
 const NEON_HIGHLIGHT = "text-[#E600FF]"; // Hot Pink / Magenta
-const NEON_ACCENT = "text-[#0091FF]";    // Electric Blue
 const PRIMARY_TEXT = "text-white";
 const BACKGROUND_GRADIENT = "bg-gradient-to-br from-[#0D003B] via-[#000428] to-[#0091FF]"; // Dark Blue to Electric Blue
 
