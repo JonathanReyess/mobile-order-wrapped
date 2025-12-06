@@ -6,9 +6,9 @@ import './_intro.scss';
 // Define the number of panels as a constant for clarity
 const NUMBER_OF_PANELS = 12;
 const ROTATION_COEF = 5;
-
-// --- 1. Countdown Logic Removed ---
-// The getTimeLeft function and timeLeft state are removed.
+// Define the tilt multiplier
+const TILT_MULTIPLIER = 1; // Controls the strength of the 3D tilt
+const MAX_ROTATION = 8; // Max rotation in degrees
 
 const Intro: React.FC = () => {
   const navigate = useNavigate(); // Hook for navigation
@@ -24,6 +24,12 @@ const Intro: React.FC = () => {
     width: typeof window !== 'undefined' ? window.innerWidth : 0, 
     height: typeof window !== 'undefined' ? window.innerHeight : 0 
   });
+
+  // ⭐️ NEW STATE for Tilt Animation ⭐️
+  const [isTextVisible, setIsTextVisible] = useState(false);
+  // ⭐️ NEW GSAP REF for the hover animation ⭐️
+  const tiltTl = useRef(gsap.timeline({ paused: true })); 
+  
   // timeLeft state has been removed
 
   // 3. GSAP Timeline refs
@@ -40,6 +46,54 @@ const Intro: React.FC = () => {
     }
   }, []);
 
+  // ⭐️ NEW: Mouse Move Handler for 3D Tilt ⭐️
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!textCalloutRef.current || !isTextVisible) return;
+
+    const target = textCalloutRef.current;
+    const rect = target.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    // Calculate normalized position (-1 to 1) relative to the element center
+    const xPos = (e.clientX - centerX) / (rect.width / 2); // -1 when mouse is left, 1 when right
+    const yPos = (e.clientY - centerY) / (rect.height / 2); // -1 when mouse is top, 1 when bottom
+
+    // Calculate rotation: inverse for a natural 3D tilt effect
+    const rotateX = -yPos * MAX_ROTATION; // Tilt up when mouse is above center
+    const rotateY = xPos * MAX_ROTATION;  // Tilt right when mouse is right of center
+
+    // Calculate 3D translation (optional, but adds depth)
+    const translateX = xPos * TILT_MULTIPLIER;
+    const translateY = yPos * TILT_MULTIPLIER;
+
+    // Use GSAP to apply the transformation smoothly
+    gsap.to(target, {
+      duration: 0.5,
+      rotationX: rotateX,
+      rotationY: rotateY,
+      x: translateX,
+      y: translateY - (windowSize.height * 0.1), // Keep the original -translate-y-[10vh] offset
+      ease: "power2.out",
+    });
+  }, [isTextVisible, windowSize.height]);
+
+
+  // ⭐️ NEW: Mouse Leave Handler to reset tilt ⭐️
+  const handleMouseLeave = useCallback(() => {
+    if (!textCalloutRef.current || !isTextVisible) return;
+    
+    // Reset to initial state
+    gsap.to(textCalloutRef.current, {
+      duration: 0.8,
+      rotationX: 0,
+      rotationY: 0,
+      x: 0,
+      y: -(windowSize.height * 0.1), // Reset back to -translate-y-[10vh]
+      ease: "elastic.out(1, 0.5)",
+    });
+  }, [isTextVisible, windowSize.height]);
+
   // Helper function to calculate dimensions based on current window size
   const calculateDimensions = useCallback(() => {
     const { width, height } = windowSize;
@@ -50,10 +104,11 @@ const Intro: React.FC = () => {
 
   // 4. Function to define all GSAP animations
   const addItemsToTimeline = useCallback(() => {
-    if (!bgRef.current || !overlayRef.current) return;
+    if (!bgRef.current || !overlayRef.current || !textCalloutRef.current) return;
 
     tl.current.clear();
     exitTl.current.clear(); // Clear exit timeline on resize/re-run
+    tiltTl.current.clear(); // Clear tilt timeline
     const { elHeight, elWidth, width, height } = calculateDimensions();
     
     // Select all panel elements dynamically using the ref
@@ -66,12 +121,17 @@ const Intro: React.FC = () => {
     // Text Entrance
     introTl.fromTo(
       textCalloutRef.current,
-      { left: "150%" }, // Initial state
+      { 
+        left: "150%", 
+        transformOrigin: "center center", // Set transform origin for 3D
+        y: -100 // Temporarily move off screen to prevent immediate hover effect
+      },
       { 
         left: "50%", 
-        y: -30, 
+        y: -(height * 0.1), // Apply the final -translate-y-[10vh] offset
         duration: 1, 
-        delay: 1.2 
+        delay: 1.2,
+        onComplete: () => setIsTextVisible(true) // ⭐️ Mark text as visible for hover effect ⭐️
       }, 
       0
     );
@@ -84,11 +144,17 @@ const Intro: React.FC = () => {
       2 // Starts 2 seconds into the introTl
     );
 
-
     // --- EXIT Timeline (New) ---
     exitTl.current.to(
       [textCalloutRef.current, startBtnRef.current], // Removed textSubRef
-      { opacity: 0, y: 30, stagger: 0.1, duration: 0.4, ease: "power1.inOut" }
+      { 
+        opacity: 0, 
+        y: height * 0.1, // Move off screen slightly
+        stagger: 0.1, 
+        duration: 0.4, 
+        ease: "power1.inOut",
+        onStart: () => setIsTextVisible(false) // ⭐️ Disable hover effect on exit ⭐️
+      }
     )
     .to(panels, 
       { opacity: 0, duration: 0.8 }, 
@@ -105,8 +171,7 @@ const Intro: React.FC = () => {
     
     // --- Panel Animations (Setup for the Looping Timeline) ---
     panels.forEach((panel, i) => {
-      // (Panel logic is complex and remains identical to your previous code)
-      // ... [The entire panels.forEach loop code is unchanged and omitted for brevity] ...
+      // ... (Rest of the panel animation logic remains unchanged)
       
       const stopPosition = 100 - i * 1;
       const wi = width - elWidth * (12 - i) + elWidth;
@@ -367,7 +432,7 @@ const Intro: React.FC = () => {
     const loopDuration = tl.current.duration(); 
 
     // Explicitly set the text/button elements to their final stable state for the loop
-    tl.current.to(textCalloutRef.current, { left: "50%", duration: 0.01 }, loopDuration); // Only setting left
+    tl.current.to(textCalloutRef.current, { left: "50%", y: -(height * 0.1), duration: 0.01 }, loopDuration);
     tl.current.to(startBtnRef.current, { opacity: 1, scale: 1, y: -50, duration: 0.01 }, loopDuration);
     
     // Start the timeline after all animations are added
@@ -386,14 +451,23 @@ const Intro: React.FC = () => {
     };
 
     window.addEventListener('resize', handleResize);
+    
+    // ⭐️ Add mouse event listeners to the window ⭐️
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseleave', handleMouseLeave);
+
 
     // Cleanup function for event listener
     return () => {
       window.removeEventListener('resize', handleResize);
+      // ⭐️ Cleanup mouse event listeners ⭐️
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseleave', handleMouseLeave);
+      
       tl.current.kill(); 
       exitTl.current.kill();
     };
-  }, [addItemsToTimeline]);
+  }, [addItemsToTimeline, handleMouseMove, handleMouseLeave]);
 
   // 6. JSX Markup
   return (
@@ -417,6 +491,7 @@ const Intro: React.FC = () => {
 
       {/* CALLOUT (H1) - Modified Text Structure for new layout */}
       <h1 
+        // ⭐️ The position calculation is now handled by GSAP using 'y' and 'x' properties ⭐️
         className="callout absolute top-[0%] left-1/2 transform -translate-x-1/2 **-translate-y-[10vh]** z-20"
         ref={textCalloutRef}
       >
