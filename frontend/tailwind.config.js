@@ -15,6 +15,11 @@ export default {
       },
       fontFamily: {
         arc: ['Manrope', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+        display: ['Space Grotesk', 'sans-serif'],
+        cursive: ['Pinyon Script']
+
       },
       
     },

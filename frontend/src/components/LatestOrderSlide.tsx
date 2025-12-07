@@ -99,7 +99,7 @@ export default function LatestOrderSlide({
       
       {/* Title */}
       <motion.h2
-      className="text-3xl md:text-5xl font-black italic tracking-tighter uppercase leading-none drop-shadow-xl"
+      className="text-3xl md:text-5xl font-arc uppercase leading-none drop-shadow-xl"
       initial={{ opacity: 0, y: 40 }}
         animate={step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
         transition={{ duration: 1 }}

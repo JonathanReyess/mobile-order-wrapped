@@ -102,7 +102,7 @@ export default function EndSlide({ isPlaying }: { isPlaying: boolean }) {
       
       {/* Title */}
       <motion.h2
-        className="text-5xl md:text-7xl font-black italic text-center mb-4 tracking-tight" // Sharper, heavier font
+        className="text-5xl md:text-7xl font-black text-center mb-0 tracking-tight" // Sharper, heavier font
         initial={{ opacity: 0, scale: 0.5 }}
         animate={step >= 1 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }} // Dynamic scale up
         transition={{ duration: 0.8, type: "spring", stiffness: 100 }}

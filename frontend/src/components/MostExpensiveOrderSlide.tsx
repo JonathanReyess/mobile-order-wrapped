@@ -177,12 +177,12 @@ export default function MostExpensiveOrderSlide({
 
       {/* Title */}
       <motion.h2
-        className="text-3xl md:text-5xl font-black italic tracking-tighter uppercase leading-none drop-shadow-xl"
+        className="text-3xl md:text-5xl uppercase font-arc leading-none drop-shadow-xl mb-5"
         initial={{ opacity: 0, y: 40 }}
         animate={step >= 0 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
         transition={{ duration: 1 }}
       >
-        My Most Expensive Order 💸
+        My Most Expensive Order 🤑
       </motion.h2>
 
       {/* Typing Main Paragraph */}
@@ -201,7 +201,7 @@ export default function MostExpensiveOrderSlide({
       {/* Typing "What did you order?" */}
       {step >= 3 && (
         <motion.p
-          className="mt-4 text-2xl md:text-4xl font-bold italic text-center"
+          className="mt-4 text-2xl md:text-3xl font-arc italic text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}

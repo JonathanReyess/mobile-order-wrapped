@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { Calendar, ShoppingBag } from "lucide-react";
 
-// --- Utility Functions (No change here, functions are agnostic to size) ---
+// --- Utility Functions ---
 
 function formatToMonthDay(dateStr: string) {
   const [year, month, day] = dateStr.split("-").map(Number);
@@ -61,22 +61,22 @@ const line1 =
 const line2 = 
   orderCount == 1 
     ? `Is everything okay?` 
-    : `That's a feast.`;
+    : `Was that all you?...`;
+    
   // --- Animation State ---
-// --- Animation State ---
 const [step, setStep] = useState(0); 
-const [idxLine1, setIdxLine1] = useState(0); // Renamed from idx3
+const [idxLine1, setIdxLine1] = useState(0); 
 const [idxLine2, setIdxLine2] = useState(0); 
-const [line1Finished, setLine1Finished] = useState(false); // New state to manage transition
-const [localIsTyping, setLocalIsTyping] = useState(false); // Use this to start the whole sequence
+const [line1Finished, setLine1Finished] = useState(false); 
+const [localIsTyping, setLocalIsTyping] = useState(false); 
 
-  // --- Timing Logic (No changes needed here) ---
+  // --- Timing Logic ---
   const stepStartTime = useRef<number | null>(null);
   const elapsedTime = useRef<number>(0);
   const timerRef = useRef<number | null>(null);
   const typeIntervalRef = useRef<number | null>(null);
 
-  const stepDelays = [200, 1000, 1500, 2000, 500];
+  const stepDelays = [200, 1500, 1500, 2000, 500];
 
   useEffect(() => {
     function startTimerForStep() {
@@ -109,8 +109,7 @@ const [localIsTyping, setLocalIsTyping] = useState(false); // Use this to start 
     };
   }, [isPlaying, step]);
 
-// Typing Effect
-// Typing Effect
+// Typing Effect Logic
 useEffect(() => {
   if (!isPlaying || !localIsTyping) return; 
 
@@ -131,8 +130,7 @@ useEffect(() => {
   
   // Logic for typing Line 2 (starts only after Line 1 is finished)
   else {
-    // 🛑 THIS IS WHERE THE DELAY IS ADDED 🛑
-    const delayBeforeLine2 = 1000; // Adjust this value (in milliseconds) for longer/shorter pause
+    const delayBeforeLine2 = 1000; 
     
     // Use setTimeout to wait for the delayBeforeLine2 duration
     timerRef.current = window.setTimeout(() => {
@@ -156,7 +154,7 @@ useEffect(() => {
 }, [isPlaying, localIsTyping, line1, line2, line1Finished]);
 
 
-  // --- Variants (No changes needed here) ---
+  // --- Variants ---
   const scaleUp: Variants = {
     hidden: { scale: 0.8, opacity: 0, y: 20 },
     visible: { scale: 1, opacity: 1, y: 0, transition: { type: "spring", bounce: 0.4 } },
@@ -169,11 +167,10 @@ useEffect(() => {
 
   return (
     <div 
-      // *** ORIGINAL BACKGROUND KEPT HERE ***
       className="relative h-screen w-full overflow-hidden bg-gradient-to-tr from-gray-900 via-indigo-900 to-fuchsia-600 text-white select-none font-sans"
     >
       
-      {/* Floating Ambient Shapes (Sizes reduced) */}
+      {/* Floating Ambient Shapes */}
 
       <motion.div 
         animate={{ y: [0, 30, 0], opacity: [0.2, 0.5, 0.2] }}
@@ -184,7 +181,7 @@ useEffect(() => {
       {/* --- Main Content --- */}
       <div className="relative flex flex-col items-center justify-center h-full px-4 py-8">
         
-        {/* Step 1: Title (Smaller margin, font size reduced) */}
+        {/* Step 1: Title */}
         <div className="h-20 flex items-center justify-center mb-6 w-full">
            <AnimatePresence>
              {step >= 1 && (
@@ -194,37 +191,37 @@ useEffect(() => {
                  animate="visible"
                  className="text-center"
                >
-                 {/* Badge reduced in size/padding */}
+                 {/* Badge */}
                  <div className="inline-flex items-center justify-center gap-1 bg-white/10 backdrop-blur-sm px-3 py-0.5 rounded-full border border-white/20 mb-2 shadow-lg">
                     <Calendar size={12} className="text-yellow-300" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-100">THE BIG BINGE</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-yellow-100">THE BIG BINGE</span>
                  </div>
-                 {/* Title reduced */}
-                 <h2 className="text-3xl md:text-4xl font-black italic tracking-tighter uppercase leading-none drop-shadow-xl">
-                  <span>My Busiest Day</span>
+                 {/* Title */}
+                 <h2 className="text-3xl md:text-4xl font-bold tracking-tighter uppercase leading-none drop-shadow-xl">
+                  {/* FIX: Move the italic class onto the span where the text resides */}
+                  <span className="italic">My Busiest Day</span>
                  </h2>
                </motion.div>
              )}
            </AnimatePresence>
         </div>
 
-        {/* Step 2: The Date Card (Shrunk Max Width, Padding, and Font Sizes) */}
-        <div className="flex-1 w-full flex flex-col items-center justify-start gap-6">
+        {/* Step 2: The Date Card */}
+        <div className="flex-1 mt-5 w-full flex flex-col items-center justify-start gap-6">
           {step >= 2 && (
             <motion.div
               variants={scaleUp}
               initial="hidden"
               animate="visible"
-              // Max width reduced from 280px to 220px, padding reduced
               className="relative w-full aspect-square max-w-[200px] bg-white text-gray-900 rounded-2xl p-4 flex flex-col items-center justify-center shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5)] rotate-2 border-3 border-gray-200"
             >
               <div className="absolute top-3 left-1/2 -translate-x-1/2 w-8 h-1.5 bg-gray-100 rounded-full" />
               
-              {/* Month name reduced */}
+              {/* Month name */}
               <span className="text-lg font-bold uppercase tracking-widest text-gray-400 mb-1">
                 {monthName}
               </span>
-              {/* Day number drastically reduced */}
+              {/* Day number */}
               <span className={`text-[5rem] leading-none font-black tracking-tighter ${monthColorClass.replace('text-', 'text-opacity-80 text-') || 'text-indigo-600'}`}>
                 {formatted.split(' ')[1]}
               </span>
@@ -235,7 +232,7 @@ useEffect(() => {
             </motion.div>
           )}
 
-          {/* Step 3: Stats (Shrunk Gap, Icon Size, Font Sizes, and Padding) */}
+          {/* Step 3: Stats */}
           {step >= 3 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -243,29 +240,26 @@ useEffect(() => {
               transition={{ delay: 0.2, duration: 0.5 }}
               className="flex flex-col items-center gap-3 w-full"
             >
-               {/* Gap and Max Width reduced */}
-               <div className="flex items-center gap-4 w-full max-w-[180px]"> 
-                 {/* Padding and font sizes reduced */}
+               {/* Order Count Stat */}
+               <div className="flex items-center mt-5 gap-4 w-full max-w-[180px]"> 
                  <div className="flex-1 bg-black/20 backdrop-blur-sm rounded-xl p-3 border border-white/10 flex flex-col items-center justify-center">
                     <ShoppingBag size={25} className="text-yellow-300 mb-1" />
                     <span className="text-3xl font-black">{orderCount}</span>
                     <span className="text-[12px] uppercase font-bold opacity-60">Orders</span>
                  </div>
-                 {/* Padding and font sizes reduced */}
-
                </div>
 
-<div className="h-16 mt-1"> 
+<div className="h-16 mt-5"> 
   {localIsTyping && (
     <div className="text-center">
       {/* Line 1 Typing */}
-      <p className="text-2xl font-medium text-yellow-200">
+      <p className="text-3xl mb-3 font-medium text-yellow-200">
         {line1.slice(0, idxLine1)}
       </p>
       
       {/* Line 2 Typing (Only appears after Line 1 is finished typing) */}
       {line1Finished && (
-         <p className="text-2xl font-medium text-yellow-200">
+         <p className="text-3xl font-medium text-yellow-200">
            {line2.slice(0, idxLine2)}
          </p>
       )}

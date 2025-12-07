@@ -72,7 +72,7 @@ const IntroSlide = ({ name, isPlaying, onComplete }: IntroSlideProps) => {
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.8 }}
           >
-            Hello{ name ? `, ${name}` : "" }{" "}
+            Hi { name ? ` ${name}` : "" }{" "}
             <motion.span
               style={{ display: "inline-block" }}
               animate={{ rotate: [0, 20, -20, 20, -20, 0] }}
@@ -106,7 +106,7 @@ const IntroSlide = ({ name, isPlaying, onComplete }: IntroSlideProps) => {
               ">
               Your Mobile Order <br /> <span className="
                 /* Highlighted 'Wrapped' text with another neon color */
-                text-[#FF3086]
+                text-[#FF3086] italic
                 ">Wrapped</span> is Here 🎉
             </h1>
             <p className="

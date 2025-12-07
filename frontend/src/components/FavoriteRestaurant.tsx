@@ -10,7 +10,7 @@ interface FavoriteRestaurantProps {
 // Reusing the theme constants
 const NEON_HIGHLIGHT = "text-[#E600FF]"; // Hot Pink / Magenta
 const PRIMARY_TEXT = "text-white";
-const BACKGROUND_GRADIENT = "bg-gradient-to-br from-[#0D003B] via-[#000428] to-[#0091FF]"; // Dark Blue to Electric Blue
+const BACKGROUND_GRADIENT = "bg-gradient-to-br from-[#0D003B] via-[#16025e] to-[#0091FF]"; // Dark Blue to Electric Blue
 
 const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
   uniqueCount,
@@ -73,7 +73,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
           return prev + 1;
         } else {
           clearInterval(typingIntervalRef.current!);
-          timeoutRef.current = window.setTimeout(() => setStep(3), 2000); // Wait less before the reveal
+          timeoutRef.current = window.setTimeout(() => setStep(3), 3000); // Wait less before the reveal
           return prev;
         }
       });

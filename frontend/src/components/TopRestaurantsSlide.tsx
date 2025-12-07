@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Crown, Utensils } from "lucide-react";
+import { Crown } from "lucide-react";
 
 // Define interfaces for type safety
 interface RestaurantCount {
@@ -31,7 +31,7 @@ export default function TopRestaurantsSlide({
   const timerRef = useRef<number | null>(null);
 
   // Timing: 0: Intro text, 1: #1 Restaurant, 2-5: The rest of the list
-  const stepDelays = [650, 2100, 850, 850, 850, 850];
+  const stepDelays = [1000, 2000, 1000, 1000, 1000, 1000];
 
   useEffect(() => {
     function startTimerForStep() {
@@ -102,10 +102,6 @@ export default function TopRestaurantsSlide({
               // Changed border/shadow to use accentColor (cyan)
               className={`relative w-full aspect-[2.5/1] bg-black/40 backdrop-blur-md border-2 border-cyan-500 rounded-2xl p-4 flex flex-col justify-between overflow-hidden shadow-[0_10px_30px_rgba(0,255,255,0.5)] mb-3`}
             >
-              {/* Corner Icon */}
-              <div className="absolute top-0 right-0 p-2 opacity-5 text-cyan-500">
-                <Utensils size={70} />
-              </div>
               
               <div className="flex justify-between items-start z-10">
                  {/* Changed background color to use accentColor (cyan) */}

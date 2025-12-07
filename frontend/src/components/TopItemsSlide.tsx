@@ -1,6 +1,98 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Crown, Utensils } from "lucide-react";
+import { Crown } from "lucide-react";
+
+// FIX 1: Define FAST_TYPING_DURATION outside of the components 
+// This constant is needed in the parent component's render function.
+const FAST_TYPING_DURATION = 1500; 
+
+// --- REVISED COMPONENT: Typing Text Effect ---
+const TypingText = ({ 
+  text, 
+  typingDuration, 
+  isVisible 
+}: { 
+  text: string; 
+  typingDuration: number; 
+  // FIX 2: Removed totalStepDuration from prop definition and type
+  isVisible: boolean 
+}) => {
+  const [displayedText, setDisplayedText] = useState("");
+  const currentStepRef = useRef(0);
+  const animationFrameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!isVisible) {
+      // FIX 3 (TypeScript Error 2554): Added "" argument to setDisplayedText
+      setDisplayedText(""); 
+      currentStepRef.current = 0;
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      return;
+    }
+
+    // Start typing
+    let startTime: number | null = null;
+    const interval = typingDuration / text.length; 
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+
+      // Calculate how many characters should be displayed based on elapsed time vs typingDuration
+      const targetStep = Math.min(
+        text.length,
+        Math.floor(elapsed / interval)
+      );
+
+      if (targetStep > currentStepRef.current) {
+        currentStepRef.current = targetStep;
+        setDisplayedText(text.substring(0, targetStep));
+      }
+
+      // Continue animation only for the duration of the typing itself
+      if (elapsed < typingDuration) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        // Ensure the full text is displayed after the typing duration is over
+        setDisplayedText(text);
+      }
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [text, typingDuration, isVisible]); 
+
+  return (
+    <div className="text-center font-bold italic text-2xl text-yellow-400 drop-shadow-md py-4">
+      {isVisible ? (
+        <>
+          {displayedText}
+          {/* Flashing cursor effect: Only show cursor WHILE text is being typed */}
+          {displayedText.length < text.length && (
+            <motion.span
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.5, repeat: Infinity }}
+              className="ml-1"
+            >
+              |
+            </motion.span>
+          )}
+        </>
+      ) : (
+        <div style={{ minHeight: '3rem' }}></div> 
+      )}
+    </div>
+  );
+};
+// -----------------------------------------
+
 
 // Define interfaces for type safety
 interface ItemCount {
@@ -21,6 +113,11 @@ export default function TopItemsSlide({
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
+  // New step definition:
+  // 0: Initial/Header Text
+  // 1: Ranks 2-5 (simultaneous appearance)
+  // 2: Typing Text effect (Fast typing + long pause)
+  // 3: Rank 1 appears
   const [step, setStep] = useState(0);
 
   // Animation Timing Logic
@@ -28,9 +125,11 @@ export default function TopItemsSlide({
   const elapsedTime = useRef<number>(0);
   const timerRef = useRef<number | null>(null);
 
-  // Timing: 0: Intro text, 1: #1 Item, 2-5: The rest of the list
-  // Slightly reduced delays
-  const stepDelays = [650, 2100, 850, 850, 850, 850];
+  // Timing Delays for new steps:
+  // stepDelays[0]: Header -> Ranks 2-5 start (1000ms)
+  // stepDelays[1]: Ranks 2-5 finish -> Typing Text starts (4500ms pause, long enough for staggered ranks to finish)
+  // stepDelays[2]: Typing Text Total Time (e.g., 4500ms for 1500ms typing + 3000ms pause)
+  const stepDelays = [1000, 4500, 4500]; 
 
   useEffect(() => {
     function startTimerForStep() {
@@ -61,17 +160,20 @@ export default function TopItemsSlide({
     };
   }, [isPlaying, step]);
 
+  // Determine visibility logic
+  const showRunnersUp = step >= 1; 
+  const showTypingText = step === 2;
+  const showRank1 = step >= 3;
+
   return (
     // Background: Dark, warm, dramatic gradient
-    <div className="relative h-screen w-full overflow-hidden bg-gradient-to-br from-gray-950 via-red-900 to-yellow-950 text-white select-none">
+    <div className="relative h-screen w-full overflow-hidden bg-gradient-to-br from-[#311616] via-red-900 to-yellow-600 text-white select-none">
 
-      {/* Subtle Background Pattern - NO CHANGE */}
-      <div className="absolute inset-0 z-0 opacity-20 bg-[radial-gradient(#ffffff33_1px,transparent_1px)] [background-size:20px_20px]"></div>
-
-      {/* Main Content Container - SLIGHTLY REDUCED PADDING/MARGIN */}
+ 
+      {/* Main Content Container */}
       <div className="relative flex flex-col items-center justify-start h-full px-4 pt-10 pb-20 sm:pt-8">
         
-        {/* Header Section - SLIGHTLY REDUCED FONT SIZES */}
+        {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={step >= 0 ? { opacity: 1, y: 0 } : {}}
@@ -85,39 +187,30 @@ export default function TopItemsSlide({
           </h2>
         </motion.div>
 
-        {/* The G.O.A.T (Rank 1) - SLIGHTLY REDUCED MAX WIDTH, PADDING, AND FONT SIZES */}
+        {/* The G.O.A.T (Rank 1) Container */}
         <div className="w-full max-w-xs flex flex-col gap-3"> 
           {topItems[0] && (
             <motion.div
+              // Use showRank1 for animation logic
               initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
-              animate={step >= 1 ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0 }}
-              transition={{ type: "spring", bounce: 0.4, duration: 0.8 }}
+              animate={showRank1 ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0 }}
+              transition={{ type: "spring", bounce: 0.4, duration: 1.0 }}
               className="relative w-full aspect-[2.5/1] bg-black/40 backdrop-blur-md border-2 border-yellow-500 rounded-2xl p-4 flex flex-col justify-between overflow-hidden shadow-[0_10px_30px_rgba(255,165,0,0.5)] mb-3"
             >
-              {/* Corner Icon - SLIGHTLY REDUCED SIZE/OPACITY */}
-              <div className="absolute top-0 right-0 p-2 opacity-5 text-yellow-500">
-                <Utensils size={70} />
-              </div>
-              
               <div className="flex justify-between items-start z-10">
                  <div className="bg-yellow-500 text-black font-black px-2 py-0.5 rounded text-xs uppercase tracking-bold shadow-md">
                     #1 MOST ORDERED
                  </div>
-                 {/* Icon - SLIGHTLY REDUCED SIZE */}
                  <Crown className="text-yellow-400 fill-yellow-400 animate-pulse" size={24} />
               </div>
 
               <div className="relative z-10">
-                {/* Text - SLIGHTLY REDUCED FONT SIZE */}
                 <div className="text-2xl md:text-3xl font-black leading-tight break-words line-clamp-2">
                   {topItems[0].item}
                 </div>
-                {/* Details - SLIGHTLY REDUCED FONT SIZE */}
-{/* Details - SLIGHTLY REDUCED FONT SIZE */}
-<div className="mt-0 text-orange-300 font-bold text-sm flex items-center gap-1.5">
+                <div className="mt-0 text-orange-300 font-bold text-sm flex items-center gap-1.5">
                   <span>
                     {topItems[0].count}{' '}
-                    {/* Conditional check: if count is 1, use 'order', otherwise use 'orders' */}
                     {topItems[0].count === 1 ? 'order' : 'orders'}
                   </span>
                   <span className="w-1 h-1 bg-white rounded-full"></span>
@@ -127,43 +220,53 @@ export default function TopItemsSlide({
             </motion.div>
           )}
 
-          {/* Runners Up (Rank 2-5) - SLIGHTLY REDUCED GAP, PADDING, SIZE, AND FONT */}
+          {/* Runners Up (Rank 2-5) and Typing Text */}
           <div className="flex flex-col gap-4 w-full">
             {topItems.slice(1).map((item, idx) => {
                const actualRank = idx + 2; 
-               const show = step >= actualRank; 
+               const show = showRunnersUp; 
 
                return (
                 <motion.div
                   key={item.item}
                   initial={{ opacity: 0, x: -50 }}
                   animate={show ? { opacity: 1, x: 0 } : { opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 200, delay: 0.1 * idx }}
+                  transition={{ 
+                    type: "spring", 
+                    stiffness: 300, 
+                    delay: 1.0 * idx // 1.0s stagger between ranks 2-5
+                  }}
                   className="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-lg p-4 pr-4 border border-white/10 shadow-lg"
                 >
-                  {/* Rank Circle - SLIGHTLY REDUCED SIZE/FONT */}
                   <div className="flex-shrink-0 w-10 h-10 bg-red-700/60 rounded-full flex items-center justify-center font-black text-base font-mono border border-red-500/30">
                     {actualRank}
                   </div>
                   
-                  {/* Item Name - SLIGHTLY REDUCED FONT */}
                   <div className="flex-grow min-w-0">
                     <div className="font-bold text-md truncate leading-tight">
                       {item.item}
                     </div>
                   </div>
 
-                  {/* Count - SLIGHTLY REDUCED FONT */}
                   <div className="flex-shrink-0 text-center">
                     <div className="font-black text-base text-orange-400">{item.count}</div>
                     <div className="text-xs text-white/70">
-                      {/* Conditional check */}
                       {item.count === 1 ? 'order' : 'orders'}
                     </div>
                   </div>
                 </motion.div>
                );
             })}
+            
+            {/* --- TYPING TEXT --- */}
+            <TypingText 
+              text="drumroll please 🥁..." 
+              typingDuration={FAST_TYPING_DURATION} 
+              // Removed totalStepDuration prop to fix TypeScript warning
+              isVisible={showTypingText} 
+            />
+            {/* ------------------- */}
+
           </div>
         </div>
 
