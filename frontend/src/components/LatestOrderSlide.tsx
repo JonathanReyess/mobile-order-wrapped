@@ -104,7 +104,7 @@ export default function LatestOrderSlide({
         animate={step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
         transition={{ duration: 1 }}
       >
-        My Latest Order 🌙
+        Latest Order 🌙
       </motion.h2>
 
       {/* Paragraph */}

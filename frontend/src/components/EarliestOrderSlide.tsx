@@ -96,7 +96,7 @@ export default function EarliestOrderSlide({
   animate={step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
   transition={{ duration: 1 }}
 >
-  My Earliest Order ☀️ 
+  Earliest Order ☀️ 
 </motion.h2>
 
 

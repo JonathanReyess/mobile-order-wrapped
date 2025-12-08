@@ -428,7 +428,7 @@ export default function SummaryCard({ stats, semester = "Fall 2025", name = "Ale
 
                 {/* Footer */}
                 <div className="-mt-5 flex justify-between items-center opacity-100">
-                  <div className="text-[8.5px] font-mono tracking-widest uppercase mx-auto">
+                  <div className="text-[9px] font-mono tracking-widest uppercase mx-auto">
                     mobileorderwrapped.com
                   </div>
                 </div>

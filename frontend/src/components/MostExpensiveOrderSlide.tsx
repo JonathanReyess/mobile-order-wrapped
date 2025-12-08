@@ -182,7 +182,7 @@ export default function MostExpensiveOrderSlide({
         animate={step >= 0 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
         transition={{ duration: 1 }}
       >
-        My Most Expensive Order 🤑
+        Most Expensive Order 🤑
       </motion.h2>
 
       {/* Typing Main Paragraph */}
