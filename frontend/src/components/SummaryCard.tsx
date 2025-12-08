@@ -102,12 +102,12 @@ const THEMES = [
   {
     id: "hojicha",
     label: "Hojicha Roast",
-    pageBg: "bg-[#e7d6c5]",
+    pageBg: "bg-[#dac1a7]",
     cardBg: "bg-[#8b4513]",
     textColor: "text-[#f1ece6]",
     subTextColor: "text-[#d2b48c]",
     accentColor: "text-[#d2b48c]",
-    borderColor: "border-[#f1ece6]",
+    borderColor: "border-[#d2b48c]",
     dividerColor: "bg-[#a0522d]", 
     barColor: "bg-[#a0522d]", 
     buttonBg: "bg-[#a0522d] text-white hover:bg-[#8b4513]",
@@ -201,14 +201,56 @@ export default function SummaryCard({ stats, semester = "Fall 2025", name = "Ale
   const imgConfig = {
     pixelRatio: window.devicePixelRatio || 2, // Standardized quality
     cacheBust: true, // Ensures images reload fresh
+    // --- FULL FONT CONFIGURATION FOR DEPLOYMENT ---
     fontFaces: [
-    {
-      family: "Space Grotesk",
-      src: "url('https://fonts.gstatic.com/s/spacegrotesk/v18/V8mQzRRDl7eUWymL7wV7hXyBmy5-lQ.woff2') format('woff2')",
-      weight: "400",
-      style: "normal",
-    },
-  ],
+      // Inter (font-sans)
+      {
+        family: "Inter",
+        src: "url('https://fonts.gstatic.com/s/inter/v13/UcC73FpPNwsNEh8A-JvdB5g.woff2') format('woff2')",
+        weight: "400",
+        style: "normal",
+      },
+      {
+        family: "Inter",
+        src: "url('https://fonts.gstatic.com/s/inter/v13/UcC73FpPNwsNEh8A-JvdB5g.woff2') format('woff2')",
+        weight: "700", // For 'font-bold'
+        style: "normal",
+      },
+      {
+        family: "Inter",
+        src: "url('https://fonts.gstatic.com/s/inter/v13/UcC73FpPNwsNEh8A-JvdB5g.woff2') format('woff2')",
+        weight: "900", // For 'font-black'
+        style: "normal",
+      },
+      // Space Grotesk (font-display)
+      {
+        family: "Space Grotesk",
+        src: "url('https://fonts.gstatic.com/s/spacegrotesk/v18/V8mQzRRDl7eUWymL7wV7hXyBmy5-lQ.woff2') format('woff2')",
+        weight: "400",
+        style: "normal",
+      },
+      // JetBrains Mono (font-mono)
+      {
+        family: "JetBrains Mono",
+        src: "url('https://fonts.gstatic.com/s/jetbrainsmono/v18/4iCP6KqJxEYH4vDSEl_AQI-qEw7awfJDgNlC.woff2') format('woff2')",
+        weight: "400",
+        style: "normal",
+      },
+      // Manrope (font-arc)
+      {
+        family: "Manrope",
+        src: "url('https://fonts.gstatic.com/s/manrope/v15/xn7gYclKx7rJSmLN9L7C1u8Gthw.woff2') format('woff2')",
+        weight: "400",
+        style: "normal",
+      },
+      // Pinyon Script (font-cursive)
+      {
+        family: "Pinyon Script",
+        src: "url('https://fonts.gstatic.com/s/pinyonscript/v16/6xKydSdBqJES-Xb4P-KZaiN0nJ4.woff2') format('woff2')",
+        weight: "400",
+        style: "normal",
+      },
+    ],
   };
 
   const handleDownload = async () => {
@@ -350,7 +392,8 @@ export default function SummaryCard({ stats, semester = "Fall 2025", name = "Ale
                 {/* Header */}
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex flex-col">
-                    <div className={`text-[9px] font-bold tracking-widest uppercase mb-1 opacity-80 ${subTextColor}`}>Mobile Order Wrapped</div>
+                    {/* MODIFIED: text-[9px] changed to text-[8px] to prevent line break */}
+                    <div className={`text-[8px] font-bold tracking-widest uppercase mb-1 opacity-80 ${subTextColor}`}>Mobile Order Wrapped</div>
                     <div className={`text-sm font-black tracking-tight ${anonymize ? 'blur-sm select-none' : ''}`}>
                       {anonymize ? "HIDDEN NAME" : (name || "USER")}
                     </div>
@@ -458,7 +501,7 @@ export default function SummaryCard({ stats, semester = "Fall 2025", name = "Ale
            </button>
            <button 
              onClick={handleDownload}
-             className={`flex-1 flex items-center justify-center gap-1.5 bg-transparent border ${activeTheme.borderColor} ${activeTheme.textColor} hover:bg-white/5 font-medium text-sm py-2 px-4 rounded-full transition-all active:scale-95`}
+             className={`flex-1 flex items-center justify-center gap-1.5 bg-transparent border  ${activeTheme.textColor} hover:bg-white/5 font-medium text-sm py-2 px-4 rounded-full transition-all active:scale-95`}
            >
              <DownloadIcon />
              Save
