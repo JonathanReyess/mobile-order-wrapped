@@ -201,7 +201,14 @@ export default function SummaryCard({ stats, semester = "Fall 2025", name = "Ale
   const imgConfig = {
     pixelRatio: window.devicePixelRatio || 2, // Standardized quality
     cacheBust: true, // Ensures images reload fresh
-    // width/height can be added here if you need to force specific dimensions
+    fontFaces: [
+    {
+      family: "Space Grotesk",
+      src: "url('https://fonts.gstatic.com/s/spacegrotesk/v18/V8mQzRRDl7eUWymL7wV7hXyBmy5-lQ.woff2') format('woff2')",
+      weight: "400",
+      style: "normal",
+    },
+  ],
   };
 
   const handleDownload = async () => {
