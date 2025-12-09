@@ -204,7 +204,7 @@ export default function SummaryCard({ stats, semester = "Fall 2025", name = "Ale
     pixelRatio: 2,
     cacheBust: true,
     // Add this filter function
-    filter: (node) => {
+    filter: (node: { id: string; tagName: string; innerHTML: string | string[]; }) => {
         // Exclude the SVG noise filter from the screenshot if it causes issues
         if (node.id === 'noiseFilter' || (node.tagName === 'svg' && node.innerHTML.includes('feTurbulence'))) {
             return false; 
