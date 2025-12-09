@@ -208,13 +208,36 @@ export default function SummaryCard({ stats, semester = "Fall 2025", name = "Ale
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
-    
-    // Reset tilt before capture
-    if (tiltRef.current) gsap.set(tiltRef.current, { clearProps: "transform" });
+
+    // 1. Force clear 3D transforms
+    if (tiltRef.current) gsap.set(tiltRef.current, { clearProps: "all" });
+
+    // 2. Wait for fonts to be ready
+    try {
+        await document.fonts.ready;
+    } catch (e) {
+        // Fallback if browser doesn't support fonts.ready
+    }
+
+    // 3. Configuration specific for Safari stability
+    const finalConfig = {
+      ...imgConfig,
+      pixelRatio: 2, // Hardcode this! Do not use window.devicePixelRatio for export
+      width: 360, // Force explicit width matching your max-w-[360px]
+      height: 540, // Force explicit height (approx based on aspect ratio)
+      style: {
+        transform: 'none', // Ensure no transforms on the clone
+        margin: '0',
+      },
+      // This helps Safari render webfonts correctly in the canvas
+      fontEmbedCSS: document.head.querySelector('style')?.innerText || '', 
+    };
 
     try {
-      // Use shared config
-      const dataUrl = await toPng(cardRef.current, imgConfig);
+      // 4. Small timeout to allow DOM layout to settle after GSAP reset
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const dataUrl = await toPng(cardRef.current, finalConfig);
       
       download(dataUrl, `mobile-order-wrapped-${semester.replace(" ", "-")}.png`);
       

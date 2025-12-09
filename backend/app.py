@@ -425,18 +425,29 @@ def generate_vibe():
 
     print("DEBUG stats:", reformatted_stats )
     # Now build your prompt using filtered_stats
+
+
     prompt = (
-        "Based on these mobile-order stats, roast the user and be as mean, sassy, and funny as possible in one catchy, Spotify-Wrapped-style sentence. "
-        "Use playful language that roasts and pokes fun at the person. Don't use the word 'foodie' or 'penchant'. Don't use the phrase 'one mobile order at a time.' "
-        "Start with 'You're a...' and don't be too abstract. This is aimed at GenZ and college students "
-        "RESPOND ONLY as a JSON object with two fields: "
-        "`sentence` (the vibe description) and `colors` (a dictionary mapping key words to a fitting color). "
-        "For `colors`, you MUST choose from this exact list of hex codes: "
-        "#907350, #7a4b8f, #87CEEB, #F7A3BA, #70996D, #3d2758, #dd660d, #dd660d, #c4bd8b, #feb204. "
-        "Do not invent new colors. Only use these. "
-        "Wrap your response inside triple backticks like ```json ... ```.\n\n"
-        f"{reformatted_stats }"
-    )
+    "You are a savage Gen-Z roast writer for a college dining app. Based on these mobile-order stats, "
+    "brutally roast the user in ONE short and punchy sentence. "
+    "Be MEAN, sarcastic, chaotic, and **specific** to their ordering behavior. "
+    "Channel the vibe of a snarky friend who knows all their embarrassing habits. "
+    "This is *supposed* to hurt their feelings a little (but still be funny). "
+    "No positivity. No polite wording. No wholesome compliments. "
+    "Avoid being vague or abstract — call out real behaviors like laziness, spending habits, late-night munching, etc. "
+    "Do **not** use the words 'foodie' or 'penchant' and do **not** use the phrase 'one mobile order at a time.' "
+    "Start the roast EXACTLY with: \"You're a...\" (including the ellipsis). "
+    "Tone inspirations: chaotic TikTok captions, Gen-Z meme humor, judgmental roommate energy. "
+    "ONE sentence only. No emojis. "
+    "RETURN FORMAT: Respond **only** as a JSON object with two fields:\n"
+    "1. `sentence`: the roast\n"
+    "2. `colors`: a dictionary mapping 2–5 **relevant** keywords from the roast to fitting hex colors\n"
+    "Valid hex colors (pick only from these, never invent new ones): "
+    "#907350, #7a4b8f, #87CEEB, #F7A3BA, #70996D, #3d2758, #dd660d, #c4bd8b, #feb204. "
+    "Wrap your response inside triple backticks like ```json ... ```.\n\n"
+    f"{reformatted_stats}"
+)
+
 
     generation_config = types.GenerateContentConfig(
         temperature=1.1, 
