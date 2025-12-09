@@ -392,7 +392,7 @@ const handleDownload = async () => {
                       {anonymize ? "HIDDEN NAME" : (name || "USER")}
                     </div>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-white text-[12px] font-bold uppercase tracking-wider transform`}>
+                  <div className={`px-3 py-1 rounded-full text-white text-[12px] font-bold uppercase tracking-wider transform whitespace-nowrap`}>
                     {semester}
                   </div>
                 </div>
@@ -400,7 +400,7 @@ const handleDownload = async () => {
                 {/* Hero Stat */}
                 <div className="relative mb-2 py-1"> 
                   <div className="flex flex-col leading-[0.8]">
-                    <span className="text-[72px] font-display italic tracking-tighter">
+                    <span className="text-[72px] font-display tracking-tighter">
                       {stats.total_items_ordered}
                     </span>
                     <span className="text-xl font-bold uppercase tracking-tight ml-1 opacity-90">Items Ordered</span>
@@ -458,13 +458,13 @@ const handleDownload = async () => {
                       </div>
                       <div className="text-[7px] uppercase font-bold tracking-wider opacity-70">Top Spend</div>
                       <div className="text-lg text-center font-black">${stats.most_expensive_order.total.toFixed(0)}</div>
-                      <div className="text-[8px] opacity-70">Single Order</div>
+                      <div className="text-[8px] opacity-70 whitespace-nowrap">Single Order</div>
                   </div>
                         
                   {/* Sticker 3: Busiest Day Badge */}
                   <div 
                     className={`absolute -top-72 right-2 w-20 h-20 rounded-full text-white flex flex-col items-center justify-center text-center p-1 transform -rotate-12 border-4 border-white/20 z-10`}>
-                    <div className="text-[7px] uppercase font-black leading-tight">Busiest Day</div>
+                    <div className="text-[7px] uppercase font-black leading-tight whitespace-nowrap">Busiest Day</div>
                     <div className="text-s font-black leading-none mt-0.5">{formattedBusiestDay.month}</div>
                     <div className="text-base font-black leading-none">{formattedBusiestDay.day}</div>
                   </div>
