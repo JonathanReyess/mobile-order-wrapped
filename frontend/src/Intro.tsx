@@ -36,10 +36,6 @@ const Intro: React.FC = () => {
 
   // --- Start Handler (Logic for exiting) ---
   const handleStart = useCallback(() => {
-    tiltEnabledRef.current = false; 
-    if (textCalloutRef.current) {
-      gsap.killTweensOf(textCalloutRef.current);
-    }
     // Check if the exit timeline exists and is not running
     if (exitTl.current && !exitTl.current.isActive()) {
       exitTl.current.play();
@@ -123,31 +119,17 @@ const handleMouseMove = useCallback((e: MouseEvent) => {
 
 
     // --- EXIT Timeline (New) ---
-  
-
-    // 💡 NEW: Text exits to the left, Start button fades out
-    exitTl.current.to(
-      textCalloutRef.current,
-      { 
-        opacity: 0, 
-        x: '-200%', // Animate the X position off-screen to the left
-        duration: 0.6, 
-        ease: "power2.inOut" 
-      }
-    )
+    exitTl.current.call(() => {
+      tiltEnabledRef.current = false; // ⭐ Stop tilt from overriding opacity
+    })
+    
     .to(
-        startBtnRef.current,
-        { 
-          opacity: 0, 
-          y: 30, 
-          duration: 0.4, 
-          ease: "power1.inOut" 
-        },
-        '<' // Start the button fade at the same time as the text move
+      [textCalloutRef.current, startBtnRef.current], // Removed textSubRef
+      { opacity: 0, y: 30, stagger: 0.1, duration: 0.4, ease: "power1.inOut" }
     )
     .to(panels, 
       { opacity: 0, duration: 0.8 }, 
-      "<" // Start simultaneously with text/button fade
+      "<" // Start simultaneously with text fade
     )
     .to(overlayRef.current, 
       { opacity: 1, duration: 0.5 }, 
