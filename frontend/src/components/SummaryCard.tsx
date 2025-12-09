@@ -201,7 +201,7 @@ export default function SummaryCard({ stats, semester = "Fall 2025", name = "Ale
   }, []);
 
   const imgConfig = {
-    pixelRatio: window.devicePixelRatio || 2, // Standardized quality
+    pixelRatio: 2, // Standardized quality
     cacheBust: true, // Ensures images reload fresh
 
   };

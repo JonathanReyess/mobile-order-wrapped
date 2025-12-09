@@ -13,6 +13,7 @@ import json
 from google import genai
 import extract_msg
 from dotenv import load_dotenv
+from google.genai import types
 
 
 load_dotenv()
@@ -437,12 +438,16 @@ def generate_vibe():
         f"{reformatted_stats }"
     )
 
+    generation_config = types.GenerateContentConfig(
+        temperature=1.1, 
+    )
 
     try:
         
         response = GENAI_CLIENT.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt
+            model="gemini-2.5-flash-lite",
+            contents=prompt,
+            config=generation_config # <-- The new parameter
         )
         raw_text = response.candidates[0].content.parts[0].text
         print("RAW Gemini output:", raw_text)
