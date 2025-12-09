@@ -201,10 +201,17 @@ export default function SummaryCard({ stats, semester = "Fall 2025", name = "Ale
   }, []);
 
   const imgConfig = {
-    pixelRatio: 2, // Standardized quality
-    cacheBust: true, // Ensures images reload fresh
-
-  };
+    pixelRatio: 2,
+    cacheBust: true,
+    // Add this filter function
+    filter: (node) => {
+        // Exclude the SVG noise filter from the screenshot if it causes issues
+        if (node.id === 'noiseFilter' || (node.tagName === 'svg' && node.innerHTML.includes('feTurbulence'))) {
+            return false; 
+        }
+        return true;
+    }
+};
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
