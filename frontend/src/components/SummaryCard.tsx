@@ -419,7 +419,7 @@ const handleShare = async () => {
                 {/* Hero Stat */}
                 <div className="relative mb-2 py-1"> 
                   <div className="flex flex-col leading-[0.8]">
-                    <span className="text-[72px] font-display tracking-tighter">
+                    <span className="text-[72px] font-display">
                       {stats.total_items_ordered}
                     </span>
                     <span className="text-xl font-bold uppercase tracking-tight ml-1 opacity-90">Items Ordered</span>

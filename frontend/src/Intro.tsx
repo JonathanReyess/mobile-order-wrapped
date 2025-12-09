@@ -120,16 +120,32 @@ const handleMouseMove = useCallback((e: MouseEvent) => {
 
     // --- EXIT Timeline (New) ---
     exitTl.current.call(() => {
-      tiltEnabledRef.current = false; // ⭐ Stop tilt from overriding opacity
+      tiltEnabledRef.current = false; // ⭐ Stop tilt from overriding opacity/position
     })
-    
+
+    // 💡 NEW: Text exits to the left, Start button fades out
     .to(
-      [textCalloutRef.current, startBtnRef.current], // Removed textSubRef
-      { opacity: 0, y: 30, stagger: 0.1, duration: 0.4, ease: "power1.inOut" }
+      textCalloutRef.current,
+      { 
+        opacity: 0, 
+        x: '-200%', // Animate the X position off-screen to the left
+        duration: 0.6, 
+        ease: "power2.inOut" 
+      }
+    )
+    .to(
+        startBtnRef.current,
+        { 
+          opacity: 0, 
+          y: 30, 
+          duration: 0.4, 
+          ease: "power1.inOut" 
+        },
+        '<' // Start the button fade at the same time as the text move
     )
     .to(panels, 
       { opacity: 0, duration: 0.8 }, 
-      "<" // Start simultaneously with text fade
+      "<" // Start simultaneously with text/button fade
     )
     .to(overlayRef.current, 
       { opacity: 1, duration: 0.5 }, 
