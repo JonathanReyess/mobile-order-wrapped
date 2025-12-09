@@ -221,45 +221,53 @@ const notificationElements = (
                 >
                   ✕
                 </button>
-                {/* 🔽 Modal Heading: Reduced text-2xl back to text-xl and mb-4 back to mb-3 */}
-                <h2 className="text-xl text-black font-semibold mb-3">How to Export Receipts</h2>
+              {/* 🔽 Modal Heading: Reduced text-2xl back to text-xl and mb-4 back to mb-3 */}
+              <h2 className="text-xl text-black font-semibold mb-3">How to Export Receipts</h2>
 
-                {/* 🔽 Warning Box: Reduced text-base back to text-sm and p-4 back to p-3 */}
-                <div className="mb-4 p-3 border-l-4 border-yellow-400 bg-yellow-100 text-sm text-gray-800 rounded">
-                  ⚠️ This only works on a desktop or laptop <strong>with the Outlook app installed</strong>.
-                </div>
+              {/* 🔽 Warning Box: Reduced text-base back to text-sm and p-4 back to p-3 */}
+              <div className="mb-4 p-3 border-l-4 border-yellow-400 bg-yellow-100 text-sm text-gray-800 rounded">
+                ⚠️ <strong>IMPORTANT:</strong> This process requires a desktop or laptop and the <strong>Outlook App</strong> (not the web version) installed.
+              </div>
 
-                {/* 🔽 Instruction Text: Reduced text-base back to text-sm */}
-                <p className="text-sm text-gray-700 mb-2">1) Open Outlook and paste this in the search bar:</p>
-                <div className="flex items-center space-x-2 mb-4">
-                  <input
-                    readOnly
-                    value={`from:mobileorder@transactcampus.com AND received>=2025-08-18 AND received<=2025-12-8`}
-                    // 🔽 Input: Reduced px-3 py-2 back to px-2 py-1 and text-base back to text-sm
-                    className="flex-1 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-2 py-1 rounded text-sm font-mono shadow-sm"
-                  />
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        "from:mobileorder@transactcampus.com AND received>=2025-08-18 AND received<=2025-12-8"
-                      );
-                      setCopied(true);
-                      setTimeout(() => setCopied(false), 2000);
-                    }}
-                    // 🔽 Copy Button: Reduced py-2 back to py-1 and text-base back to text-sm
-                    className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition min-w-[72px]"
-                  >
-                    {copied ? "Copied!" : "Copy"}
-                  </button>
-                </div>
+              {/* 📢 NEW PRIVACY STATEMENT */}
+              <p className="text-sm text-gray-700 mb-3">
+                <strong>Your Privacy Matters:</strong> This app <strong>never</strong> reads your entire mailbox. The search code below filters for <code>mobileorder@transactcampus</code> receipts within the semester dates.
+              </p>
+              {/* 📢 END NEW PRIVACY STATEMENT */}
 
-                {/* 🔽 Instruction Text: Reduced text-base back to text-sm */}
-                <p className="text-sm text-gray-700 mb-1">2) Scroll to load all emails.</p>
-                <p className="text-sm text-gray-700 mb-1">3) Ctrl+A (Windows) or ⌘+A (Mac) to select.</p>
-                <p className="text-sm text-gray-700">4) Drag and drop them into this page.</p>
+              {/* 🔽 Instruction Text: Updated step 1 text */}
+              <p className="text-sm text-gray-700 mb-2">1) <strong>Search & Filter:</strong> Open the Outlook App and paste this into the search bar:</p>
+              <div className="flex items-center space-x-2 mb-4">
+                <input
+                  readOnly
+                  value={`from:mobileorder@transactcampus.com AND received>=2025-08-18 AND received<=2025-12-8`}
+                  // 🔽 Input: Reduced px-3 py-2 back to px-2 py-1 and text-base back to text-sm
+                  className="flex-1 border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-2 py-1 rounded text-sm font-mono shadow-sm"
+                />
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      "from:mobileorder@transactcampus.com AND received>=2025-08-18 AND received<=2025-12-8"
+                    );
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  // 🔽 Copy Button: Reduced py-2 back to py-1 and text-base back to text-sm
+                  className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition min-w-[72px]"
+                >
+                  {copied ? "Copied!" : "Copy"}
+                </button>
+              </div>
+
+              {/* 🔽 Instruction Text: Updated step 2 text */}
+              <p className="text-sm text-gray-700 mb-1">2) <strong>Load All:</strong> In the search results, scroll down repeatedly until all matching receipts have loaded.</p>
+              {/* 🔽 Instruction Text: Updated step 3 text */}
+              <p className="text-sm text-gray-700 mb-1">3) <strong>Select All:</strong> Click any email in the results, then press Ctrl+A (PC) or ⌘+A (Mac).</p>
+              {/* 🔽 Instruction Text: Updated step 4 text */}
+              <p className="text-sm text-gray-700">4) <strong>Drag & Drop:</strong> Drag the selected emails directly onto this web page.</p>
               </motion.div>
-            </div>
-          )}
+              </div>
+              )}
 
           {/* 🔽 Main H1: Reduced text-6xl back to text-5xl and mb-10 back to mb-8 */}
           <h1 className="text-5xl font-extrabold text-center mb-8 text-white font-[Manrope] tracking-tight leading-tight">
