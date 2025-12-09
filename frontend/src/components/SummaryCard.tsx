@@ -201,17 +201,10 @@ export default function SummaryCard({ stats, semester = "Fall 2025", name = "Ale
   }, []);
 
   const imgConfig = {
-    pixelRatio: 2,
-    cacheBust: true,
-    // Add this filter function
-    filter: (node: { id: string; tagName: string; innerHTML: string | string[]; }) => {
-        // Exclude the SVG noise filter from the screenshot if it causes issues
-        if (node.id === 'noiseFilter' || (node.tagName === 'svg' && node.innerHTML.includes('feTurbulence'))) {
-            return false; 
-        }
-        return true;
-    }
-};
+    pixelRatio: 2, // Standardized quality
+    cacheBust: true, // Ensures images reload fresh
+
+  };
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -243,8 +236,18 @@ export default function SummaryCard({ stats, semester = "Fall 2025", name = "Ale
     try {
       // 4. Small timeout to allow DOM layout to settle after GSAP reset
       await new Promise((resolve) => setTimeout(resolve, 100));
-
-      const dataUrl = await toPng(cardRef.current, finalConfig);
+      const width = cardRef.current.clientWidth;
+      const height = cardRef.current.clientHeight;
+      const dataUrl = await toPng(cardRef.current, {
+        ...imgConfig,
+        width: width,
+        height: height,
+        style: {
+            // Flatten the hierarchy for the snapshot
+            margin: '0',
+            transform: 'scale(1)', 
+        }
+    });
       
       download(dataUrl, `mobile-order-wrapped-${semester.replace(" ", "-")}.png`);
       
