@@ -385,7 +385,9 @@ const handleDownload = async () => {
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex flex-col">
                     {/* MODIFIED: text-[9px] changed to text-[8px] to prevent line break */}
-                    <div className={`text-[8px] font-bold tracking-widest uppercase mb-1 opacity-80 ${subTextColor}`}>Mobile Order Wrapped</div>
+                    <div className={`text-[8px] font-bold tracking-widest uppercase mb-1 opacity-80 ${subTextColor} whitespace-nowrap`}>
+  Mobile Order Wrapped
+</div>
                     <div className={`text-sm font-black tracking-tight ${anonymize ? 'blur-sm select-none' : ''}`}>
                       {anonymize ? "HIDDEN NAME" : (name || "USER")}
                     </div>
