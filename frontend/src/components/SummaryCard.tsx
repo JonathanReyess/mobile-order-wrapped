@@ -218,41 +218,53 @@ const imgConfig = {
     return true;
   },
 };
+// 1. Define your font URL exactly as it appears in index.html
+const GOOGLE_FONT_URL = "https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Space+Grotesk:wght@300..700&display=swap";
+
+// ... inside your component ...
 
 const handleDownload = async () => {
   if (!cardRef.current) return;
 
   // 1. Force clear 3D transforms (GSAP)
-  // We clear "all" to ensure no rotation/perspective interferes with the snapshot coordinates
   if (tiltRef.current) gsap.set(tiltRef.current, { clearProps: "all" });
 
   try {
-    // 2. Wait for fonts to be ready (Crucial for Safari text measurement)
+    // 2. FETCH FONTS MANUALLY
+    // We fetch the CSS text from Google so we can embed it directly.
+    // This bypasses the <link> tag security restriction in Safari.
+    let fontCss = "";
+    try {
+      const resp = await fetch(GOOGLE_FONT_URL);
+      fontCss = await resp.text();
+    } catch (fontError) {
+      console.warn("Could not fetch fonts for export", fontError);
+    }
+
+    // 3. Wait for document fonts to be ready (Layout check)
     await document.fonts.ready;
-    
-    // 3. Small timeout to allow the DOM layout to settle after the GSAP reset
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    // 4. Get dynamic dimensions 
-    // We read the current width/height so we don't have to hardcode "360/540"
+    // 4. Get dynamic dimensions
     const width = cardRef.current.offsetWidth;
     const height = cardRef.current.offsetHeight;
 
     const dataUrl = await toPng(cardRef.current, {
       ...imgConfig,
-      width: width, 
+      width: width,
       height: height,
+      // 5. INJECT THE FETCHED CSS HERE
+      fontEmbedCSS: fontCss, 
       style: {
-        transform: 'scale(1)', // Ensure the snapshot is at 100% scale
-        margin: '0',           // Remove any potential external margins
-        transformOrigin: 'top left'
+        transform: 'scale(1)',
+        margin: '0',
+        transformOrigin: 'top left',
+        fontFamily: 'Inter, sans-serif', // Enforce fallback on the wrapper
       },
     });
 
-    // 5. Trigger Download
     download(dataUrl, `mobile-order-wrapped-${semester.replace(" ", "-")}.png`);
 
-    // 6. Confetti Success
     confetti({
       particleCount: 150,
       spread: 70,
@@ -268,35 +280,42 @@ const handleDownload = async () => {
   }
 };
 
-  const handleShare = async () => {
-    if (!cardRef.current) return;
-    if (tiltRef.current) gsap.set(tiltRef.current, { clearProps: "transform" });
-    
+const handleShare = async () => {
+  if (!cardRef.current) return;
+  if (tiltRef.current) gsap.set(tiltRef.current, { clearProps: "transform" });
+  
+  try {
+    // Fetch fonts for Share action too
+    let fontCss = "";
     try {
-      // Use exact same config as download
-      const blob = await toBlob(cardRef.current, imgConfig); 
-      
-      if (!blob) throw new Error("Could not generate image blob");
-      
-      const file = new File([blob], `mobile-order-wrapped-${semester.replace(" ", "-")}.png`, { type: "image/png" });
-      
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ 
-          files: [file], 
-          title: `My Mobile Order Wrapped`, 
-          text: `${topRestaurantName} is why I'm out of food points! Find out why you're out on https://mobileorderwrapped.com`
-        });
-      } else {
-        // Fallback to download if sharing isn't supported
-        handleDownload();
-      }
-    } catch (err: any) {
-      // If user cancels share or it fails, fallback to download
-      if (err.name !== "AbortError" && err.name !== "NotAllowedError") {
-        handleDownload();
-      }
+      const resp = await fetch(GOOGLE_FONT_URL);
+      fontCss = await resp.text();
+    } catch (e) { console.warn("Font fetch failed for share"); }
+
+    const blob = await toBlob(cardRef.current, {
+        ...imgConfig,
+        fontEmbedCSS: fontCss, // Inject here as well
+    }); 
+    
+    if (!blob) throw new Error("Could not generate image blob");
+    
+    const file = new File([blob], `mobile-order-wrapped-${semester.replace(" ", "-")}.png`, { type: "image/png" });
+    
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ 
+        files: [file], 
+        title: `My Mobile Order Wrapped`, 
+        text: `${topRestaurantName} is why I'm out of food points! Find out why you're out on https://mobileorderwrapped.com`
+      });
+    } else {
+      handleDownload();
     }
-  };
+  } catch (err: any) {
+    if (err.name !== "AbortError" && err.name !== "NotAllowedError") {
+      handleDownload();
+    }
+  }
+};
 
   // Data Processing
   const topItems = [...stats.item_counts].sort((a, b) => b.count - a.count).slice(0, 5);
