@@ -199,68 +199,74 @@ export default function SummaryCard({ stats, semester = "Fall 2025", name = "Ale
       container.removeEventListener("mouseleave", resetMouseMove);
     };
   }, []);
-
-  const imgConfig = {
-    pixelRatio: 2, // Standardized quality
-    cacheBust: true, // Ensures images reload fresh
-
-  };
-
-  const handleDownload = async () => {
-    if (!cardRef.current) return;
-
-    // 1. Force clear 3D transforms
-    if (tiltRef.current) gsap.set(tiltRef.current, { clearProps: "all" });
-
-    // 2. Wait for fonts to be ready
-    try {
-        await document.fonts.ready;
-    } catch (e) {
-        // Fallback if browser doesn't support fonts.ready
+// --- Updated Configuration ---
+const imgConfig = {
+  quality: 1,
+  pixelRatio: 2, // Hardcoded for consistency across devices
+  cacheBust: true,
+  // CRITICAL FIX FOR SAFARI: Exclude the SVG noise filter from the snapshot.
+  // Safari struggles to serialize <feTurbulence> inside a canvas.
+  filter: (node: HTMLElement) => {
+    const exclusionClasses = ['noise-overlay', 'exclude-from-export'];
+    if (node.classList) {
+       for (const cls of exclusionClasses) {
+           if (node.classList.contains(cls)) return false;
+       }
     }
+    // Also exclude the specific SVG defs if identified by ID
+    if (node.id === 'noiseFilter') return false;
+    return true;
+  },
+};
 
-    // 3. Configuration specific for Safari stability
-    const finalConfig = {
+const handleDownload = async () => {
+  if (!cardRef.current) return;
+
+  // 1. Force clear 3D transforms (GSAP)
+  // We clear "all" to ensure no rotation/perspective interferes with the snapshot coordinates
+  if (tiltRef.current) gsap.set(tiltRef.current, { clearProps: "all" });
+
+  try {
+    // 2. Wait for fonts to be ready (Crucial for Safari text measurement)
+    await document.fonts.ready;
+    
+    // 3. Small timeout to allow the DOM layout to settle after the GSAP reset
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // 4. Get dynamic dimensions 
+    // We read the current width/height so we don't have to hardcode "360/540"
+    const width = cardRef.current.offsetWidth;
+    const height = cardRef.current.offsetHeight;
+
+    const dataUrl = await toPng(cardRef.current, {
       ...imgConfig,
-      pixelRatio: 2, // Hardcode this! Do not use window.devicePixelRatio for export
-      width: 360, // Force explicit width matching your max-w-[360px]
-      height: 540, // Force explicit height (approx based on aspect ratio)
+      width: width, 
+      height: height,
       style: {
-        transform: 'none', // Ensure no transforms on the clone
-        margin: '0',
+        transform: 'scale(1)', // Ensure the snapshot is at 100% scale
+        margin: '0',           // Remove any potential external margins
+        transformOrigin: 'top left'
       },
-      // This helps Safari render webfonts correctly in the canvas
-      fontEmbedCSS: document.head.querySelector('style')?.innerText || '', 
-    };
-
-    try {
-      // 4. Small timeout to allow DOM layout to settle after GSAP reset
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      const width = cardRef.current.clientWidth;
-      const height = cardRef.current.clientHeight;
-      const dataUrl = await toPng(cardRef.current, {
-        ...imgConfig,
-        width: width,
-        height: height,
-        style: {
-            // Flatten the hierarchy for the snapshot
-            margin: '0',
-            transform: 'scale(1)', 
-        }
     });
-      
-      download(dataUrl, `mobile-order-wrapped-${semester.replace(" ", "-")}.png`);
-      
-      confetti({ 
-        particleCount: 150, 
-        spread: 70, 
-        origin: { y: 0.6 }, 
-        colors: activeTheme.id === 'deepocean' ? ['#40e0d0', '#003366', '#ffffff'] : (activeTheme.id === 'noir' ? ['#0a0a0a', '#ffffff'] : ['#ffffff', '#fbbf24', '#f472b6']) 
-      });
-    } catch (e) {
-      console.error("Download failed", e);
-    }
-  };
+
+    // 5. Trigger Download
+    download(dataUrl, `mobile-order-wrapped-${semester.replace(" ", "-")}.png`);
+
+    // 6. Confetti Success
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: activeTheme.id === 'deepocean' 
+        ? ['#40e0d0', '#003366', '#ffffff'] 
+        : (activeTheme.id === 'noir' ? ['#0a0a0a', '#ffffff'] : ['#ffffff', '#fbbf24', '#f472b6'])
+    });
+
+  } catch (e) {
+    console.error("Download failed", e);
+    alert("Oops! Could not generate image. Please try taking a screenshot instead.");
+  }
+};
 
   const handleShare = async () => {
     if (!cardRef.current) return;
