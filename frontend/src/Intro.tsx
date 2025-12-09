@@ -37,6 +37,9 @@ const Intro: React.FC = () => {
   // --- Start Handler (Logic for exiting) ---
   const handleStart = useCallback(() => {
     tiltEnabledRef.current = false; 
+    if (textCalloutRef.current) {
+      gsap.killTweensOf(textCalloutRef.current);
+    }
     // Check if the exit timeline exists and is not running
     if (exitTl.current && !exitTl.current.isActive()) {
       exitTl.current.play();
