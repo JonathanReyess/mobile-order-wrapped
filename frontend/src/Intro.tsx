@@ -36,6 +36,7 @@ const Intro: React.FC = () => {
 
   // --- Start Handler (Logic for exiting) ---
   const handleStart = useCallback(() => {
+    tiltEnabledRef.current = false; 
     // Check if the exit timeline exists and is not running
     if (exitTl.current && !exitTl.current.isActive()) {
       exitTl.current.play();
@@ -119,12 +120,10 @@ const handleMouseMove = useCallback((e: MouseEvent) => {
 
 
     // --- EXIT Timeline (New) ---
-    exitTl.current.call(() => {
-      tiltEnabledRef.current = false; // ⭐ Stop tilt from overriding opacity/position
-    })
+  
 
     // 💡 NEW: Text exits to the left, Start button fades out
-    .to(
+    exitTl.current.to(
       textCalloutRef.current,
       { 
         opacity: 0, 
