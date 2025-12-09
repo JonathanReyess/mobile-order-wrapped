@@ -351,7 +351,7 @@ const notificationElements = (
           <p className="text-sm text-gray-100 mt-6 text-center">
             Questions or issues?{" "}
             <a
-              href="mailto:wrappedmobileorder@gmail.com"
+              href="https://docs.google.com/forms/d/e/1FAIpQLSfK6e4oIKK-aSV6Bw1E7sdxJ7j_0ogf-61Qbd2HAZn_1N3BVw/viewform?usp=publish-editor"
               className="text-blue-400 underline hover:text-blue-200 transition"
             >
               Contact us
