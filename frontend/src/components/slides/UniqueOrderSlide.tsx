@@ -12,9 +12,10 @@ const UniqueOrdersSlide: React.FC<UniqueOrdersSlideProps> = ({
 }) => {
   const prefix = "You ordered ";
   const numStr = totalUniqueItems.toString();
-  const suffix = totalUniqueItems === 1
-    ? " unique meal this semester."
-    : " different meals this semester.";
+  const suffix =
+    totalUniqueItems === 1
+      ? " unique meal this semester."
+      : " different meals this semester.";
 
   const fullLine1 = prefix + numStr + suffix;
   const numStart = prefix.length;
@@ -76,7 +77,7 @@ const UniqueOrdersSlide: React.FC<UniqueOrdersSlideProps> = ({
   const fade = {
     initial: { opacity: 0 },
     animate: { opacity: 1 },
-    exit:    { opacity: 0 },
+    exit: { opacity: 0 },
   };
 
   // Render first line with number highlighted
@@ -85,7 +86,9 @@ const UniqueOrdersSlide: React.FC<UniqueOrdersSlideProps> = ({
     .split("")
     .map((char, i) =>
       i >= numStart && i < numEnd ? (
-        <span key={i} className="text-lime-400">{char}</span> // NEW: Neon Green Highlight
+        <span key={i} className="text-lime-400">
+          {char}
+        </span> // NEW: Neon Green Highlight
       ) : (
         <React.Fragment key={i}>{char}</React.Fragment>
       )
