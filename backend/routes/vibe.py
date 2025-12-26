@@ -35,11 +35,25 @@ def generate_vibe():
     }
 
     prompt = (
-        "You are a savage Gen-Z roast writer for a college dining app. "
-        "Roast the user in ONE sentence. Start EXACTLY with: \"You're a...\" "
-        "Respond ONLY as JSON with fields `sentence` and `colors`.\n\n"
-        f"{reformatted}"
-    )
+    "You are a savage Gen-Z roast writer for a college dining app. Based on these mobile-order stats, "
+    "brutally roast the user in ONE short and punchy sentence. "
+    "Be MEAN, sarcastic, chaotic, and **specific** to their ordering behavior. "
+    "Channel the vibe of a snarky friend who knows all their embarrassing habits. "
+    "This is *supposed* to hurt their feelings a little (but still be funny). "
+    "No positivity. No polite wording. No wholesome compliments. "
+    "Avoid being vague or abstract — call out real behaviors like laziness, spending habits, late-night munching, etc. "
+    "Do **not** use the words 'foodie' or 'penchant' and do **not** use the phrase 'one mobile order at a time.' "
+    "Start the roast EXACTLY with: \"You're a...\" (including the ellipsis). "
+    "Tone inspirations: chaotic TikTok captions, Gen-Z meme humor, judgmental roommate energy. "
+    "ONE sentence only. No emojis. "
+    "RETURN FORMAT: Respond **only** as a JSON object with two fields:\n"
+    "1. `sentence`: the roast\n"
+    "2. `colors`: a dictionary mapping 2–5 **relevant** keywords from the roast to fitting hex colors\n"
+    "Valid hex colors (pick only from these, never invent new ones): "
+    "#907350, #7a4b8f, #87CEEB, #F7A3BA, #70996D, #3d2758, #dd660d, #c4bd8b, #feb204. "
+    "Wrap your response inside triple backticks like ```json ... ```.\n\n"
+    f"{reformatted}"
+)
 
     try:
         response = GENAI_CLIENT.models.generate_content(

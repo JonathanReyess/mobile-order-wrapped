@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import datetime, time
+from datetime import datetime
 from utils.time_utils import time_to_rotated_minutes
 
 def generate_receipt_statistics(email_data):
@@ -19,6 +19,7 @@ def generate_receipt_statistics(email_data):
         for att in entry["attachments"]:
             r = att["parsed_receipt"]
 
+            # --- Track order times for earliest/latest ---
             if ts := r.get("order_time"):
                 try:
                     dt = datetime.strptime(ts, "%Y-%m-%d %I:%M %p")
@@ -34,15 +35,33 @@ def generate_receipt_statistics(email_data):
                 except ValueError:
                     pass
 
+            # --- Track item counts ---
             for item in r.get("items", []):
-                item_counts[item["name"]] += 1
+                name = item.get("name")
+                if name:
+                    item_counts[name] += 1
 
+            # --- Track most expensive order ---
             if (t := r.get("total", 0)) > max_total:
                 max_total = t
                 most_expensive = r
 
+            # --- Track restaurant counts ---s
+            if rname := r.get("restaurant_name"):
+                restaurant_counts[rname] += 1
+
+    # --- Busiest day ---
     busiest = max(date_counts.items(), key=lambda x: x[1], default=(None, 0))
 
+    # --- Top restaurant & unique count ---
+    unique_restaurants = len(restaurant_counts)
+    if restaurant_counts:
+        top_name, top_visits = max(restaurant_counts.items(), key=lambda x: x[1])
+        top_restaurant = {"name": top_name, "count": top_visits}
+    else:
+        top_restaurant = {"name": None, "count": 0}
+
+    # --- Return statistics ---
     return (
         [{"item": k, "count": v} for k, v in sorted(item_counts.items(), key=lambda x: x[1], reverse=True)],
         most_expensive,
@@ -51,7 +70,7 @@ def generate_receipt_statistics(email_data):
         {"date": busiest[0], "order_count": busiest[1]},
         dict(restaurant_counts),
         earliest_order,
-        len(restaurant_counts),
-        {"name": None, "count": 0},
+        unique_restaurants,
+        top_restaurant,
         latest_order,
     )

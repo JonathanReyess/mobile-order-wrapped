@@ -20,27 +20,42 @@ def extract_name_from_email_header(header):
 def parse_receipt_from_html(html):
     soup = BeautifulSoup(html, "html.parser")
     text = soup.get_text("\n")
+    lines = text.splitlines()
+    receipt = {"items": []}
+
+    # Transaction ID
+    if m := re.search(r"#(\d{5,})", text):
+        receipt["transaction_id"] = m.group(1)
+
+    # Order Date & Time
+    if m := re.search(r"\d{4}-\d{2}-\d{2} \d{1,2}:\d{2} [AP]M", text):
+        receipt["order_time"] = m.group()
+
+    # Total
+    if m := re.search(r"Total\s*\$?(\d+\.\d{2})", text):
+        receipt["total"] = float(m.group(1))
+
+    # Items
+    for line in lines:
+        if re.match(r"\d+\.\s+", line):
+            receipt["items"].append({"name": line.split(".", 1)[1].strip()})
+
+    # Restaurant Name
+    for i, line in enumerate(lines):
+        if "Target:" in line:
+            for next_line in lines[i + 1:]:
+                next_line = next_line.strip()
+                if next_line and len(next_line) > 2:
+                    receipt["restaurant_name"] = next_line
+                    break
+            break
 
     required = ["Target:", "Duke University", "Transaction #"]
     if not all(r in text for r in required):
         return None
 
-    receipt = {"items": []}
-
-    if m := re.search(r"#(\d{5,})", text):
-        receipt["transaction_id"] = m.group(1)
-
-    if m := re.search(r"\d{4}-\d{2}-\d{2} \d{1,2}:\d{2} [AP]M", text):
-        receipt["order_time"] = m.group()
-
-    if m := re.search(r"Total\s*\$?(\d+\.\d{2})", text):
-        receipt["total"] = float(m.group(1))
-
-    for line in text.splitlines():
-        if re.match(r"\d+\.\s+", line):
-            receipt["items"].append({"name": line.split(".", 1)[1].strip()})
-
     return receipt
+
 
 
 def parse_single_eml(msg, filename):
