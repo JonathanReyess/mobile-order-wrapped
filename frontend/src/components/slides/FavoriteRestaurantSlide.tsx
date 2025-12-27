@@ -10,7 +10,8 @@ interface FavoriteRestaurantProps {
 // Reusing the theme constants
 const NEON_HIGHLIGHT = "text-[#E600FF]"; // Hot Pink / Magenta
 const PRIMARY_TEXT = "text-white";
-const BACKGROUND_GRADIENT = "bg-gradient-to-br from-[#0D003B] via-[#16025e] to-[#0091FF]"; // Dark Blue to Electric Blue
+const BACKGROUND_GRADIENT =
+  "bg-gradient-to-br from-[#0D003B] via-[#16025e] to-[#0091FF]"; // Dark Blue to Electric Blue
 
 const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
   uniqueCount,
@@ -19,18 +20,17 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
 }) => {
   const prefix = "You visited ";
   const numStr = uniqueCount.toString();
-  const suffix = uniqueCount < 2 
-    ? " unique restaurant." 
-    : " unique restaurants.";
-  
+  const suffix =
+    uniqueCount < 2 ? " unique restaurant." : " unique restaurants.";
+
   const fullLine1 = prefix + numStr + suffix;
   const numStart = prefix.length;
   const numEnd = numStart + numStr.length;
 
-  const line2Full = uniqueCount < 2 
-    ? "and that one holds a special place in your heart..." 
-    : "but only one holds a special place in your heart...";
-
+  const line2Full =
+    uniqueCount < 2
+      ? "and that one holds a special place in your heart..."
+      : "but only one holds a special place in your heart...";
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [idx1, setIdx1] = useState(0);
@@ -91,29 +91,38 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
       timeoutRef.current = window.setTimeout(() => setShowCrown(true), 500); // Crown appears quickly after text
     }
     return () => clearTimeout(timeoutRef.current!);
-  }, [step]); 
+  }, [step]);
 
   // Motion variants
   const fadeAndScale = {
     initial: { opacity: 0, scale: 0.95 },
     animate: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
-    exit:    { opacity: 0, scale: 1.05, transition: { duration: 0.4 } },
+    exit: { opacity: 0, scale: 1.05, transition: { duration: 0.4 } },
   };
-  
+
   // Adjusted pop for maximum visual impact (massive text with spring)
   const popReveal = {
     initial: { scale: 0.1, opacity: 0, rotate: -5 },
-    animate: { scale: 1, opacity: 1, rotate: 0, transition: { type: "spring", stiffness: 100, damping: 10 } },
-    exit:    { opacity: 0 },
+    animate: {
+      scale: 1,
+      opacity: 1,
+      rotate: 0,
+      transition: { type: "spring", stiffness: 100, damping: 10 },
+    },
+    exit: { opacity: 0 },
   };
-  
+
   // Crown drop is faster and snappier
   const dropCrown = {
     initial: { y: -100, opacity: 0, rotate: 15 },
-    animate: { y: -20, opacity: 1, rotate: 0, transition: { type: "spring", stiffness: 200, damping: 10 } },
-    exit:    { opacity: 0 },
+    animate: {
+      y: -20,
+      opacity: 1,
+      rotate: 0,
+      transition: { type: "spring", stiffness: 200, damping: 10 },
+    },
+    exit: { opacity: 0 },
   };
-
 
   // Render the first line with number highlighted
   const renderedLine1 = fullLine1
@@ -121,16 +130,19 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
     .split("")
     .map((char, i) =>
       i >= numStart && i < numEnd ? (
-        <span key={i} className={NEON_HIGHLIGHT + " font-black"}>{char}</span> // Apply Hot Pink highlight
+        <span key={i} className={NEON_HIGHLIGHT + " font-black"}>
+          {char}
+        </span> // Apply Hot Pink highlight
       ) : (
         <React.Fragment key={i}>{char}</React.Fragment>
       )
     );
 
   return (
-    <div className={`relative h-screen w-full flex flex-col items-center justify-center ${BACKGROUND_GRADIENT} ${PRIMARY_TEXT} p-4 font-sans`}>
+    <div
+      className={`relative h-screen w-full flex flex-col items-center justify-center ${BACKGROUND_GRADIENT} ${PRIMARY_TEXT} p-4 font-sans`}
+    >
       <AnimatePresence mode="wait">
-        
         {/* Step 1: Unique Restaurant Count */}
         {step === 1 && (
           <motion.p
@@ -179,7 +191,6 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
             key="final"
             className="relative flex flex-col items-center"
           >
-            
             {/* Crown Animation */}
             {showCrown && (
               <motion.span
@@ -192,7 +203,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
                 👑
               </motion.span>
             )}
-            
+
             {/* Restaurant Name Reveal */}
             <motion.h1
               key="restaurant-name"

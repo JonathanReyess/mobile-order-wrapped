@@ -39,18 +39,24 @@ const IntroSlide = ({ name, isPlaying, onComplete }: IntroSlideProps) => {
   }, [isPlaying, step, onComplete]);
 
   return (
-    <div className="
-        h-screen w-full 
-        flex flex-col items-center justify-center 
-        /* * SPOTIFY WRAPPED STYLES 
-         * Dark background with a vibrant, dynamic gradient
-         * Using deep purple and neon pink/cyan. 
-         */
-        bg-gradient-to-br from-[#1E004B] via-[#0A0724] to-[#4A003D] 
-        text-white 
-        px-4
-        font-sans /* Use a modern sans-serif font */
-      ">
+    // Replace the outer div in IntroSlide.tsx with this:
+    <div
+      className="
+    h-screen w-full 
+    flex flex-col items-center justify-center 
+    /* Animated Gradient Background */
+    bg-[length:400%_400%]
+    animate-gradient-slow
+    bg-gradient-to-br from-[#1E004B] via-[#4A003D] to-[#0A0724] 
+    text-white 
+    px-4
+    font-sans
+    relative
+    overflow-hidden
+  "
+    >
+      {/* Optional: Add a subtle grain texture overlay for that Wrapped feel */}
+      <div className="absolute inset-0 opacity-[0.25] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
       <AnimatePresence mode="wait">
         {step === 0 && (
           <motion.h1
@@ -72,7 +78,7 @@ const IntroSlide = ({ name, isPlaying, onComplete }: IntroSlideProps) => {
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.8 }}
           >
-            Hi { name ? ` ${name}` : "" }{" "}
+            Hi {name ? ` ${name}` : ""}{" "}
             <motion.span
               style={{ display: "inline-block" }}
               animate={{ rotate: [0, 20, -20, 20, -20, 0] }}
@@ -93,7 +99,8 @@ const IntroSlide = ({ name, isPlaying, onComplete }: IntroSlideProps) => {
             exit={{ opacity: 0, scale: 20 }}
             transition={{ duration: 0.75 }}
           >
-            <h1 className="
+            <h1
+              className="
                 w-full max-w-full
                 /* Massive headline for maximum impact */
                 text-[clamp(3rem,12vw,5rem)]
@@ -103,13 +110,21 @@ const IntroSlide = ({ name, isPlaying, onComplete }: IntroSlideProps) => {
                 mx-auto
                 /* Bold white text for contrast */
                 text-white
-              ">
-              Your Mobile Order <br /> <span className="
+              "
+            >
+              Your Mobile Order <br />{" "}
+              <span
+                className="
                 /* Highlighted 'Wrapped' text with another neon color */
                 text-[#FF3086] italic
-                ">Wrapped</span> is Here 🎉
+                "
+              >
+                Wrapped
+              </span>{" "}
+              is Here 🎉
             </h1>
-            <p className="
+            <p
+              className="
                 mt-6 
                 w-full
                 /* Subdued but legible secondary text */
@@ -118,8 +133,10 @@ const IntroSlide = ({ name, isPlaying, onComplete }: IntroSlideProps) => {
                 break-words
                 mx-auto
                 text-gray-200
-              ">
-              Let’s take a look at what you’ve been craving all<br/>
+              "
+            >
+              Let’s take a look at what you’ve been craving all
+              <br />
               <span className="block">semester at Duke.</span>
             </p>
           </motion.div>
