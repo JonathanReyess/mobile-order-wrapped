@@ -34,9 +34,8 @@ const Intro: React.FC = () => {
 
   // --- Start Handler (Logic for exiting) ---
   const handleStart = useCallback(() => {
-    // Check if the exit timeline exists and is not running
-    if (exitTl.current && !exitTl.current.isActive()) {
-      exitTl.current.play();
+    if (!exitTl.current?.isActive()) {
+      exitTl.current.restart();
     }
   }, []);
 
@@ -112,23 +111,36 @@ const Intro: React.FC = () => {
       tiltEnabledRef.current = true;
     });
 
+    introTl.play();
+
     // --- EXIT Timeline (New) ---
     exitTl.current
       .call(() => {
         tiltEnabledRef.current = false;
       })
+
+      // Phase 1 — TEXT + BUTTON EXIT
       .to([textCalloutRef.current, startBtnRef.current], {
         opacity: 0,
-        y: 30,
-        duration: 0.4,
-        ease: "power1.inOut",
+        y: 40,
+        duration: 0.5,
+        ease: "power2.inOut",
       })
-      .to(panels, { opacity: 0, duration: 0.6 }, "<")
-      .add(() => {
-        // Kill looping animation BEFORE navigating
-        tl.current.pause(0);
-        tl.current.kill();
 
+      // Phase 2 — PANELS EXIT (starts AFTER text fully gone)
+      .to(
+        panels,
+        {
+          opacity: 0,
+          duration: 0.8,
+          ease: "power2.inOut",
+        },
+        ">",
+      )
+
+      // Phase 3 — Navigate
+      .add(() => {
+        tl.current.kill(); // fully destroy loop
         navigate("/upload");
       });
 
