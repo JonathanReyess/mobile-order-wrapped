@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 
 interface FavoriteRestaurantProps {
   uniqueCount: number;
@@ -101,7 +101,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
   };
 
   // Adjusted pop for maximum visual impact (massive text with spring)
-  const popReveal = {
+  const popReveal: Variants = {
     initial: { scale: 0.1, opacity: 0, rotate: -5 },
     animate: {
       scale: 1,
@@ -113,7 +113,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
   };
 
   // Crown drop is faster and snappier
-  const dropCrown = {
+  const dropCrown: Variants = {
     initial: { y: -100, opacity: 0, rotate: 15 },
     animate: {
       y: -20,
@@ -135,7 +135,7 @@ const FavoriteRestaurant: React.FC<FavoriteRestaurantProps> = ({
         </span> // Apply Hot Pink highlight
       ) : (
         <React.Fragment key={i}>{char}</React.Fragment>
-      )
+      ),
     );
 
   return (
