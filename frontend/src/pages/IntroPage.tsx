@@ -35,6 +35,7 @@ const Intro: React.FC = () => {
   // --- Start Handler (Logic for exiting) ---
   const handleStart = useCallback(() => {
     if (!exitTl.current?.isActive()) {
+      tl.current.kill(); // 🔥 fully stop and remove loop
       exitTl.current.restart();
     }
   }, []);
@@ -113,13 +114,12 @@ const Intro: React.FC = () => {
 
     introTl.play();
 
-    // --- EXIT Timeline (New) ---
     exitTl.current
       .call(() => {
         tiltEnabledRef.current = false;
       })
 
-      // Phase 1 — TEXT + BUTTON EXIT
+      // TEXT + BUTTON EXIT
       .to([textCalloutRef.current, startBtnRef.current], {
         opacity: 0,
         y: 40,
@@ -127,7 +127,10 @@ const Intro: React.FC = () => {
         ease: "power2.inOut",
       })
 
-      // Phase 2 — PANELS EXIT (starts AFTER text fully gone)
+      // ensure panels visible
+      .to(panels, { opacity: 1, duration: 0 }, "<")
+
+      // PANELS EXIT
       .to(
         panels,
         {
@@ -138,9 +141,7 @@ const Intro: React.FC = () => {
         ">",
       )
 
-      // Phase 3 — Navigate
       .add(() => {
-        tl.current.kill(); // fully destroy loop
         navigate("/upload");
       });
 
