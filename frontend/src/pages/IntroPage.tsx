@@ -17,7 +17,6 @@ const Intro: React.FC = () => {
   const bgRef = useRef<HTMLDivElement>(null);
   const textCalloutRef = useRef<HTMLHeadingElement>(null);
   const startBtnRef = useRef<HTMLButtonElement>(null); // Ref for the new button
-  const overlayRef = useRef<HTMLDivElement>(null); // Ref for the overlay
   const tiltEnabledRef = useRef(false);
 
   // 2. State to manage window dimensions
@@ -75,7 +74,7 @@ const Intro: React.FC = () => {
 
   // 4. Function to define all GSAP animations
   const addItemsToTimeline = useCallback(() => {
-    if (!bgRef.current || !overlayRef.current) return;
+    if (!bgRef.current) return;
 
     tl.current.clear();
     exitTl.current.clear(); // Clear exit timeline on resize/re-run
@@ -98,7 +97,7 @@ const Intro: React.FC = () => {
         duration: 1,
         delay: 1.2,
       },
-      0
+      0,
     );
 
     // BUTTON Entrance
@@ -106,7 +105,7 @@ const Intro: React.FC = () => {
       startBtnRef.current,
       { opacity: 0, scale: 0.5, y: 100 },
       { opacity: 1, scale: 1, y: -50, duration: 1 },
-      2 // Starts 2 seconds into the introTl
+      2, // Starts 2 seconds into the introTl
     );
 
     introTl.call(() => {
@@ -116,25 +115,20 @@ const Intro: React.FC = () => {
     // --- EXIT Timeline (New) ---
     exitTl.current
       .call(() => {
-        tiltEnabledRef.current = false; // ⭐ Stop tilt from overriding opacity
+        tiltEnabledRef.current = false;
       })
+      .to([textCalloutRef.current, startBtnRef.current], {
+        opacity: 0,
+        y: 30,
+        duration: 0.4,
+        ease: "power1.inOut",
+      })
+      .to(panels, { opacity: 0, duration: 0.6 }, "<")
+      .add(() => {
+        // Kill looping animation BEFORE navigating
+        tl.current.pause(0);
+        tl.current.kill();
 
-      .to(
-        [textCalloutRef.current, startBtnRef.current], // Removed textSubRef
-        { opacity: 0, y: 30, stagger: 0.1, duration: 0.4, ease: "power1.inOut" }
-      )
-      .to(
-        panels,
-        { opacity: 0, duration: 0.8 },
-        "<" // Start simultaneously with text fade
-      )
-      .to(
-        overlayRef.current,
-        { opacity: 1, duration: 0.5 },
-        "<0.2" // Start slightly after panel fade begins
-      )
-      .call(() => {
-        // NAVIGATE TO /about AS REQUESTED
         navigate("/upload");
       });
 
@@ -174,7 +168,7 @@ const Intro: React.FC = () => {
           rotation: 0,
           background: backgroundGradient(stopPosition),
         },
-        0
+        0,
       );
 
       // Linear rotation 1
@@ -186,7 +180,7 @@ const Intro: React.FC = () => {
           background: backgroundGradient2(stopPosition),
           ease: "linear",
         },
-        ">"
+        ">",
       );
 
       // Reordering/transformation
@@ -200,7 +194,7 @@ const Intro: React.FC = () => {
           ease: "sine.inOut",
           duration: 1,
         },
-        ">"
+        ">",
       );
 
       // Linear rotation 2
@@ -212,7 +206,7 @@ const Intro: React.FC = () => {
           background: backgroundGradient2("100%"),
           ease: "linear",
         },
-        ">"
+        ">",
       );
 
       // Set label for secondary panels start
@@ -254,7 +248,7 @@ const Intro: React.FC = () => {
             ease: "sine.inOut",
             duration: 1,
           },
-          "splitStart" + `+=${0.05 * index}`
+          "splitStart" + `+=${0.05 * index}`,
         );
 
         tl.current.to(
@@ -265,7 +259,7 @@ const Intro: React.FC = () => {
             background: backgroundGradient3,
             ease: "linear",
           },
-          ">"
+          ">",
         );
 
         tl.current.to(
@@ -280,7 +274,7 @@ const Intro: React.FC = () => {
             ease: "sine.inOut",
             duration: 1,
           },
-          ">"
+          ">",
         );
 
         tl.current.to(
@@ -291,7 +285,7 @@ const Intro: React.FC = () => {
             background: backgroundGradient3,
             ease: "linear",
           },
-          ">"
+          ">",
         );
 
         tl.current.to(
@@ -306,7 +300,7 @@ const Intro: React.FC = () => {
             ease: "sine.inOut",
             duration: 1,
           },
-          ">"
+          ">",
         );
       });
       // --- End of Panel2 Animations ---
@@ -327,7 +321,7 @@ const Intro: React.FC = () => {
             ease: "sine.inOut",
             duration: 1,
           },
-          "splitStart" + `+=${0.05 * i}`
+          "splitStart" + `+=${0.05 * i}`,
         );
       } else {
         // Remaining panels
@@ -343,7 +337,7 @@ const Intro: React.FC = () => {
             ease: "sine.inOut",
             duration: 1,
           },
-          "splitStart" + `+=${0.05 * i}`
+          "splitStart" + `+=${0.05 * i}`,
         );
 
         // Subsequent animations for remaining panels
@@ -356,7 +350,7 @@ const Intro: React.FC = () => {
             background: backgroundGradient2("100%"),
             ease: "linear",
           },
-          ">"
+          ">",
         );
 
         tl.current.to(
@@ -370,7 +364,7 @@ const Intro: React.FC = () => {
             duration: 1,
             background: backgroundGradient2("100%"),
           },
-          ">"
+          ">",
         );
 
         tl.current.to(
@@ -382,7 +376,7 @@ const Intro: React.FC = () => {
             background: backgroundGradient2("100%"),
             ease: "linear",
           },
-          ">"
+          ">",
         );
 
         tl.current.to(
@@ -396,7 +390,7 @@ const Intro: React.FC = () => {
             duration: 1,
             background: backgroundGradient2("100%"),
           },
-          ">"
+          ">",
         );
       }
     });
@@ -408,12 +402,12 @@ const Intro: React.FC = () => {
     tl.current.to(
       textCalloutRef.current,
       { left: "50%", duration: 0.01 },
-      loopDuration
+      loopDuration,
     ); // Only setting left
     tl.current.to(
       startBtnRef.current,
       { opacity: 1, scale: 1, y: -50, duration: 0.01 },
-      loopDuration
+      loopDuration,
     );
 
     // Start the timeline after all animations are added
@@ -457,12 +451,6 @@ const Intro: React.FC = () => {
           <div key={`p2-${i}`} className="panel panel2"></div>
         ))}
       </div>
-
-      {/* White flash overlay */}
-      <div
-        ref={overlayRef}
-        className="absolute inset-0 bg-white z-50 pointer-events-none opacity-0"
-      />
 
       {/* CALLOUT (H1) - Modified Text Structure for new layout */}
       <h1
