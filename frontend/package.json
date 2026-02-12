@@ -16,7 +16,7 @@
     "axios": "^1.8.4",
     "canvas-confetti": "^1.9.3",
     "downloadjs": "^1.4.7",
-    "framer-motion": "^12.8.0",
+    "framer-motion": "^12.34.0",
     "gsap": "^3.12.7",
     "html-to-image": "^1.11.13",
     "html2canvas": "^1.4.1",
