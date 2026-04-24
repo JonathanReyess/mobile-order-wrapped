@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { SkyBackground } from "../SkyBackground";
 
 // Convert "2025-04-09 8:33 AM" → "April 9 at 8:33 AM"
 function formatToMonthDayTime(dateStr: string) {
   const [datePart, timePart, meridiem] = dateStr.split(/\s+/);
   const [hourStr, minuteStr] = timePart.split(":");
-  
+
   let hour = parseInt(hourStr, 10);
   const minute = parseInt(minuteStr, 10);
 
@@ -87,29 +88,29 @@ export default function EarliestOrderSlide({
   }, [isPlaying, step]);
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-bl from-duke-light via-amber-500 to-duke-blue text-white px-4">
-      
+    <div className="relative h-screen w-full flex flex-col items-center justify-center text-white px-4 overflow-hidden">
+      {/* Sky at dawn — 5% into the 24s cycle */}
+      <SkyBackground startOffset={3} isPlaying={isPlaying} />
+
       {/* Title */}
       <motion.h2
-  className="text-3xl md:text-5xl font-arc uppercase leading-none drop-shadow-xl"
-  initial={{ opacity: 0, y: 40 }}
-  animate={step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-  transition={{ duration: 1 }}
->
-  Earliest Order ☀️ 
-</motion.h2>
-
-
-
+        className="relative z-10 text-3xl md:text-5xl font-arc uppercase leading-none drop-shadow-xl"
+        initial={{ opacity: 0, y: 40 }}
+        animate={step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+        transition={{ duration: 1 }}
+      >
+        Earliest Order
+      </motion.h2>
 
       {/* Paragraph */}
       <motion.p
-        className="mt-4 text-lg md:text-2xl text-center max-w-lg"
+        className="relative z-10 mt-4 text-lg md:text-2xl text-center max-w-lg"
         initial={{ opacity: 0 }}
         animate={step >= 2 ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 1 }}
       >
-        On <strong>{formattedDateTime}</strong>, you ordered <strong>{itemNames}</strong> from{" "}
+        On <strong>{formattedDateTime}</strong>, you ordered{" "}
+        <strong>{itemNames}</strong> from{" "}
         <strong>{order.restaurant_name}</strong>.
       </motion.p>
     </div>

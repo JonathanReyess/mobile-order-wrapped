@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { SkyBackground } from "../SkyBackground";
 
 // Utility function to convert "2025-04-12 1:02 AM" → "April 12 at 1:02 AM"
 function formatToMonthDayTime(dateStr: string) {
   const [datePart, timePart, meridiem] = dateStr.split(/\s+/);
   const [hourStr, minuteStr] = timePart.split(":");
-  
+
   let hour = parseInt(hourStr, 10);
   const minute = parseInt(minuteStr, 10);
 
@@ -65,7 +66,7 @@ export default function LatestOrderSlide({
   const elapsedTime = useRef<number>(0);
   const timerRef = useRef<number | null>(null);
 
-  const stepDelays = [250, 1750];  // 1s delay for title, then 2s for paragraph
+  const stepDelays = [250, 1750]; // 1s delay for title, then 2s for paragraph
 
   useEffect(() => {
     function startTimerForStep() {
@@ -95,26 +96,29 @@ export default function LatestOrderSlide({
   }, [isPlaying, step]);
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-tl from-duke-blue via-black to-duke-sky text-white px-4">
-      
+    <div className="relative h-screen w-full flex flex-col items-center justify-center text-white px-4 overflow-hidden">
+      {/* Sky at midnight — 83% into the 24s cycle */}
+      <SkyBackground startOffset={12} isPlaying={isPlaying} />
+
       {/* Title */}
       <motion.h2
-      className="text-3xl md:text-5xl font-arc uppercase leading-none drop-shadow-xl"
-      initial={{ opacity: 0, y: 40 }}
+        className="relative z-10 text-3xl md:text-5xl font-arc uppercase leading-none drop-shadow-xl"
+        initial={{ opacity: 0, y: 40 }}
         animate={step >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
         transition={{ duration: 1 }}
       >
-        Latest Order 🌙
+        Latest Order
       </motion.h2>
 
       {/* Paragraph */}
       <motion.p
-        className="mt-4 text-lg md:text-2xl text-center max-w-lg"
+        className="relative z-10 mt-4 text-lg md:text-2xl text-center max-w-lg"
         initial={{ opacity: 0 }}
         animate={step >= 2 ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 1 }}
       >
-        On <strong>{formattedDateTime}</strong>, you grabbed <strong>{itemNames}</strong> from{" "}
+        On <strong>{formattedDateTime}</strong>, you grabbed{" "}
+        <strong>{itemNames}</strong> from{" "}
         <strong>{order.restaurant_name}</strong>.
       </motion.p>
     </div>

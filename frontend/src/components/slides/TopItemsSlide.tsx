@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Crown } from "lucide-react";
 
-// FIX 1: Define FAST_TYPING_DURATION outside of the components
-// This constant is needed in the parent component's render function.
 const FAST_TYPING_DURATION = 1500;
 
 // --- REVISED COMPONENT: Typing Text Effect ---
@@ -14,7 +12,6 @@ const TypingText = ({
 }: {
   text: string;
   typingDuration: number;
-  // FIX 2: Removed totalStepDuration from prop definition and type
   isVisible: boolean;
 }) => {
   const [displayedText, setDisplayedText] = useState("");
@@ -23,7 +20,6 @@ const TypingText = ({
 
   useEffect(() => {
     if (!isVisible) {
-      // FIX 3 (TypeScript Error 2554): Added "" argument to setDisplayedText
       setDisplayedText("");
       currentStepRef.current = 0;
       if (animationFrameRef.current) {
@@ -32,15 +28,12 @@ const TypingText = ({
       return;
     }
 
-    // Start typing
     let startTime: number | null = null;
     const interval = typingDuration / text.length;
 
     const animate = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
       const elapsed = timestamp - startTime;
-
-      // Calculate how many characters should be displayed based on elapsed time vs typingDuration
       const targetStep = Math.min(text.length, Math.floor(elapsed / interval));
 
       if (targetStep > currentStepRef.current) {
@@ -48,11 +41,9 @@ const TypingText = ({
         setDisplayedText(text.substring(0, targetStep));
       }
 
-      // Continue animation only for the duration of the typing itself
       if (elapsed < typingDuration) {
         animationFrameRef.current = requestAnimationFrame(animate);
       } else {
-        // Ensure the full text is displayed after the typing duration is over
         setDisplayedText(text);
       }
     };
@@ -67,11 +58,10 @@ const TypingText = ({
   }, [text, typingDuration, isVisible]);
 
   return (
-    <div className="text-center font-bold italic text-2xl text-yellow-400 drop-shadow-md py-4">
+    <div className="text-center font-bold italic text-3xl text-white drop-shadow-md py-4">
       {isVisible ? (
         <>
           {displayedText}
-          {/* Flashing cursor effect: Only show cursor WHILE text is being typed */}
           {displayedText.length < text.length && (
             <motion.span
               animate={{ opacity: [1, 0] }}
@@ -90,7 +80,6 @@ const TypingText = ({
 };
 // -----------------------------------------
 
-// Define interfaces for type safety
 interface ItemCount {
   count: number;
   item: string;
@@ -109,29 +98,17 @@ export default function TopItemsSlide({
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
-  // New step definition:
-  // 0: Initial/Header Text
-  // 1: Ranks 2-5 (simultaneous appearance)
-  // 2: Typing Text effect (Fast typing + long pause)
-  // 3: Rank 1 appears
   const [step, setStep] = useState(0);
-
-  // Animation Timing Logic
   const stepStartTime = useRef<number | null>(null);
   const elapsedTime = useRef<number>(0);
   const timerRef = useRef<number | null>(null);
 
-  // Timing Delays for new steps:
-  // stepDelays[0]: Header -> Ranks 2-5 start (1000ms)
-  // stepDelays[1]: Ranks 2-5 finish -> Typing Text starts (4500ms pause, long enough for staggered ranks to finish)
-  // stepDelays[2]: Typing Text Total Time (e.g., 4500ms for 1500ms typing + 3000ms pause)
   const stepDelays = [1000, 4500, 4500];
 
   useEffect(() => {
     function startTimerForStep() {
       if (step >= stepDelays.length) return;
       stepStartTime.current = Date.now();
-
       const remainingTime = stepDelays[step] - elapsedTime.current;
 
       timerRef.current = window.setTimeout(() => {
@@ -143,132 +120,252 @@ export default function TopItemsSlide({
     if (isPlaying) {
       startTimerForStep();
     } else {
-      // Logic for PAUSE: Calculate elapsed time and clear the running timer
       if (stepStartTime.current !== null) {
         elapsedTime.current += Date.now() - stepStartTime.current;
         if (timerRef.current) clearTimeout(timerRef.current);
       }
     }
 
-    // Cleanup: Clear the timer when the component unmounts or dependencies change
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [isPlaying, step]);
 
-  // Determine visibility logic
   const showRunnersUp = step >= 1;
   const showTypingText = step === 2;
   const showRank1 = step >= 3;
 
+  const runnerUpGradients = [
+    "linear-gradient(175deg, #f8fafc 0%, #e2e8f0 100%)",
+    "linear-gradient(175deg, #f8fafc 0%, #e2e8f0 100%)",
+    "linear-gradient(175deg, #f8fafc 0%, #e2e8f0 100%)",
+    "linear-gradient(175deg, #f8fafc 0%, #e2e8f0 100%)",
+  ];
+  const runnerUpAccents = ["#003087", "#003087", "#003087", "#003087"];
+
   return (
-    // Background: Dark, warm, dramatic gradient
-    <div className="relative h-screen w-full overflow-hidden bg-gradient-to-br from-[#311616] via-red-900 to-yellow-600 text-white select-none">
-      {/* Main Content Container */}
-      <div className="relative flex flex-col items-center justify-start h-full px-4 pt-10 pb-20 sm:pt-8">
-        {/* Header Section */}
+    <div className="relative h-screen w-full overflow-hidden text-white select-none">
+      <motion.div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/lines.png')" }}
+        initial={{ clipPath: "inset(0 0 100% 0)" }}
+        animate={{ clipPath: "inset(0 0 0% 0)" }}
+        transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+      />
+
+      <div className="relative z-10 flex flex-col items-center justify-start h-full px-4 pt-10 pb-20 sm:pt-12 bg-black/40">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={step >= 0 ? { opacity: 1, y: 0 } : {}}
-          className="text-center mb-6"
+          className="text-center mb-8"
         >
-          <h3 className="text-lg font-bold uppercase tracking-widest text-orange-400 drop-shadow-sm">
-            The Heavy Hitters
-          </h3>
-          <h2 className="text-3xl md:text-4xl font-black italic tracking-tighter leading-none mt-1 drop-shadow-lg">
+          <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter leading-none drop-shadow-lg">
             TOP CRAVINGS
           </h2>
         </motion.div>
 
-        {/* The G.O.A.T (Rank 1) Container */}
-        <div className="w-full max-w-xs flex flex-col gap-3">
-          {topItems[0] && (
-            <motion.div
-              // Use showRank1 for animation logic
-              initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
-              animate={
-                showRank1 ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0 }
-              }
-              transition={{ type: "spring", bounce: 0.4, duration: 1.0 }}
-              className="relative w-full aspect-[2.5/1] bg-black/40 backdrop-blur-md border-2 border-yellow-500 rounded-2xl p-4 flex flex-col justify-between overflow-hidden shadow-[0_10px_30px_rgba(255,165,0,0.5)] mb-3"
-            >
-              <div className="flex justify-between items-start z-10">
-                <div className="bg-yellow-500 text-black font-black px-2 py-0.5 rounded text-xs uppercase tracking-bold shadow-md">
-                  #1 MOST ORDERED
-                </div>
-                <Crown
-                  className="text-yellow-400 fill-yellow-400 animate-pulse"
-                  size={24}
-                />
-              </div>
-
-              <div className="relative z-10">
-                <div className="text-2xl md:text-3xl font-black leading-tight break-words line-clamp-2">
-                  {topItems[0].item}
-                </div>
-                <div className="mt-0 text-orange-300 font-bold text-sm flex items-center gap-1.5">
-                  <span>
-                    {topItems[0].count}{" "}
-                    {topItems[0].count === 1 ? "order" : "orders"}
-                  </span>
-                  <span className="w-1 h-1 bg-white rounded-full"></span>
-                  <span className="text-white/80 font-normal text-xs uppercase">
-                    obsessed much?
-                  </span>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Runners Up (Rank 2-5) and Typing Text */}
-          <div className="flex flex-col gap-4 w-full">
+        {/* Increased max-width from max-w-xs to max-w-md for larger runners-up banners */}
+        <div className="w-full max-w-md flex flex-col items-center gap-6">
+          {/* Runners-Up Banners */}
+          <div className="flex flex-row gap-4 w-full px-2">
             {topItems.slice(1).map((item, idx) => {
               const actualRank = idx + 2;
-              const show = showRunnersUp;
-
               return (
                 <motion.div
                   key={item.item}
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={show ? { opacity: 1, x: 0 } : { opacity: 0 }}
+                  initial={{ opacity: 0, y: -50, rotateX: 45 }}
+                  animate={
+                    showRunnersUp
+                      ? { opacity: 1, y: 0, rotateX: 0 }
+                      : { opacity: 0, y: -50, rotateX: 45 }
+                  }
                   transition={{
                     type: "spring",
-                    stiffness: 300,
-                    delay: 1.0 * idx, // 1.0s stagger between ranks 2-5
+                    stiffness: 150,
+                    damping: 14,
+                    delay: 0.2 * idx,
                   }}
-                  className="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-lg p-4 pr-4 border border-white/10 shadow-lg"
+                  style={{ transformOrigin: "top center" }}
+                  className="flex-1 flex flex-col items-center"
                 >
-                  <div className="flex-shrink-0 w-10 h-10 bg-red-700/60 rounded-full flex items-center justify-center font-black text-base font-mono border border-red-500/30">
-                    {actualRank}
+                  {/* Suspension Hardware */}
+                  <div className="relative flex flex-col items-center w-full">
+                    {/* Larger Nail */}
+                    <div className="w-2 h-2 rounded-full bg-slate-300 shadow-[0_1px_2px_rgba(0,0,0,0.5)] z-20 absolute -top-1" />
+                    {/* Strings */}
+                    <svg
+                      className="w-full h-5 absolute top-0"
+                      preserveAspectRatio="none"
+                    >
+                      <line
+                        x1="50%"
+                        y1="0"
+                        x2="15%"
+                        y2="100%"
+                        stroke="rgba(255,255,255,0.4)"
+                        strokeWidth="1.5"
+                      />
+                      <line
+                        x1="50%"
+                        y1="0"
+                        x2="85%"
+                        y2="100%"
+                        stroke="rgba(255,255,255,0.4)"
+                        strokeWidth="1.5"
+                      />
+                    </svg>
+                    {/* Horizontal Hanging Rod */}
+                    <div className="w-[110%] h-2 rounded-full bg-gradient-to-b from-slate-200 to-slate-500 shadow-md z-10 mt-4" />
                   </div>
 
-                  <div className="flex-grow min-w-0">
-                    <div className="font-bold text-md truncate leading-tight">
-                      {item.item}
-                    </div>
-                  </div>
+                  {/* Banner Body with Drop Shadow wrapper */}
+                  <div
+                    className="w-full -mt-0.5"
+                    style={{
+                      filter: "drop-shadow(0px 8px 6px rgba(0,0,0,0.4))",
+                    }}
+                  >
+                    <div
+                      className="w-full relative"
+                      style={{
+                        clipPath:
+                          "polygon(0 0, 100% 0, 100% 87%, 50% 100%, 0 87%)",
+                        background: runnerUpGradients[idx],
+                        paddingBottom: "22px",
+                      }}
+                    >
+                      {/* Fabric Lighting Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-black/5 via-white/50 to-black/5 pointer-events-none" />
 
-                  <div className="flex-shrink-0 text-center">
-                    <div className="font-black text-base text-orange-400">
-                      {item.count}
-                    </div>
-                    <div className="text-xs text-white/70">
-                      {item.count === 1 ? "order" : "orders"}
+                      {/* Stitched Top Border */}
+                      <div
+                        className="w-full h-2 border-b-2 border-dashed"
+                        style={{
+                          background: runnerUpAccents[idx],
+                          borderColor: "rgba(255,255,255,0.4)",
+                        }}
+                      />
+
+                      {/* Scaled up text and spacing */}
+                      <div className="relative flex flex-col items-center text-center px-1.5 pt-3 pb-2 gap-1 z-10">
+                        <div
+                          className="font-black text-sm leading-none shadow-sm"
+                          style={{ color: runnerUpAccents[idx] }}
+                        >
+                          #{actualRank}
+                        </div>
+                        <div
+                          className="w-6 h-px"
+                          style={{ background: runnerUpAccents[idx] + "50" }}
+                        />
+                        <div className="text-[#0a1628] font-black text-xs leading-tight break-words text-center line-clamp-4 px-0.5">
+                          {item.item}
+                        </div>
+                        <div className="text-[#003087]/80 text-[10px] font-bold mt-1">
+                          {item.count}×
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
               );
             })}
-
-            {/* --- TYPING TEXT --- */}
-            <TypingText
-              text="drumroll please 🥁..."
-              typingDuration={FAST_TYPING_DURATION}
-              // Removed totalStepDuration prop to fix TypeScript warning
-              isVisible={showTypingText}
-            />
-            {/* ------------------- */}
           </div>
+
+          <TypingText
+            text="drumroll please 🥁..."
+            typingDuration={FAST_TYPING_DURATION}
+            isVisible={showTypingText}
+          />
+
+          {/* G.O.A.T — Rank 1 Championship Banner */}
+          {topItems[0] && (
+            <motion.div
+              initial={{ opacity: 0, y: -80, rotateX: 30 }}
+              animate={
+                showRank1
+                  ? { opacity: 1, y: 0, rotateX: 0 }
+                  : { opacity: 0, y: -80, rotateX: 30 }
+              }
+              transition={{ type: "spring", stiffness: 120, damping: 12 }}
+              style={{ width: "240px", transformOrigin: "top center" }} // Increased from 180px to 240px
+              className="flex flex-col items-center"
+            >
+              {/* Grand Hardware */}
+              <div className="relative flex flex-col items-center w-full">
+                {/* Big Nail */}
+                <div className="w-3 h-3 rounded-full bg-slate-300 shadow-[0_2px_4px_rgba(0,0,0,0.6)] z-20 absolute -top-1" />
+                {/* Thick Strings */}
+                <svg
+                  className="w-full h-8 absolute top-0"
+                  preserveAspectRatio="none"
+                >
+                  <line
+                    x1="50%"
+                    y1="0"
+                    x2="10%"
+                    y2="100%"
+                    stroke="rgba(255,255,255,0.7)"
+                    strokeWidth="2"
+                  />
+                  <line
+                    x1="50%"
+                    y1="0"
+                    x2="90%"
+                    y2="100%"
+                    stroke="rgba(255,255,255,0.7)"
+                    strokeWidth="2"
+                  />
+                </svg>
+                {/* Heavy Rod */}
+                <div className="w-[108%] h-3.5 rounded-full bg-gradient-to-b from-gray-200 via-gray-400 to-gray-600 shadow-lg z-10 mt-6" />
+              </div>
+
+              {/* #1 Banner Body with Drop Shadow */}
+              <div
+                className="w-full -mt-0.5"
+                style={{ filter: "drop-shadow(0px 12px 10px rgba(0,0,0,0.5))" }}
+              >
+                <div
+                  className="w-full relative"
+                  style={{
+                    clipPath: "polygon(0 0, 100% 0, 100% 88%, 50% 100%, 0 88%)",
+                    background:
+                      "linear-gradient(170deg, #f8fafc 0%, #d6e4ff 100%)",
+                    paddingBottom: "32px",
+                  }}
+                >
+                  {/* Fabric Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-white/60 to-black/10 pointer-events-none" />
+
+                  {/* Heavy Stitched Top Border */}
+                  <div className="w-full h-3 bg-[#003087] border-b-[3px] border-dashed border-white/30" />
+
+                  {/* Scaled up text and spacing */}
+                  <div className="relative flex flex-col items-center text-center px-5 pt-5 pb-2 gap-2 z-10">
+                    <Crown
+                      className="text-[#003087] fill-[#003087]/20 drop-shadow-sm"
+                      size={36}
+                    />
+                    <div className="text-[#003087] text-xs font-black uppercase tracking-[0.2em] mt-1">
+                      #1 Most Ordered
+                    </div>
+                    <div className="w-16 h-px bg-[#003087]/30 my-1 shadow-sm" />
+                    <div className="text-[#0a1628] font-black text-xl leading-tight break-words text-center line-clamp-3 drop-shadow-sm">
+                      {topItems[0].item}
+                    </div>
+                    <div className="text-[#003087]/80 font-bold text-sm mt-2">
+                      {topItems[0].count}
+                      {topItems[0].count === 1 ? " order" : " orders"}
+                    </div>
+                    <div className="text-[#003087]/50 font-bold text-[10px] uppercase tracking-wider mb-1">
+                      obsessed much?
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
     </div>

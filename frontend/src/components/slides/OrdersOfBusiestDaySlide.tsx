@@ -85,32 +85,41 @@ export default function OrdersOfBusiestDaySlide({
   }, [isPlaying, step]);
 
   return (
-    // NEW: Background Gradient (Vibrant Dark Purple/Magenta)
-    <div className="h-screen w-full flex flex-col items-center justify-start bg-gradient-to-br from-fuchsia-950 via-gray-900 to-purple-900 pt-16 pb-24 px-4 overflow-auto">
-      {/* New Title matching dark theme */}
-      <h2 className="text-3xl md:text-4xl font-bold tracking-tighter uppercase leading-none drop-shadow-xl">
-      What did you order?
+    <div
+      className="h-screen w-full flex flex-col items-center justify-start pt-16 pb-24 px-4 overflow-auto"
+      style={{
+        background: `linear-gradient(135deg, 
+          rgba(173, 216, 230, 1) 0%, 
+          rgba(100, 149, 237, 1) 6%, 
+          rgba(0, 100, 255, 1) 19%, 
+          rgba(0, 51, 153, 1) 72%, 
+          rgba(0, 0, 0, 1) 100%
+        )`,
+      }}
+    >
+      <h2 className="text-3xl md:text-4xl font-bold tracking-tighter uppercase leading-none drop-shadow-xl text-white">
+        What did you order?
       </h2>
       <div className="flex flex-wrap justify-center gap-4 w-full max-w-6xl mt-8">
         {orders.map((receipt, idx) => (
           <motion.div
             key={idx}
-            // RETAINED: Receipt Card Styling (White background, torn edge, mono font)
+            // RETAINED: Receipt Card Styling
             className="w-[40vw] max-w-xs min-w-[200px] h-[18vh] bg-white p-2 font-mono text-sm tracking-wide relative overflow-hidden bg-[url('/crumple.png')] bg-cover bg-center"
             style={{
-              clipPath: tornEdge, // RETAINED: Jagged edge
-              boxShadow: "0 10px 15px rgba(0,0,0,0.5)", // Dark shadow for depth
+              clipPath: tornEdge,
+              boxShadow: "0 10px 15px rgba(0,0,0,0.5)",
             }}
             initial={{ opacity: 0, y: 10 }}
             animate={step > idx ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
             transition={{ duration: 0.5 }}
           >
-            {/* RETAINED TEXT STYLES */}
             <p className="text-lg font-semibold text-gray-700 text-center break-words">
               {receipt.restaurant_name || "Unknown Restaurant"}
             </p>
             <p className="text-xs text-gray-600 text-center break-words">
-              Ordered at: {receipt.order_time ? formatOrderTime(receipt.order_time) : "--"}
+              Ordered at:{" "}
+              {receipt.order_time ? formatOrderTime(receipt.order_time) : "--"}
             </p>
             <ul className="mt-1 list-disc list-inside text-gray-700 break-words overflow-y-auto max-h-[6vh] pr-1">
               {receipt.items?.map((item, i) => (

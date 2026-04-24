@@ -14,7 +14,7 @@ export default function SlideNavigator({
   return (
     <>
       {/* Navigation Buttons */}
-      <div className="absolute bottom-[clamp(1rem,4vh,2rem)] inset-x-[clamp(1rem,4vw,2rem)] flex justify-center gap-[clamp(0.5rem,1vw,1.5rem)]">
+      <div className="absolute bottom-[clamp(1rem,4vh,2rem)] inset-x-[clamp(1rem,4vw,2rem)] flex justify-center gap-[clamp(0.5rem,1vw,1.5rem)] z-50">
         {["Prev", "Next"].map((label, i) => {
           const isPrev = i === 0;
           const disabled = isPrev ? current === 0 : current === total - 1;
@@ -42,7 +42,7 @@ export default function SlideNavigator({
       </div>
 
       {/* Progress Dots */}
-      <div className="absolute bottom-[clamp(0.5rem,1.65vh,1rem)] inset-x-0 flex justify-center gap-[clamp(0.25rem,0.55vw,0.75rem)]">
+      <div className="absolute bottom-[clamp(0.5rem,1.65vh,1rem)] inset-x-0 flex justify-center gap-[clamp(0.25rem,0.55vw,0.75rem)] z-50">
         {Array.from({ length: total }).map((_, idx) => (
           <span
             key={idx}
