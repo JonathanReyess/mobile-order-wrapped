@@ -74,7 +74,7 @@ export default function SummaryCard({
   const containerRef = useRef<HTMLDivElement>(null);
   const [anonymize, setAnonymize] = useState(false);
   const [activeTheme, setActiveTheme] = useState<Theme>(THEMES[0]);
-  const { cardBg, textColor, subTextColor, sticker1, sticker2 } = activeTheme;
+  const { cardBg, textColor, subTextColor } = activeTheme;
 
   // 3D Tilt Effect
   useEffect(() => {

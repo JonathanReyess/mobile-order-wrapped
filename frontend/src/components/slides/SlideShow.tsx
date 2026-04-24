@@ -35,7 +35,7 @@ export default function SlideShow({ stats }: { stats: any }) {
   const timerRef = useRef<number | null>(null);
 
   // AI Vibe logic extracted to hook
-  const { vibe, colors } = useVibe(stats);
+  const { vibe } = useVibe(stats);
 
   const slideConfigs: SlideConfig[] = [
     {
@@ -150,7 +150,6 @@ export default function SlideShow({ stats }: { stats: any }) {
         <VibeSlide
           key="vibe"
           vibe={vibe}
-          colors={colors}
           isPlaying={isPlaying}
         />
       ),

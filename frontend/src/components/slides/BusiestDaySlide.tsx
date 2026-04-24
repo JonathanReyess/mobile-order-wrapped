@@ -24,23 +24,6 @@ function formatToMonthDay(dateStr: string) {
   return { formatted, monthName };
 }
 
-function getMonthColor(month: string) {
-  const colors: Record<string, string> = {
-    January: "text-sky-300",
-    February: "text-pink-300",
-    March: "text-[#34c230]",
-    April: "text-yellow-300",
-    May: "text-[#e1c4ff]",
-    June: "text-[#E2DFD2]",
-    July: "text-orange-300",
-    August: "text-amber-400",
-    September: "text-rose-300",
-    October: "text-indigo-400",
-    November: "text-amber-500",
-    December: "text-[#248721]",
-  };
-  return colors[month] || "text-white";
-}
 
 interface BusiestDaySlideProps {
   date: string;
@@ -55,8 +38,7 @@ const BusiestDaySlide: React.FC<BusiestDaySlideProps> = ({
   orderCount,
   isPlaying,
 }) => {
-  const { formatted, monthName } = formatToMonthDay(date);
-  const monthColorClass = getMonthColor(monthName);
+  const { formatted } = formatToMonthDay(date);
 
   const line1 =
     orderCount === 1
