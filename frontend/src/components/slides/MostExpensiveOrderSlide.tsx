@@ -1,5 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
+import Lottie from "lottie-react";
+import { gsap } from "gsap";
+import "../../styles/_intro.scss";
 
 // Convert "2025-04-05 11:34 PM" → "April 5 at 11:34 PM"
 function formatToMonthDayTime(dateStr: string) {
@@ -41,7 +44,7 @@ export default function MostExpensiveOrderSlide({
 }) {
   if (!order || !order.order_time || typeof order.total !== "number") {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-gradient-to-br from-duke-slate to-duke-blue text-white px-4">
+      <div className="h-screen w-full flex items-center justify-center bg-black text-white px-4">
         <p className="text-2xl">⚠️ No “most expensive” order found.</p>
       </div>
     );
@@ -49,11 +52,20 @@ export default function MostExpensiveOrderSlide({
 
   const formattedDateTime = formatToMonthDayTime(order.order_time);
   const firstPart = `You spent $${order.total.toFixed(2)} on ${formattedDateTime}. `;
-  const secondPart = order.total > 15
-    ? "Now that’s what we call a splurge!"
-    : "You're a savvy spender — we respect the frugality!";
+  const secondPart =
+    order.total > 15
+      ? "Now that’s what we call a splurge!"
+      : "You're a savvy spender — we respect the frugality!";
   const whatDidYouOrderTitle = "What did you order?";
   const orderedItems = order.items?.map((item) => item.name) || [];
+
+  // Load Lottie animation from public folder
+  const [moneyAnimation, setMoneyAnimation] = useState<object | null>(null);
+  useEffect(() => {
+    fetch("/3D Money Icon.json")
+      .then((r) => r.json())
+      .then(setMoneyAnimation);
+  }, []);
 
   // Step control
   const [step, setStep] = useState(0);
@@ -69,6 +81,87 @@ export default function MostExpensiveOrderSlide({
   const itemElapsedTime = useRef<number>(0);
   const itemTimerRef = useRef<number | null>(null);
 
+  // Zig-zag panel animation
+  const NUM_PANELS = 10;
+  const bgRef = useRef<HTMLDivElement>(null);
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 0,
+    height: typeof window !== "undefined" ? window.innerHeight : 0,
+  });
+
+  const setupZigZag = useCallback(() => {
+    if (!bgRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    tlRef.current?.kill();
+
+    const { width, height } = windowSize;
+    const stripH = height / NUM_PANELS;
+    const gradient =
+      "linear-gradient(105deg, rgba(173,216,230,1) 0%, rgba(100,149,237,1) 6%, rgba(0,100,255,1) 19%, rgba(0,51,153,1) 72%, rgba(0,0,0,1) 100%)";
+    const panels = bgRef.current.querySelectorAll<HTMLElement>(".zz-panel");
+
+    panels.forEach((panel, i) => {
+      const fromLeft = i % 2 === 0;
+      gsap.set(panel, {
+        position: "absolute",
+        top: i * stripH,
+        left: 0,
+        width,
+        height: stripH,
+        x: fromLeft ? -width : width,
+        opacity: 0,
+        background: gradient,
+      });
+    });
+
+    const tl = gsap.timeline({ repeat: -1, paused: true });
+    tlRef.current = tl;
+
+    // Slide in from alternating sides
+    panels.forEach((panel, i) => {
+      const fromLeft = i % 2 === 0;
+      tl.fromTo(
+        panel,
+        { x: fromLeft ? -width : width, opacity: 0 },
+        { x: 0, opacity: 0.85, duration: 0.7, ease: "power3.out" },
+        i * 0.07,
+      );
+    });
+
+    // Hold, then slide back out the same side
+    tl.to(
+      panels,
+      {
+        x: (_i, el) => {
+          const i = Array.from(panels).indexOf(el as HTMLElement);
+          const fromLeft = i % 2 === 0;
+          return fromLeft ? -width : width;
+        },
+        opacity: 0,
+        duration: 0.6,
+        ease: "power2.in",
+        stagger: 0.06,
+      },
+      "+=4",
+    );
+  }, [windowSize]);
+
+  useLayoutEffect(() => {
+    setupZigZag();
+    const handleResize = () =>
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      tlRef.current?.kill();
+    };
+  }, [setupZigZag]);
+
+  useEffect(() => {
+    if (!tlRef.current) return;
+    isPlaying ? tlRef.current.play() : tlRef.current.pause();
+  }, [isPlaying]);
 
   // Step Delays (manual calculations: base delay + typing time + pauses)
   const stepDelays = [
@@ -145,19 +238,19 @@ export default function MostExpensiveOrderSlide({
 
   useEffect(() => {
     if (step !== 4) return;
-  
+
     function startItemTimer() {
       if (idx3 >= orderedItems.length) return; // Done
       itemStartTime.current = Date.now();
-  
+
       const remainingTime = 1250 - itemElapsedTime.current;
-  
+
       itemTimerRef.current = window.setTimeout(() => {
         setIdx3((prev) => prev + 1);
         itemElapsedTime.current = 0;
       }, remainingTime);
     }
-  
+
     if (isPlaying) {
       startItemTimer();
     } else {
@@ -166,29 +259,45 @@ export default function MostExpensiveOrderSlide({
         clearTimeout(itemTimerRef.current!);
       }
     }
-  
+
     return () => clearTimeout(itemTimerRef.current!);
   }, [isPlaying, idx3, step, orderedItems.length]);
-  
-  
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-black to-[#003300] via-[#006600] text-white px-4">
+    <div className="relative h-screen w-full flex flex-col items-center justify-center bg-black text-white px-4 overflow-hidden">
+      {/* Zig-zag panel background */}
+      <div ref={bgRef} className="absolute inset-0 pointer-events-none z-0">
+        {Array.from({ length: NUM_PANELS }).map((_, i) => (
+          <div key={i} className="zz-panel" />
+        ))}
+      </div>
+
+      {/* Lottie money icon */}
+      <motion.div
+        className="relative z-10 w-36 h-36"
+        initial={{ opacity: 0, scale: 0.6 }}
+        animate={
+          step >= 0 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.6 }
+        }
+        transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
+      >
+        {moneyAnimation && <Lottie animationData={moneyAnimation} loop />}
+      </motion.div>
 
       {/* Title */}
       <motion.h2
-        className="text-3xl md:text-5xl uppercase font-arc leading-none drop-shadow-xl mb-5"
+        className="relative z-10 text-3xl md:text-5xl uppercase font-arc leading-none drop-shadow-xl mb-5"
         initial={{ opacity: 0, y: 40 }}
         animate={step >= 0 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
         transition={{ duration: 1 }}
       >
-        Most Expensive Order 🤑
+        Most Expensive Order
       </motion.h2>
 
       {/* Typing Main Paragraph */}
       {step >= 1 && (
         <motion.p
-          className="text-lg md:text-2xl text-center max-w-xl"
+          className="relative z-10 text-lg md:text-2xl text-center max-w-xl"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
@@ -201,7 +310,7 @@ export default function MostExpensiveOrderSlide({
       {/* Typing "What did you order?" */}
       {step >= 3 && (
         <motion.p
-          className="mt-4 text-2xl md:text-3xl font-arc italic text-center"
+          className="relative z-10 mt-4 text-2xl md:text-3xl font-arc italic text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
@@ -213,7 +322,7 @@ export default function MostExpensiveOrderSlide({
       {/* Typing Ordered Items */}
       {step >= 4 && (
         <motion.ul
-          className="mt-2 list-disc list-inside text-lg md:text-xl text-center max-w-md"
+          className="relative z-10 mt-2 list-disc list-inside text-lg md:text-xl text-center max-w-md"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
@@ -223,7 +332,6 @@ export default function MostExpensiveOrderSlide({
           ))}
         </motion.ul>
       )}
-
     </div>
   );
 }

@@ -476,7 +476,7 @@ const Intro: React.FC = () => {
             Ready for your
           </p>
           <p className="text-[6vw] font-extrabold text-[#ee209c] text-left w-[45vw] leading-none pl-[6vw]">
-            Fall 2025
+            Spring 2026
           </p>
           <p className="text-[6vw] font-extrabold text-[#ee209c] text-right w-[50vw] leading-none">
             Wrapped?

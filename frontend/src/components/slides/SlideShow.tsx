@@ -46,7 +46,7 @@ export default function SlideShow({ stats }: { stats: any }) {
           isPlaying={isPlaying}
         />
       ),
-      duration: 8000,
+      duration: 7000,
     },
     {
       element: (
@@ -86,7 +86,7 @@ export default function SlideShow({ stats }: { stats: any }) {
           isPlaying={isPlaying}
         />
       ),
-      duration: 10000,
+      duration: 12000,
     },
     {
       element: (
@@ -97,7 +97,7 @@ export default function SlideShow({ stats }: { stats: any }) {
           isPlaying={isPlaying}
         />
       ),
-      duration: 10000,
+      duration: 11000,
     },
     {
       element: (
@@ -109,7 +109,7 @@ export default function SlideShow({ stats }: { stats: any }) {
       ),
       duration: Math.max(
         6000,
-        Math.min(stats.busiest_day_orders.length, 12) * 1600
+        Math.min(stats.busiest_day_orders.length, 12) * 1600,
       ),
     },
     {
@@ -120,7 +120,7 @@ export default function SlideShow({ stats }: { stats: any }) {
           isPlaying={isPlaying}
         />
       ),
-      duration: 7000,
+      duration: 9000,
     },
     {
       element: (
@@ -130,7 +130,7 @@ export default function SlideShow({ stats }: { stats: any }) {
           isPlaying={isPlaying}
         />
       ),
-      duration: 7000,
+      duration: 9000,
     },
     {
       element: (
@@ -142,7 +142,7 @@ export default function SlideShow({ stats }: { stats: any }) {
       ),
       duration: Math.max(
         16000,
-        14000 + stats.most_expensive_order.items.length * 1250
+        14000 + stats.most_expensive_order.items.length * 1250,
       ),
     },
     {
@@ -244,7 +244,7 @@ export default function SlideShow({ stats }: { stats: any }) {
         dx < 0 ? nextSlide() : prevSlide();
       }
     },
-    { axis: "x", filterTaps: true, threshold: 10 }
+    { axis: "x", filterTaps: true, threshold: 10 },
   );
 
   return (

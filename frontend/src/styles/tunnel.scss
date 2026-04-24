@@ -1,0 +1,56 @@
+body {
+  overflow: hidden;
+  background-color: #000;
+}
+
+$number-of-panels: 12;
+
+.panel1 {
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  position: absolute;
+  will-change: transform, opacity;
+
+  @for $i from 1 through $number-of-panels {
+    &:nth-of-type(#{$i}) {
+      z-index: $number-of-panels - $i;
+
+      $stop-position: 100% - ($i * 1%);
+
+      background: linear-gradient(
+        105deg,
+        rgba(173, 216, 230, 1) 0%,
+        /* Light Sky Blue */ rgba(100, 149, 237, 1) 6%,
+        /* Cornflower Blue */ rgba(0, 100, 255, 1) 19%,
+        /* Bright Blue */ rgba(0, 51, 153, 1) 72%,
+        /* Dark Blue/Navy */ rgba(0, 0, 0, 1) $stop-position /* Black Core */
+      );
+    }
+  }
+}
+
+.panel2 {
+  width: 0;
+  height: 0;
+  background: #000;
+  position: absolute;
+  will-change: transform, opacity;
+
+  @for $i from 1 through $number-of-panels {
+    &:nth-of-type(#{$i + $number-of-panels}) {
+      z-index: $number-of-panels - $i;
+
+      $stop-position: 100% - ($i * 1%);
+
+      background: linear-gradient(
+        105deg,
+        rgba(173, 216, 230, 1) 0%,
+        /* Light Sky Blue */ rgba(100, 149, 237, 1) 6%,
+        /* Cornflower Blue */ rgba(0, 100, 255, 1) 19%,
+        /* Bright Blue */ rgba(0, 51, 153, 1) 72%,
+        /* Dark Blue/Navy */ rgba(0, 0, 0, 1) $stop-position /* Black Core */
+      );
+    }
+  }
+}

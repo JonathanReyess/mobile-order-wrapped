@@ -2,12 +2,10 @@ import { useRef, useState, useEffect } from "react";
 import { toPng, toBlob } from "html-to-image";
 // Modular Imports
 import { THEMES, Theme } from "../../styles/themes";
-import { formatToMonthDay } from "../../utils/dateUtils";
 import {
   ShareIcon,
   DownloadIcon,
   TrophyIcon,
-  DollarIcon,
   UserIcon,
   IncognitoIcon,
 } from "./Icons";
@@ -189,7 +187,7 @@ export default function SummaryCard({
 
       download(
         dataUrl,
-        `mobile-order-wrapped-${semester.replace(" ", "-")}.png`
+        `mobile-order-wrapped-${semester.replace(" ", "-")}.png`,
       );
 
       confetti({
@@ -200,13 +198,13 @@ export default function SummaryCard({
           activeTheme.id === "deepocean"
             ? ["#40e0d0", "#003366", "#ffffff"]
             : activeTheme.id === "noir"
-            ? ["#0a0a0a", "#ffffff"]
-            : ["#ffffff", "#fbbf24", "#f472b6"],
+              ? ["#0a0a0a", "#ffffff"]
+              : ["#ffffff", "#fbbf24", "#f472b6"],
       });
     } catch (e) {
       console.error("Download failed", e);
       alert(
-        "Oops! Could not generate image. Please try taking a screenshot instead."
+        "Oops! Could not generate image. Please try taking a screenshot instead.",
       );
     }
   };
@@ -235,7 +233,7 @@ export default function SummaryCard({
       const file = new File(
         [blob],
         `mobile-order-wrapped-${semester.replace(" ", "-")}.png`,
-        { type: "image/png" }
+        { type: "image/png" },
       );
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -259,14 +257,8 @@ export default function SummaryCard({
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
   const [topRestaurantName, topRestaurantCount] = Object.entries(
-    stats.restaurant_counts
+    stats.restaurant_counts,
   ).sort((a, b) => b[1] - a[1])[0] || ["Unknown", 0];
-
-  const formattedBusiestDayResult = formatToMonthDay(stats.busiest_day.date);
-  const formattedBusiestDay =
-    typeof formattedBusiestDayResult === "string"
-      ? { month: "N/A", day: "N/A" }
-      : formattedBusiestDayResult;
 
   return (
     <div
@@ -289,14 +281,14 @@ export default function SummaryCard({
                   t.id === "noir"
                     ? "#777777"
                     : t.id === "midnight"
-                    ? "#55508d"
-                    : t.id === "deepocean"
-                    ? "#003366"
-                    : t.id === "matcha"
-                    ? "#B3C6A9"
-                    : t.id === "hojicha"
-                    ? "#8b4513"
-                    : "gray",
+                      ? "#55508d"
+                      : t.id === "deepocean"
+                        ? "#003366"
+                        : t.id === "matcha"
+                          ? "#B3C6A9"
+                          : t.id === "hojicha"
+                            ? "#8b4513"
+                            : "gray",
               }}
             />
           ))}
@@ -394,7 +386,7 @@ export default function SummaryCard({
                     {topItems.map((item, i) => (
                       <div key={i} className="flex items-center gap-2 group">
                         <div
-                          className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-s ${"bg-white/20 text-white"}`}
+                          className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] ${"bg-white/20 text-white"}`}
                         >
                           {i + 1}
                         </div>
@@ -411,74 +403,30 @@ export default function SummaryCard({
                       </div>
                     ))}
                   </div>
-                </div>
 
-                {/* Stickers / Floating Stats */}
-                <div className="relative h-28 mt-auto">
-                  {/* Sticker 1: Top Restaurant */}
-                  <div
-                    className={`
-                          relative 
-                          absolute top-3 left-4 p-2 pr-4 rounded-r-xl rounded-bl-xl ${sticker1} border transform -rotate-3 max-w-[55%]
-                      `}
-                  >
-                    <div className="absolute top-[-8px] right-[-5px] rotate-6 text-yellow-300 ">
+                  {/* NEW: Top Spot (Now Uncontained and Left Aligned) */}
+                  <div className="mt-6 flex items-center gap-2">
+                    <div className="w-6 h-6 flex items-center justify-center text-yellow-300">
                       <TrophyIcon />
                     </div>
-                    <div className="text-[7px] uppercase font-bold tracking-wider opacity-70">
-                      Top Spot
-                    </div>
-                    <div className="text-xs font-bold leading-tight truncate">
-                      {topRestaurantName}
-                    </div>
-                    <div className="text-[10px] opacity-80">
-                      {topRestaurantCount} visits
-                    </div>
-                  </div>
-
-                  {/* Sticker 2: Spend */}
-                  <div
-                    className={`
-                          relative 
-                          w-max
-                          absolute bottom-16 right-[-215px]
-                          p-2 pl-2 
-                          rounded-r-xl rounded-tl-xl 
-                          ${sticker2} border transform rotate-3 text-right
-                      `}
-                  >
-                    <div className="absolute top-[-7px] left-[-6px] transform -rotate-6 text-yellow-300">
-                      <DollarIcon />
-                    </div>
-                    <div className="text-[7px] uppercase font-bold tracking-wider opacity-70">
-                      Top Spend
-                    </div>
-                    <div className="text-lg text-center font-black">
-                      ${stats.most_expensive_order.total.toFixed(0)}
-                    </div>
-                    <div className="text-[8px] opacity-70 whitespace-nowrap">
-                      Single Order
-                    </div>
-                  </div>
-
-                  {/* Sticker 3: Busiest Day Badge */}
-                  <div
-                    className={`absolute -top-72 right-2 w-20 h-20 rounded-full text-white flex flex-col items-center justify-center text-center p-1 transform -rotate-12 border-4 border-white/20 z-10`}
-                  >
-                    <div className="text-[7px] uppercase font-black leading-tight whitespace-nowrap">
-                      Busiest Day
-                    </div>
-                    <div className="text-s font-black leading-none mt-0.5">
-                      {formattedBusiestDay.month}
-                    </div>
-                    <div className="text-base font-black leading-none">
-                      {formattedBusiestDay.day}
+                    <div className="flex-1 min-w-0">
+                      <div
+                        className={`text-[10px] uppercase font-bold tracking-wider opacity-70 ${subTextColor}`}
+                      >
+                        Top Spot
+                      </div>
+                      <div className="text-sm font-bold leading-tight truncate">
+                        {topRestaurantName}
+                      </div>
+                      <div className="text-[10px] opacity-80">
+                        {topRestaurantCount} visits
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Footer */}
-                <div className="-mt-5 flex justify-between items-center opacity-100">
+                {/* Footer (Removed negative margin to allow space) */}
+                <div className="mt-4 flex justify-between items-center opacity-100">
                   <div className="text-[9px] font-mono tracking-widest uppercase mx-auto">
                     mobileorderwrapped.com
                   </div>
